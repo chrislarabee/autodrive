@@ -1,3 +1,4 @@
 .idea/
 *.json
 __pycache__
+sheets/_*
