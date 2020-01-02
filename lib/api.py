@@ -39,7 +39,8 @@ class API:
             # Get the file path for the tab's parsed data:
             file_path = tab_data[2] + '/' + t
             self._save(file_path, parsed_dicts)
-            print('Values successfully downloaded and saved')
+            print('--Values successfully downloaded and saved.')
+            print(f'--Sample={parsed_dicts[0]}')
 
     @staticmethod
     def fetch_sheet_data(tab, range_token, header_row, sheet_api, sheet_id):
@@ -69,7 +70,7 @@ class API:
         rows = result.get('values', [])[1:]
 
         if not rows:
-            print(f'No data found in {tab} in range {data_range}')
+            print(f'--No data found in {tab} in range {data_range}')
 
         return rows, columns
 
