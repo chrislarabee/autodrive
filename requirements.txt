@@ -1,0 +1,4 @@
+pytest
+googleapiclient
+httplib2
+oauth2client
