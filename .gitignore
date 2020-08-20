@@ -1,4 +1,6 @@
+venv/
 .idea/
 *.json
+*.pickle
 __pycache__
-sheets/_*
+sheets/[a-z]*.py

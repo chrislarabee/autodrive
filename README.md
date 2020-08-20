@@ -15,18 +15,16 @@ Follow the steps outlined here:
 https://developers.google.com/sheets/api/quickstart/python 
 to prep your instance of python to connect to the Google Sheets API.
 
-Somehow produce a token.json file???
-
 ## Setup a Connection to a Sheet
 
-Using the `sheets/example.py` file as a guide, create a new python file in the 
+Using the `sheets/_example.py` file as a guide, create a new python file in the 
 sheets directory. You can name it whatever you want, but make sure the name is
-preceded by an _ (e.g. _mynewfile.py).
+not preceded by an _ (e.g. mynewfile.py not _mynewfile.py).
 
 This file must declare two variables: SHEET_ID and TABS.
 
 SHEET_ID is the id string of the Google Sheet you want to connect to. It can be 
-found by opening the Google Sheet in your brower and copy pasting the alpha-numeric
+found by opening the Google Sheet in your browser and copy pasting the alpha-numeric
 string between 'https://docs.google.com/spreadsheets/d/' and '/edit#gid=...' in
 the url.
 

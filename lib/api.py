@@ -1,10 +1,11 @@
 import json
 import os
+import pickle
 from importlib import import_module
 
 from googleapiclient.discovery import build
-from httplib2 import Http
-from oauth2client import file, client, tools
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
 
 
 class API:
@@ -13,7 +14,7 @@ class API:
     module from the sheets package.
     """
     def __init__(self, sheet_name):
-        self.config = import_module('sheets._' + sheet_name)
+        self.config = import_module('sheets.' + sheet_name)
         self.service = self._connect()
 
     def etl(self):
@@ -103,16 +104,25 @@ class API:
         """
         scopes = 'https://www.googleapis.com/auth/spreadsheets.readonly'
 
-        # The file token.json stores the user's access and refresh
+        creds = None
+        # The file token.pickle stores the user's access and refresh
         # tokens, and is created automatically when the authorization
         # flow completes for the first time.
-        store = file.Storage('token.json')
-        creds = store.get()
-        if not creds or creds.invalid:
-            flow = client.flow_from_clientsecrets('credentials.json', scopes)
-            creds = tools.run_flow(flow, store)
-        service = build('sheets', 'v4', http=creds.authorize(Http()))
-
+        if os.path.exists('token.pickle'):
+            with open('token.pickle', 'rb') as token:
+                creds = pickle.load(token)
+        # If there are no (valid) credentials available, let the user log in.
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    'credentials.json', scopes)
+                creds = flow.run_local_server(port=0)
+            # Save the credentials for the next run
+            with open('token.pickle', 'wb') as token:
+                pickle.dump(creds, token)
+        service = build('sheets', 'v4', credentials=creds)
         return service
 
     @staticmethod
