@@ -4,7 +4,7 @@ class Column:
     """
     Organizes defaults and validation for a column in a spreadsheet.
     """
-    def __init__(self, dtype='str', default=None):
+    def __init__(self, dtype=str, default=None):
         """
 
         :param dtype: A string, which must be one of the valid_dtypes.
@@ -12,7 +12,7 @@ class Column:
             spreadsheet has no value for this Column. Must be of a
             data type that matches dtype.
         """
-        valid_dtypes = ['any', 'str', 'int', 'bool', 'list', 'float']
+        valid_dtypes = ['any', str, int, bool, list, float]
         if dtype not in valid_dtypes:
             raise ValueError(f'Invalid dtype: {dtype}')
         self.dtype = dtype
@@ -30,17 +30,10 @@ class Column:
         :return: A boolean indicating if the passed object matches
             self.dtype.
         """
-        type_map = {
-            'str': str,
-            'int': int,
-            'bool': bool,
-            'list': list,
-            'float': float
-        }
-        if val is not None:
-            return isinstance(val, type_map[self.dtype])
-        else:
+        if val is None:
             return True
+        else:
+            return isinstance(val, self.dtype)
 
 
 class Schema:
@@ -61,10 +54,10 @@ class Schema:
         for k, v in kwargs.items():
             if isinstance(v, list) or isinstance(v, tuple):
                 c = Column(v[0], v[1])
-            elif isinstance(v, str):
-                c = Column(v)
-            else:
+            elif v is None:
                 c = Column()
+            else:
+                c = Column(v)
             setattr(self, k, c)
 
     @staticmethod
@@ -90,23 +83,18 @@ class Schema:
         Takes a string and a target data_type and attempts to convert it.
 
         :param val: A string.
-        :param data_type: A string in [float, int, bool, any].
+        :param data_type: An object in [float, int, bool, 'any'].
         :return: The converted val, or the original val if conversion failed.
         """
-        conv_funcs = {
-            'float': float,
-            'int': int,
-            'bool': Schema._bool
-        }
-        output_val = val
         if data_type == 'any':
-            for f in conv_funcs.values():
+            for f in [int, float, Schema._bool]:
                 result, output_val = Schema._try_convert(val, f)
                 if result:
                     break
+        elif data_type == bool:
+            result, output_val = Schema._try_convert(val, Schema._bool)
         else:
-            f = conv_funcs[data_type]
-            result, output_val = Schema._try_convert(val, f)
+            result, output_val = Schema._try_convert(val, data_type)
         return output_val
 
     @staticmethod
@@ -143,9 +131,9 @@ class Schema:
                 if val == '':
                     output_val = default
                 else:
-                    if data_type == 'list':
+                    if data_type == list:
                         output_val = val.split(',')
-                    elif data_type == 'str':
+                    elif data_type == str:
                         output_val = val
                     else:
                         output_val = Schema._convert(val, data_type)

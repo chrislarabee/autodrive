@@ -78,7 +78,7 @@ exactly.
 The value of the argument can be a tuple:
 ```
 s = Schema(
-    colA=('int', 0)
+    colA=(int, 0)
 )
 ```
 The first value will be used as the data type, and the second value will be used
@@ -96,8 +96,8 @@ object.
 Instead of passing a tuple, you can pass just a data type:
 ```
 s = Schema(
-    colA=('int', 0),
-    colB='float'
+    colA=(int, 0),
+    colB=float
 )
 ```
 
@@ -107,8 +107,8 @@ Finally, you can also just pass `None` as the data type, in which case the data
 type will just be `str`.
 ```
 s = Schema(
-    colA=('int', 0),
-    colB='float',
+    colA=(int, 0),
+    colB=float,
     colC=None
 )
 ```
