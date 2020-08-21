@@ -3,6 +3,7 @@ import os
 import pickle
 from importlib import import_module
 
+import jsonlines
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -136,9 +137,8 @@ class API:
         :param data: A list of dictionaries.
         :return: None
         """
-        f = file_path + '.json'
-        if os.path.exists(f):
-            os.remove(f)
-        with open(f, 'a') as a:
-            for d in data:
-                a.write(json.dumps(d) + '\r')
+        file_path += '.jsonl'
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        with jsonlines.open(file_path, mode='w') as w:
+            w.write_all(data)
