@@ -41,7 +41,9 @@ class API:
             # Get the file path for the tab's parsed data:
             file_path = tab_data[2] + '/' + t
             self._save(file_path, parsed_dicts)
-            print('--Values successfully downloaded and saved.')
+            print(
+                f'--{len(parsed_dicts)} Values successfully downloaded and '
+                f'saved.')
             print(f'--Sample={parsed_dicts[0]}')
 
     @staticmethod
