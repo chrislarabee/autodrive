@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "gsheets-api"
+version = "0.1.0"
+description = "A simple python api for reading, writing, and formatting Google Sheets."
+authors = ["Chris Larabee"]
+license = "GNU"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+google-api-python-client = "^2.0.2"
+google-auth-httplib2 = "^0.1.0"
+google-auth-oauthlib = "^0.4.3"
+jsonlines = "^2.0.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.2"
+flake8-black = "^0.2.1"
+rope = "^0.18.0"
+pytest-mock = "^3.5.1"
+wheel = "^0.36.2"
+mypy = "^0.812"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
