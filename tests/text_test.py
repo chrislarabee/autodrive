@@ -56,14 +56,6 @@ class TestSheetsAPI:
     def test_basics(self, sheets_api):
         testing_tools.check_sheets_api_skip(sheets_api)
 
-        # Create a folder:
-        folder = f"data_genius_test_folder {dt.now()}"
-        f_id = sheets_api.create_object(folder, "folder")
-        testing_tools.created_ids.append(f_id)
-        f = sheets_api.find_object(folder, "folder")
-        assert len(f) > 0
-        assert f[0].get("name") == folder
-
         # Create a file:
         sheet = f"data_genius_test_sheet {dt.now()}"
         s_id = sheets_api.create_object(sheet, "sheet")

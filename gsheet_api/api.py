@@ -1,25 +1,31 @@
-from typing import Any, Tuple
+from typing import Tuple, List, Optional
 import os
 import pickle
 
 from googleapiclient.discovery import build, Resource
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 
+from gsheet_api.drive import Drive
 
 class API:
-    google_obj_types = dict(
-        folder="application/vnd.google-apps.folder",
-        sheet="application/vnd.google-apps.spreadsheet",
-    )
+    def __init__(self) -> None:
+        self._drive = None
+        self._sheets = None
+
+    @property
+    def drive(self) -> Optional[Drive]:
+        return self._drive
 
     def connect(self) -> Tuple[Resource, Resource]:
         drive = self._connect_drive()
         sheets = self._connect_sheets()
+        self._drive = Drive(drive)
         return drive, sheets
 
     @staticmethod
-    def _authenticate(scopes: list) -> Any:
+    def _authenticate(scopes: List[str]) -> Credentials:
         """
         Uses locally stored credentials to attempt to login to Google
         Drive. The first time it is run it will cause a web page to
@@ -35,7 +41,6 @@ class API:
 
         """
         creds = None
-
         # The file token.pickle stores the user's access and refresh tokens, and 
         # is created automatically when the authorization flow completes for the 
         # first time.
@@ -67,7 +72,6 @@ class API:
         """
         scopes = ["https://www.googleapis.com/auth/drive"]
         creds = cls._authenticate(scopes)
-
         return build("drive", "v3", credentials=creds)
 
     @classmethod
@@ -81,5 +85,4 @@ class API:
         """
         scopes = ["https://www.googleapis.com/auth/spreadsheets"]
         creds = cls._authenticate(scopes)
-
         return build("sheets", "v4", credentials=creds)
