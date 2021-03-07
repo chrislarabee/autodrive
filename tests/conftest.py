@@ -25,4 +25,3 @@ def api():
             "download google api credentials as described in the README."
         )
         return None
-
