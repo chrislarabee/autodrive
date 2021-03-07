@@ -1,5 +1,6 @@
 venv/
 .idea/
+.vscode/
 *.json
 *.pickle
 __pycache__
