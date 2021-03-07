@@ -5,7 +5,7 @@ from googleapiclient.discovery import Resource
 
 
 class Drive:
-    google_obj_types = { 
+    google_obj_types = {
         "folder": "application/vnd.google-apps.folder",
         "sheet": "application/vnd.google-apps.spreadsheet",
     }
@@ -149,7 +149,6 @@ class Drive:
             new_obj = True
             file_id = self.create_object(obj_name, obj_type, p_folder_id)
         return file_id, new_obj
-
 
     @staticmethod
     def _setup_drive_id_kwargs(drive_id: str = None) -> Dict[str, Union[str, bool]]:

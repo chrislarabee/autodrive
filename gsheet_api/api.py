@@ -10,6 +10,7 @@ from google.oauth2.credentials import Credentials
 from gsheet_api.drive import Drive
 from gsheet_api.sheets import Sheets
 
+
 class GSheetsAPI:
     def __init__(self) -> None:
         self._drive = None
@@ -47,8 +48,8 @@ class GSheetsAPI:
 
         """
         creds = None
-        # The file token.pickle stores the user's access and refresh tokens, and 
-        # is created automatically when the authorization flow completes for the 
+        # The file token.pickle stores the user's access and refresh tokens, and
+        # is created automatically when the authorization flow completes for the
         # first time.
         if os.path.exists("token.pickle"):
             with open("token.pickle", "rb") as token:
