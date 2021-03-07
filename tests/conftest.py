@@ -3,14 +3,14 @@ import warnings
 
 import pytest
 
-from gsheet_api.api import API
+from gsheet_api.api import GSheetsAPI
 from .testing_tools import CREATED_IDS
 
 
 @pytest.fixture(scope="session")
 def api():
     if os.path.exists("token.pickle") or os.path.exists("credentials.json"):
-        api = API()
+        api = GSheetsAPI()
         api.connect()
         yield api
         warnings.warn("Cleaning up google drive objects created for tests...")

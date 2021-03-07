@@ -9,7 +9,7 @@ from google.oauth2.credentials import Credentials
 
 from gsheet_api.drive import Drive
 
-class API:
+class GSheetsAPI:
     def __init__(self) -> None:
         self._drive = None
         self._sheets = None

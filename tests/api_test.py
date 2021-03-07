@@ -1,11 +1,11 @@
 from datetime import datetime as dt
 
-from gsheet_api.api import API
+from gsheet_api.api import GSheetsAPI
 from . import testing_tools
 
 class TestAPI:
     def test_connect(self):
-        connections = API().connect()
+        connections = GSheetsAPI().connect()
         assert len(connections) == 2
 
     class TestDrive:
