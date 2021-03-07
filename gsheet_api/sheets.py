@@ -3,6 +3,8 @@ import string
 
 from googleapiclient.discovery import Resource
 
+from .formatting import GSheetFormatting
+
 
 class Sheets:
     def __init__(self, resource: Resource) -> None:
@@ -216,7 +218,9 @@ class Sheets:
             .execute()
         )
 
-    def format_sheet(self, file_id: str, sheet_title: str = None):
+    def format_sheet(
+        self, file_id: str, sheet_title: str = None
+    ) -> Optional[GSheetFormatting]:
         """
         Instantiates a GSheetFormatting object for the passed Google
         Sheet and sheet title, which provides a variety of methods
@@ -232,8 +236,9 @@ class Sheets:
             to apply the formatting, or used for other purposes.
 
         """
-        sheet_id = self.get_sheet_metadata(file_id, sheet_title)["id"]
-        # return GSheetFormatting(file_id, sheet_id, self)
+        sheet_md = self.get_sheet_metadata(file_id, sheet_title)
+        if sheet_md:
+            return GSheetFormatting(file_id, int(sheet_md["id"]), self)
 
     @staticmethod
     def gen_alpha_keys(num: int) -> List[str]:
