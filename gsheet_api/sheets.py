@@ -1,4 +1,5 @@
-from typing import List, Dict, Tuple, Optional, Union
+from typing import List, Dict, Tuple, Optional, Union, Any
+import string
 
 from googleapiclient.discovery import Resource
 
@@ -167,7 +168,9 @@ class Sheets:
         )
         return result.get("updatedRows"), result.get("updatedColumns")
 
-    def get_values(self, file_id: str, sheet_title: str = None):
+    def get_values(
+        self, file_id: str, sheet_title: str = None
+    ) -> Optional[List[Optional[List[Any]]]]:
         """
         Gets all values from the passed Google Sheet id.
 
@@ -181,19 +184,21 @@ class Sheets:
 
         """
         sheet_md = self.get_sheet_metadata(file_id, sheet_title)
-        r = sheet_title + "!" if sheet_title else ""
-        last_col_alpha = u.gen_alpha_keys(sheet_md["col_limit"])
-        col_letter = last_col_alpha[sheet_md["col_limit"] - 1]
-        result = (
-            self._core.spreadsheets()
-            .values()
-            .get(
-                spreadsheetId=file_id,
-                range=f"{r}A1:{col_letter}{sheet_md['row_limit']}",
+        if sheet_md:
+            r = sheet_title + "!" if sheet_title else ""
+            col_limit = int(sheet_md["col_limit"])
+            last_col_alpha = self.gen_alpha_keys(col_limit)
+            col_letter = last_col_alpha[col_limit - 1]
+            result = (
+                self._core.spreadsheets()
+                .values()
+                .get(
+                    spreadsheetId=file_id,
+                    range=f"{r}A1:{col_letter}{sheet_md['row_limit']}",
+                )
+                .execute()
             )
-            .execute()
-        )
-        return result.get("values", [])
+            return result.get("values", [])
 
     def batch_update(self, file_id: str, requests: list):
         """
@@ -229,3 +234,26 @@ class Sheets:
         """
         sheet_id = self.get_sheet_metadata(file_id, sheet_title)["id"]
         # return GSheetFormatting(file_id, sheet_id, self)
+
+    @staticmethod
+    def gen_alpha_keys(num: int) -> List[str]:
+        """
+        Generates a set of characters from the Latin alphabet a la excel
+        headers.
+
+        Args:
+            num (int): The desired length of the set.
+
+        Returns:
+            List[str]: A list containing as many letters and letter combos as
+                desired. Can be used to generate sets up to 676 in length.
+        """
+        a = string.ascii_uppercase
+        result = list()
+        x = num // 26
+        for i in range(x + 1):
+            root = a[i - 1] if i > 0 else ""
+            keys = [root + a[j] for j in range(26)]
+            for k in keys:
+                result.append(k) if len(result) < num else None
+        return result
