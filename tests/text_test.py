@@ -57,16 +57,6 @@ class TestSheetsAPI:
         testing_tools.check_sheets_api_skip(sheets_api)
 
         # Create a file:
-        sheet = f"data_genius_test_sheet {dt.now()}"
-        s_id = sheets_api.create_object(sheet, "sheet")
-        testing_tools.created_ids.insert(0, s_id)
-        f = sheets_api.find_object(sheet, "sheet")
-        assert len(f) > 0
-        assert f[0].get("name") == sheet
-        md = sheets_api.get_sheet_metadata(s_id)
-        assert md["row_limit"] == 0
-        assert md["col_limit"] == 0
-
         # Add sheets to it:
         result = sheets_api.add_sheet(s_id)
         assert result == ("Sheet2", 1)
