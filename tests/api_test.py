@@ -25,6 +25,6 @@ class TestAPI:
                 f = api.drive.find_object(sheet, "sheet")
                 assert len(f) > 0
                 assert f[0].get("name") == sheet
-                # md = api.get_sheet_metadata(s_id)
-                # assert md["row_limit"] == 0
-                # assert md["col_limit"] == 0
+                md = api.sheets.get_sheet_metadata(s_id)
+                assert md["row_limit"] == 0
+                assert md["col_limit"] == 0

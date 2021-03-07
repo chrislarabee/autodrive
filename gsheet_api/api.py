@@ -8,6 +8,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
 from gsheet_api.drive import Drive
+from gsheet_api.sheets import Sheets
 
 class GSheetsAPI:
     def __init__(self) -> None:
@@ -18,10 +19,15 @@ class GSheetsAPI:
     def drive(self) -> Optional[Drive]:
         return self._drive
 
+    @property
+    def sheets(self) -> Optional[Sheets]:
+        return self._sheets
+
     def connect(self) -> Tuple[Resource, Resource]:
         drive = self._connect_drive()
         sheets = self._connect_sheets()
         self._drive = Drive(drive)
+        self._sheets = Sheets(sheets)
         return drive, sheets
 
     @staticmethod
