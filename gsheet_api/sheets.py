@@ -10,7 +10,7 @@ class Sheets:
     def __init__(self, resource: Resource) -> None:
         self._core = resource
 
-    def add_sheet(self, sheet_id: str, **sheet_properties):
+    def add_tab(self, sheet_id: str, **sheet_properties):
         """
         Adds a new sheet to the Google Sheet at the passed id.
 
@@ -38,10 +38,11 @@ class Sheets:
         else:
             return None
 
-    def get_sheets(self, sheet_id: str) -> List[Dict[str, dict]]:
+    def get_tabs(self, sheet_id: str) -> List[Dict[str, dict]]:
         """
-        Gets a list of sheets within the Google Sheet located at the
+        Gets a list of tabs within the Google Sheet located at the
         passed sheet_id.
+
         Args:
             sheet_id: A Google Sheet ID.
 
@@ -62,8 +63,8 @@ class Sheets:
             .get("sheets", [])
         )
 
-    def check_sheet_titles(
-        self, sheet_title: str, sheet_id: str = None, sheets: list = None
+    def check_tab_titles(
+        self, tab_title: str, sheet_id: str = None, sheets: list = None
     ) -> Optional[int]:
         """
         Checks the sheets of the Google Sheet at the passed sheet_id,
@@ -82,16 +83,16 @@ class Sheets:
 
         """
         if sheets is None and sheet_id:
-            sheets = self.get_sheets(sheet_id)
+            sheets = self.get_tabs(sheet_id)
         else:
             raise ValueError("Must pass sheet_id or sheets to check_sheet_titles.")
         idx = None
         for s in sheets:
-            if s["properties"]["title"] == sheet_title:
+            if s["properties"]["title"] == tab_title:
                 idx = s["properties"]["index"]
         return idx
 
-    def get_sheet_metadata(
+    def get_tab_metadata(
         self, sheet_id: str, sheet_title: str = None
     ) -> Optional[Dict[str, Union[str, int]]]:
         """
@@ -109,10 +110,10 @@ class Sheets:
             exist.
 
         """
-        raw = self.get_sheets(sheet_id)
+        raw = self.get_tabs(sheet_id)
         s_idx = 0
         if sheet_title:
-            s_idx = self.check_sheet_titles(sheet_title, sheets=raw)
+            s_idx = self.check_tab_titles(sheet_title, sheets=raw)
         # This MUST specify "is not None" because of truth-value of 0 index:
         if s_idx is not None:
             sheet = raw[s_idx]
@@ -152,9 +153,9 @@ class Sheets:
         """
         if sheet_title:
             r = sheet_title + "!"
-            s = self.check_sheet_titles(sheet_title, sheet_id=file_id)
+            s = self.check_tab_titles(sheet_title, sheet_id=file_id)
             if s is None:
-                self.add_sheet(file_id, title=sheet_title)
+                self.add_tab(file_id, title=sheet_title)
         else:
             r = ""
         result = (
@@ -185,7 +186,7 @@ class Sheets:
         Returns: A list of lists, the values from the sheet.
 
         """
-        sheet_md = self.get_sheet_metadata(file_id, sheet_title)
+        sheet_md = self.get_tab_metadata(file_id, sheet_title)
         if sheet_md:
             r = sheet_title + "!" if sheet_title else ""
             col_limit = int(sheet_md["col_limit"])
@@ -236,7 +237,7 @@ class Sheets:
             to apply the formatting, or used for other purposes.
 
         """
-        sheet_md = self.get_sheet_metadata(file_id, sheet_title)
+        sheet_md = self.get_tab_metadata(file_id, sheet_title)
         if sheet_md:
             return GSheetFormatting(file_id, int(sheet_md["id"]), self)
 

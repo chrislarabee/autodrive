@@ -53,23 +53,6 @@ def test_write_gsheet_and_from_gsheet(sheets_api):
 
 @pytest.mark.skip
 class TestSheetsAPI:
-    def test_basics(self, sheets_api):
-        # Add sheets to it:
-        result = sheets_api.add_sheet(s_id)
-        assert result == ("Sheet2", 1)
-
-        result = sheets_api.add_sheet(s_id, title="test title")
-        assert result == ("test title", 2)
-
-        # Create a file IN the folder:
-        sheet = f"data_genius_test_sheet_in_folder {dt.now()}"
-        sf_id = sheets_api.create_object(sheet, "sheet", f_id)
-        testing_tools.created_ids.insert(0, sf_id)
-        f = sheets_api.find_object(sheet, "sheet")
-        assert len(f) > 0
-        assert f[0].get("name") == sheet
-        assert f[0].get("parents")[0] == f_id
-
     def test_batch_update(self, sheets_api):
         testing_tools.check_sheets_api_skip(sheets_api)
 
