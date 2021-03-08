@@ -44,7 +44,12 @@ class TestAPI:
             assert result == ("test title", 2)
 
     class TestWritingAndReadingSheetValues:
-        def test_write_and_read_values_to_sheet(self):
-            pass
-
-
+        def test_write_and_read_values_to_sheet(self, api):
+            # Create a sheet to add values to:
+            sheet = f"gsheet_api_test_sheet {dt.now()}"
+            s_id = api.drive.create_object(sheet, "sheet")
+            testing_tools.CREATED_IDS.insert(0, s_id)
+            result = api.sheets.write_values(
+                s_id, [["a", "b", "c"], [1, 2, 3], [4, 5, 6]]
+            )
+            assert result == (3, 3)

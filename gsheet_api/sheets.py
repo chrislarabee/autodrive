@@ -134,7 +134,11 @@ class Sheets:
             )
 
     def write_values(
-        self, file_id: str, data: list, sheet_title: str = "", start_cell: str = "A1"
+        self,
+        file_id: str,
+        data: List[List[Any]],
+        sheet_title: str = "",
+        start_cell: str = "A1",
     ) -> Tuple[int, int]:
         """
         Writes the passed data to the passed Google Sheet.
