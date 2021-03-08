@@ -56,3 +56,14 @@ class TestAPI:
             expected = [["a", "b", "c"], ["1", "2", "3"], ["4", "5", "6"]]
             values = api.sheets.get_values(s_id)
             assert values == expected
+            # Add values that don't start at A1:
+            result = api.sheets.write_values(
+                s_id, [[7, 8]], start_cell="C4"
+            )
+            assert result == (1, 2)
+            expected = [
+                ["a", "b", "c", ""], 
+                ["1", "2", "3", ""], 
+                ["4", "5", "6", ""],
+                ["", "", "7", "8"]
+            ]
