@@ -198,11 +198,8 @@ class Sheets:
             if cell_range:
                 start, end = self._parse_cell_range(cell_range)
             else:
-                col_limit = int(tab_md["col_limit"])
-                last_col_alpha = self.gen_alpha_keys(col_limit)
-                col_letter = last_col_alpha[col_limit - 1]
                 start = "A1"
-                end = f"{col_letter}{tab_md['row_limit']}"
+                end = self.gen_last_cell(tab_md)
             result = (
                 self._core.spreadsheets()
                 .values()
@@ -216,6 +213,18 @@ class Sheets:
 
     @staticmethod
     def _parse_cell_range(cell_range: CellRange) -> Tuple[str, str]:
+        """
+        Ensures the passed CellRange is truly a tuple of two strings. If only
+        one element of the CellRange is passed, it is presumed to be the column
+        value.
+
+        Args:
+            cell_range (CellRange): Tuple of GSheet cell names (e.g. "A1", "C5").
+                May or may not be a valid row/column value tuple.
+
+        Returns:
+            Tuple[str, str]: A tuple of GSheet cell names
+        """
         if (
             len(cell_range) == 2
             and isinstance(cell_range[0], str)
@@ -224,6 +233,23 @@ class Sheets:
             return (cell_range[0], cell_range[1])
         else:
             return ("A1", cell_range[0])
+
+    @classmethod
+    def gen_last_cell(cls, tab_metadata: Dict[str, Union[str, int]]) -> str:
+        """
+        Generates the name of the bottom right-most cell in a tab, based on tab
+        metadata.
+
+        Args:
+            row_limit (int): The number of rows with data in the tab.
+            col_limit (int): The number of columns with data in the tab.
+
+        Returns:
+            str: The Google Sheet name of the last cell (e.g. Z75).
+        """
+        col_limit = int(tab_metadata["col_limit"])
+        row_limit = int(tab_metadata["row_limit"])
+        return f"{cls.gen_alpha_keys(col_limit)[col_limit - 1]}{row_limit}"
 
     def batch_update(self, file_id: str, requests: list):
         """

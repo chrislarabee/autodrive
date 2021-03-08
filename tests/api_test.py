@@ -68,11 +68,6 @@ class TestAPI:
             values = api.sheets.get_values(s_id)
             assert values == expected
             # Read only value range:
-            expected = [
-                ["b", "c"],
-                ["2", "3"],
-                ["5", "6"]
-            ]
+            expected = [["b", "c"], ["2", "3"], ["5", "6"]]
             values = api.sheets.get_values(s_id, cell_range=("B1", "C3"))
             assert values == expected
-            
