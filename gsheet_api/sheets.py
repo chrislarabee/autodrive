@@ -5,6 +5,8 @@ from googleapiclient.discovery import Resource
 
 from .formatting import GSheetFormatting
 
+CellRange = Tuple[str, Optional[str]]
+
 
 class Sheets:
     def __init__(self, resource: Resource) -> None:
@@ -176,7 +178,7 @@ class Sheets:
         return result.get("updatedRows"), result.get("updatedColumns")
 
     def get_values(
-        self, file_id: str, sheet_title: str = None
+        self, file_id: str, sheet_title: str = None, cell_range: CellRange = None
     ) -> Optional[List[Optional[List[Any]]]]:
         """
         Gets all values from the passed Google Sheet id.
@@ -190,22 +192,38 @@ class Sheets:
         Returns: A list of lists, the values from the sheet.
 
         """
-        sheet_md = self.get_tab_metadata(file_id, sheet_title)
-        if sheet_md:
+        tab_md = self.get_tab_metadata(file_id, sheet_title)
+        if tab_md:
             r = sheet_title + "!" if sheet_title else ""
-            col_limit = int(sheet_md["col_limit"])
-            last_col_alpha = self.gen_alpha_keys(col_limit)
-            col_letter = last_col_alpha[col_limit - 1]
+            if cell_range:
+                start, end = self._parse_cell_range(cell_range)
+            else:
+                col_limit = int(tab_md["col_limit"])
+                last_col_alpha = self.gen_alpha_keys(col_limit)
+                col_letter = last_col_alpha[col_limit - 1]
+                start = "A1"
+                end = f"{col_letter}{tab_md['row_limit']}"
             result = (
                 self._core.spreadsheets()
                 .values()
                 .get(
                     spreadsheetId=file_id,
-                    range=f"{r}A1:{col_letter}{sheet_md['row_limit']}",
+                    range=f"{r}{start}:{end}",
                 )
                 .execute()
             )
             return result.get("values", [])
+
+    @staticmethod
+    def _parse_cell_range(cell_range: CellRange) -> Tuple[str, str]:
+        if (
+            len(cell_range) == 2
+            and isinstance(cell_range[0], str)
+            and isinstance(cell_range[1], str)
+        ):
+            return (cell_range[0], cell_range[1])
+        else:
+            return ("A1", cell_range[0])
 
     def batch_update(self, file_id: str, requests: list):
         """
