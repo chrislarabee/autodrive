@@ -10,7 +10,7 @@ class Sheets:
     def __init__(self, resource: Resource) -> None:
         self._core = resource
 
-    def add_tab(self, sheet_id: str, **sheet_properties):
+    def add_tab(self, file_id: str, **sheet_properties):
         """
         Adds a new sheet to the Google Sheet at the passed id.
 
@@ -26,7 +26,7 @@ class Sheets:
         result = (
             self._core.spreadsheets()
             .batchUpdate(
-                spreadsheetId=sheet_id,
+                spreadsheetId=file_id,
                 body={"requests": [{"addSheet": {"properties": sheet_properties}}]},
             )
             .execute()
@@ -38,7 +38,7 @@ class Sheets:
         else:
             return None
 
-    def get_tabs(self, sheet_id: str) -> List[Dict[str, dict]]:
+    def get_tabs(self, file_id: str) -> List[Dict[str, dict]]:
         """
         Gets a list of tabs within the Google Sheet located at the
         passed sheet_id.
@@ -53,7 +53,7 @@ class Sheets:
         return (
             self._core.spreadsheets()
             .get(
-                spreadsheetId=sheet_id,
+                spreadsheetId=file_id,
                 fields=(
                     "sheets(data/rowData/values/userEnteredValue,"
                     "properties(index,sheetId,title))"
@@ -93,7 +93,7 @@ class Sheets:
         return idx
 
     def get_tab_metadata(
-        self, sheet_id: str, sheet_title: str = None
+        self, file_id: str, sheet_title: str = None
     ) -> Optional[Dict[str, Union[str, int]]]:
         """
         Retrieves metadata about the first sheet in the Google Sheet
@@ -110,7 +110,7 @@ class Sheets:
             exist.
 
         """
-        raw = self.get_tabs(sheet_id)
+        raw = self.get_tabs(file_id)
         s_idx = 0
         if sheet_title:
             s_idx = self.check_tab_titles(sheet_title, sheets=raw)
@@ -224,7 +224,7 @@ class Sheets:
         )
 
     def format_sheet(
-        self, file_id: str, sheet_title: str = None
+        self, file_id: str, tab_title: str = None
     ) -> Optional[GSheetFormatting]:
         """
         Instantiates a GSheetFormatting object for the passed Google
@@ -241,7 +241,7 @@ class Sheets:
             to apply the formatting, or used for other purposes.
 
         """
-        sheet_md = self.get_tab_metadata(file_id, sheet_title)
+        sheet_md = self.get_tab_metadata(file_id, tab_title)
         if sheet_md:
             return GSheetFormatting(file_id, int(sheet_md["id"]), self)
 

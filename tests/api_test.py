@@ -53,3 +53,6 @@ class TestAPI:
                 s_id, [["a", "b", "c"], [1, 2, 3], [4, 5, 6]]
             )
             assert result == (3, 3)
+            expected = [["a", "b", "c"], ["1", "2", "3"], ["4", "5", "6"]]
+            values = api.sheets.get_values(s_id)
+            assert values == expected

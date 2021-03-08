@@ -6,28 +6,6 @@ import pytest
 
 @pytest.mark.skip
 def test_write_gsheet_and_from_gsheet(sheets_api):
-    testing_tools.check_sheets_api_skip(sheets_api)
-
-    sheet = f"data_genius_test_sheet {dt.now()}"
-    df = pd.DataFrame([dict(a=1, b=2), dict(a=3, b=4)])
-    sheet_id, shape = text.write_gsheet(sheet, df, s_api=sheets_api)
-    testing_tools.created_ids.append(sheet_id)
-    expected = pd.DataFrame([["a", "b"], ["1", "2"], ["3", "4"]])
-    assert shape == (3, 2)
-    read_df = text.from_gsheet(sheet + ".sheet", sheets_api)
-    pd.testing.assert_frame_equal(read_df, expected)
-
-    # Write to a new sheet:
-    df = pd.DataFrame([dict(c=5, d=6), dict(c=7, d=8)])
-    sheet_id2, shape = text.write_gsheet(
-        sheet, df, sheet_title="test_sheet", s_api=sheets_api
-    )
-    assert sheet_id2 == sheet_id
-    expected = pd.DataFrame([["c", "d"], ["5", "6"], ["7", "8"]])
-    assert shape == (3, 2)
-    read_df = text.from_gsheet(sheet + ".sheet", sheets_api, "test_sheet")
-    pd.testing.assert_frame_equal(read_df, expected)
-
     # "Append" to a new sheet:
     df = pd.DataFrame([dict(c=5, d=6), dict(c=7, d=8)])
     sheet_id2, shape = text.write_gsheet(
