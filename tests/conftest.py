@@ -16,7 +16,7 @@ def api():
         warnings.warn("Cleaning up google drive objects created for tests...")
         ids = CREATED_IDS
         for i in ids:
-            api.drive.delete_object(i)
+            api.delete_object(i)
         warnings.warn(f"Successfully cleaned up {len(ids)} objects.")
     else:
         warnings.warn(
