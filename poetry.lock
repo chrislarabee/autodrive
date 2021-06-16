@@ -139,7 +139,7 @@ grpcio-gcp = ["grpcio-gcp (>=0.2.2)"]
 
 [[package]]
 name = "google-api-python-client"
-version = "2.0.2"
+version = "2.9.0"
 description = "Google API Client Library for Python"
 category = "main"
 optional = false
@@ -148,10 +148,22 @@ python-versions = ">=3.6"
 [package.dependencies]
 google-api-core = ">=1.21.0,<2dev"
 google-auth = ">=1.16.0,<2dev"
-google-auth-httplib2 = ">=0.0.3"
+google-auth-httplib2 = ">=0.1.0"
 httplib2 = ">=0.15.0,<1dev"
 six = ">=1.13.0,<2dev"
 uritemplate = ">=3.0.0,<4dev"
+
+[[package]]
+name = "google-api-python-client-stubs"
+version = "1.2.0"
+description = "Type stubs for google-api-python-client"
+category = "main"
+optional = false
+python-versions = ">=3.7,<4.0"
+
+[package.dependencies]
+google-api-python-client = ">=2.7.0,<3.0.0"
+typing-extensions = ">=3.7.4.3,<4.0.0.0"
 
 [[package]]
 name = "google-auth"
@@ -554,7 +566,7 @@ python-versions = "*"
 name = "typing-extensions"
 version = "3.7.4.3"
 description = "Backported and Experimental Type Hints for Python 3.5+"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -582,7 +594,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "9c660051f78a6d9a767f78bafabff1b704232f99512fb2a0f2cb9179b35fc0d6"
+content-hash = "a50e8ed5bc79e61917a21aa28814837f8dda03385eeeaa1a783b53279859e7df"
 
 [metadata.files]
 appdirs = [
@@ -632,8 +644,12 @@ google-api-core = [
     {file = "google_api_core-1.26.1-py2.py3-none-any.whl", hash = "sha256:c383206f0f87545d3e658c4f8dc3b18a8457610fdbd791a15757c5b42d1e0e7f"},
 ]
 google-api-python-client = [
-    {file = "google-api-python-client-2.0.2.tar.gz", hash = "sha256:48686cceb0dc8cb8b9ee1920ad7c0d9b499ef4fca0ca51c1c69f1e462a628011"},
-    {file = "google_api_python_client-2.0.2-py2.py3-none-any.whl", hash = "sha256:b665afbb38df357222bac695e76f2ceb3c42346bfbfb64146061285e175c38d8"},
+    {file = "google-api-python-client-2.9.0.tar.gz", hash = "sha256:2b5274f06799d80222fd3f20fd4ebcd19f57c009703bd4cf7b00492e7e05e15a"},
+    {file = "google_api_python_client-2.9.0-py2.py3-none-any.whl", hash = "sha256:fb5c28b61327392891bf79ccd0a4edc54c76f6d1f3c10e3821dbdf8a7287f691"},
+]
+google-api-python-client-stubs = [
+    {file = "google-api-python-client-stubs-1.2.0.tar.gz", hash = "sha256:1299eeea8056d1fc3d77c01d702b99d09206e1b0d3813c1a9e22d4fc7b560236"},
+    {file = "google_api_python_client_stubs-1.2.0-py3-none-any.whl", hash = "sha256:a9de79fbad3e0255dff5dc87b9fb9b17fa69f0d2b0dd7a5f4c1971798ae3e6d0"},
 ]
 google-auth = [
     {file = "google-auth-1.27.1.tar.gz", hash = "sha256:d8958af6968e4ecd599f82357ebcfeb126f826ed0656126ad68416f810f7531e"},
