@@ -21,15 +21,16 @@ class Connection(ABC):
 
     def __init__(
         self,
+        *,
         api_name: Literal["sheets", "drive"],
         api_version: str,
         api_scopes: List[str],
+        token_path: Path,
+        creds_path: Path,
         secrets_config: Dict[str, Any] = None,
-        token_path: Union[str, Path] = DEFAULT_TOKEN,
-        creds_path: Union[str, Path] = DEFAULT_CREDS
     ) -> None:
-        self._token = Path(token_path)
-        self._creds = Path(creds_path)
+        self._token = token_path
+        self._creds = creds_path
         self._client_config = secrets_config
         self._core = self._connect(api_scopes, api_name, api_version)
 
@@ -100,15 +101,16 @@ class Connection(ABC):
 class DriveConnection(Connection):
     def __init__(
         self,
+        *,
+        token_path: Path,
+        creds_path: Path,
         secrets_config: Dict[str, Any] = None,
-        token_path: Union[str, Path] = DEFAULT_TOKEN,
-        creds_path: Union[str, Path] = DEFAULT_CREDS,
         api_version: str = "v3",
     ) -> None:
         super().__init__(
-            "drive",
-            api_version,
-            ["https://www.googleapis.com/auth/drive"],
+            api_name="drive",
+            api_version=api_version,
+            api_scopes=["https://www.googleapis.com/auth/drive"],
             secrets_config=secrets_config,
             token_path=token_path,
             creds_path=creds_path,
@@ -226,15 +228,16 @@ class DriveConnection(Connection):
 class SheetsConnection(Connection):
     def __init__(
         self,
+        *,
+        token_path: Path,
+        creds_path: Path,
         secrets_config: Dict[str, Any] = None,
-        token_path: Union[str, Path] = DEFAULT_TOKEN,
-        creds_path: Union[str, Path] = DEFAULT_CREDS,
         api_version: str = "v4",
     ) -> None:
         super().__init__(
-            "sheets",
-            api_version,
-            ["https://www.googleapis.com/auth/spreadsheets"],
+            api_name="sheets",
+            api_version=api_version,
+            api_scopes=["https://www.googleapis.com/auth/spreadsheets"],
             secrets_config=secrets_config,
             token_path=token_path,
             creds_path=creds_path,
