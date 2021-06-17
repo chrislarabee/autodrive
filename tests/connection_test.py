@@ -1,6 +1,5 @@
 from datetime import datetime as dt
 
-from autodrive.connection import Connection, DriveConnection
 from . import testing_tools
 
 

@@ -1,6 +1,3 @@
-from typing import Dict, Any, Union
-from pathlib import Path
-
 from .connection import DriveConnection, AuthConfig
 
 
@@ -9,10 +6,9 @@ class Drive:
         self,
         *,
         auth_config: AuthConfig = None,
+        drive_conn: DriveConnection = None,
     ) -> None:
-        self._conn = DriveConnection(
-            auth_config=auth_config
-        )
+        self._conn = drive_conn or DriveConnection(auth_config=auth_config)
 
     def create_folder(self, folder_name: str):
         result = self._conn.create_object(folder_name, "folder")
