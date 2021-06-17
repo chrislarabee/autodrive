@@ -1,19 +1,21 @@
 from typing import Dict, Any, Union
 from pathlib import Path
 
-from .connection import DriveConnection, DEFAULT_TOKEN, DEFAULT_CREDS
+from .connection import DriveConnection, AuthConfig
 
 
 class Drive:
     def __init__(
         self,
         *,
-        conn_config: Dict[str, Any] = None,
-        token_filepath: Union[str, Path] = DEFAULT_TOKEN,
-        creds_filepath: Union[str, Path] = DEFAULT_CREDS,
+        auth_config: AuthConfig = None,
     ) -> None:
         self._conn = DriveConnection(
-            secrets_config=conn_config,
-            token_path=Path(token_filepath),
-            creds_path=Path(creds_filepath),
+            auth_config=auth_config
         )
+
+    def create_folder(self, folder_name: str):
+        result = self._conn.create_object(folder_name, "folder")
+
+    def create_gsheet(self, gsheet_name: str):
+        result = self._conn.create_object(gsheet_name, "sheet")

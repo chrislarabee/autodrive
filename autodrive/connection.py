@@ -13,6 +13,26 @@ DEFAULT_TOKEN = "gdrive_token.pickle"
 DEFAULT_CREDS = "credentials.json"
 
 
+class AuthConfig:
+    def __init__(
+        self,
+        secrets_config: Dict[str, Any] = None,
+        token_filepath: Union[str, Path] = DEFAULT_TOKEN,
+        creds_filepath: Union[str, Path] = DEFAULT_CREDS,
+    ) -> None:
+        self.secrets_config = secrets_config
+        self._token_filepath = Path(token_filepath)
+        self._creds_filepath = Path(creds_filepath)
+
+    @property
+    def token_filepath(self) -> Path:
+        return self._token_filepath
+
+    @property
+    def creds_filepath(self) -> Path:
+        return self._creds_filepath
+
+
 class Connection(ABC):
     google_obj_types = {
         "folder": "application/vnd.google-apps.folder",
@@ -25,21 +45,15 @@ class Connection(ABC):
         api_name: Literal["sheets", "drive"],
         api_version: str,
         api_scopes: List[str],
-        token_path: Path,
-        creds_path: Path,
-        secrets_config: Dict[str, Any] = None,
+        auth_config: AuthConfig = None,
     ) -> None:
-        self._token = token_path
-        self._creds = creds_path
-        self._client_config = secrets_config
+        self._auth_config = auth_config or AuthConfig()
         self._core = self._connect(api_scopes, api_name, api_version)
 
     @staticmethod
     def _authenticate(
         scopes: List[str],
-        token_path: Path,
-        creds_path: Path,
-        config: Dict[str, Any] = None,
+        auth_config: AuthConfig,
     ) -> Credentials:
         """
         Uses locally stored credentials to attempt to login to Google
@@ -59,27 +73,29 @@ class Connection(ABC):
         # The token file stores the user's access and refresh tokens, and
         # is created automatically when the authorization flow completes for the
         # first time.
-        if token_path.exists():
-            with open(token_path, "rb") as token:
+        if auth_config.token_filepath.exists():
+            with open(auth_config.token_filepath, "rb") as token:
                 creds = pickle.load(token)
         # If there are no (valid) credentials available, prompt user to log in.
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                if config:
-                    flow = InstalledAppFlow.from_client_config(config, scopes)
-                elif creds_path.exists():
+                if auth_config.secrets_config:
+                    flow = InstalledAppFlow.from_client_config(
+                        auth_config.secrets_config, scopes
+                    )
+                elif auth_config.creds_filepath.exists():
                     flow = InstalledAppFlow.from_client_secrets_file(
-                        str(creds_path), scopes
+                        str(auth_config.creds_filepath), scopes
                     )
                 else:
                     raise FileNotFoundError(
-                        f"Credentials file {creds_path} could not be found."
+                        f"Credentials file {auth_config.creds_filepath} could not be found."
                     )
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
-            with open(token_path, "wb") as token:
+            with open(auth_config.token_filepath, "wb") as token:
                 pickle.dump(creds, token)
         return creds
 
@@ -93,7 +109,8 @@ class Connection(ABC):
 
         """
         creds = self._authenticate(
-            scopes, self._token, self._creds, self._client_config
+            scopes,
+            self._auth_config,
         )
         return build(api, version, credentials=creds)
 
@@ -102,18 +119,14 @@ class DriveConnection(Connection):
     def __init__(
         self,
         *,
-        token_path: Path,
-        creds_path: Path,
-        secrets_config: Dict[str, Any] = None,
+        auth_config: AuthConfig = None,
         api_version: str = "v3",
     ) -> None:
         super().__init__(
             api_name="drive",
             api_version=api_version,
             api_scopes=["https://www.googleapis.com/auth/drive"],
-            secrets_config=secrets_config,
-            token_path=token_path,
-            creds_path=creds_path,
+            auth_config=auth_config,
         )
         self._files = self._core.files()  # type: ignore
 
@@ -229,18 +242,14 @@ class SheetsConnection(Connection):
     def __init__(
         self,
         *,
-        token_path: Path,
-        creds_path: Path,
-        secrets_config: Dict[str, Any] = None,
+        auth_config: AuthConfig = None,
         api_version: str = "v4",
     ) -> None:
         super().__init__(
             api_name="sheets",
             api_version=api_version,
             api_scopes=["https://www.googleapis.com/auth/spreadsheets"],
-            secrets_config=secrets_config,
-            token_path=token_path,
-            creds_path=creds_path,
+            auth_config=auth_config,
         )
         self._sheets = self._core.spreadsheets()  # type: ignore
 
