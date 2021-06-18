@@ -8,6 +8,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
+from . import google_terms as terms
+
 
 DEFAULT_TOKEN = "gdrive_token.pickle"
 DEFAULT_CREDS = "credentials.json"
@@ -163,16 +165,16 @@ class DriveConnection(Connection):
             response = self._files.list(
                 q=query,
                 spaces="drive",
-                fields="nextPageToken, files(id, name, parents)",
+                fields=f"nextPageToken, files({terms.ID},{terms.NAME},{terms.PARENTS})",
                 pageToken=page_token,
                 **kwargs,
             ).execute()
             for file in response.get("files", []):
                 results.append(
                     dict(
-                        name=file.get("name"),
-                        id=file.get("id"),
-                        parents=file.get("parents"),
+                        name=file.get(terms.NAME),
+                        id=file.get(terms.ID),
+                        parents=file.get(terms.PARENTS),
                     )
                 )
             page_token = response.get("nextPageToken", None)
@@ -202,9 +204,9 @@ class DriveConnection(Connection):
             name=obj_name, mimeType=self.google_obj_types[obj_type], **kwargs
         )
         file = self._files.create(
-            body=file_metadata, fields="id", supportsAllDrives=True
+            body=file_metadata, fields=terms.ID, supportsAllDrives=True
         ).execute()
-        return file.get("id")
+        return file.get(terms.ID)
 
     def delete_object(self, object_id: str) -> None:
         """
@@ -265,23 +267,23 @@ class SheetsConnection(Connection):
         )
 
     def get_properties(self, spreadsheet_id: str) -> Dict[str, Any]:
-        gsheet_props = "properties(title)"
-        grid_props = "gridProperties(columnCount,rowCount)"
-        tab_props = f"sheets(properties(index,sheetId,title,{grid_props}))"
-
+        gsheet_props = f"{terms.FILE_PROPS}({terms.FILE_NAME})"
+        grid_props = f"{terms.GRID_PROPS}({terms.COL_CT},{terms.ROW_CT})"
+        tab_props = f"{terms.TAB_IDX},{terms.TAB_ID},{terms.TAB_NAME},{grid_props}"
+        tabs_prop = f"{terms.TABS_PROP}({terms.TAB_PROPS}({tab_props}))"
         return self._sheets.get(
-            spreadsheetId=spreadsheet_id, fields=f"{gsheet_props},{tab_props}"
+            spreadsheetId=spreadsheet_id, fields=f"{gsheet_props},{tabs_prop}"
         ).execute()
 
     def get_values(
         self, spreadsheet_id: str, ranges: List[str] = None
     ) -> Dict[str, Any]:
-        data_values="userEnteredValue,formattedValue"
+        data_values = f"{terms.USER_ENTER_VAL},{terms.FORMATTED_VAL}"
         # TODO: Collect formatting values as well.
         # formatting_values=""
-        values = f"values({data_values})"
+        values = f"{terms.VALUES}({data_values})"
         return self._sheets.get(
             spreadsheetId=spreadsheet_id,
-            fields=f"sheets(data(rowData({values})))",
+            fields=f"{terms.TABS_PROP}({terms.DATA}({terms.ROWDATA}({values})))",
             ranges=ranges or [],
         ).execute()

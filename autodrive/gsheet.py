@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any, Tuple, TypeVar
 from abc import ABC
 
 from .connection import SheetsConnection, AuthConfig
+from . import google_terms as terms
 
 """
 THIS CAN BE DONE:
@@ -76,6 +77,9 @@ Drive:
 """
 
 
+T = TypeVar("T", bound="Component")
+
+
 class GSheetError(Exception):
     pass
 
@@ -88,6 +92,7 @@ class Component(ABC):
         sheets_conn: SheetsConnection = None,
     ) -> None:
         self._conn = sheets_conn or SheetsConnection(auth_config=auth_config)
+        self._requests: List[Dict[str, Any]] = []
 
     @staticmethod
     def _parse_row_data(
@@ -96,25 +101,23 @@ class Component(ABC):
         results = []
         for row in row_data:
             row_list = []
-            for cell in row.get("values", []):
+            for cell in row.get(terms.VALUES, []):
                 value = None
                 if get_formatted:
-                    value = cell.get("formattedValue")
+                    value = cell.get(terms.FORMATTED_VAL)
                 else:
-                    user_entered_value = cell.get("userEnteredValue")
+                    user_entered_value = cell.get(terms.USER_ENTER_VAL)
                     if user_entered_value:
-                        for key in [
-                            "stringValue",
-                            "formulaValue",
-                            "numberValue",
-                            "boolValue",
-                        ]:
+                        for key in terms.DATA_TYPE_KEYS:
                             value = user_entered_value.get(key)
                             if value:
                                 break
                 row_list.append(value)
             results.append(row_list)
         return results
+
+    def _write_values(self: T, data: List) -> T:
+        return self
 
 
 class Range:
@@ -133,10 +136,10 @@ class Tab(Component):
     ) -> None:
         super().__init__(auth_config=auth_config, sheets_conn=sheets_conn)
         self._parent = parent
-        self._title = str(properties["title"])
-        self._index = int(properties["index"])
-        self._column_count = int(properties["gridProperties"]["columnCount"])
-        self._row_count = int(properties["gridProperties"]["rowCount"])
+        self._title = str(properties[terms.TAB_NAME])
+        self._index = int(properties[terms.TAB_IDX])
+        self._column_count = int(properties[terms.GRID_PROPS][terms.COL_CT])
+        self._row_count = int(properties[terms.GRID_PROPS][terms.ROW_CT])
         self._values = []
 
     @property
@@ -161,7 +164,7 @@ class Tab(Component):
 
     def get_values(self) -> Tab:
         raw = self._parent.conn.get_values(self._parent.file_id, [self._title])
-        row_data = raw["sheets"][0]["data"][0]["rowData"]
+        row_data = raw[terms.TABS_PROP][0][terms.DATA][0][terms.ROWDATA]
         self._values = self._parse_row_data(row_data)
         return self
 
@@ -190,7 +193,6 @@ class GSheet(Component):
         self._file_id = file_id
         self._title = title
         self._tabs = tabs or []
-        self._requests: List[Dict[str, Any]] = []
         self._partial = True
 
     @property
@@ -236,8 +238,8 @@ class GSheet(Component):
     def _parse_properties(
         properties: Dict[str, Any]
     ) -> Tuple[str, List[Dict[str, Any]]]:
-        sheet_title = properties["properties"]["title"]
-        sheet_props = [sheet["properties"] for sheet in properties["sheets"]]
+        sheet_title = properties[terms.FILE_PROPS][terms.FILE_NAME]
+        sheet_props = [sheet[terms.TAB_PROPS] for sheet in properties[terms.TABS_PROP]]
         return sheet_title, sheet_props
 
     def commit(self) -> None:
@@ -249,7 +251,11 @@ class GSheet(Component):
         if title in self.tabs.keys():
             raise ValueError(f"Sheet already has tab with title {title}")
         self._requests.append(
-            {"addSheet": {"properties": {"title": title, "index": index or 0}}}
+            {
+                terms.ADDTAB: {
+                    terms.TAB_PROPS: {terms.TAB_NAME: title, terms.TAB_IDX: index or 0}
+                }
+            }
         )
         return self
 
