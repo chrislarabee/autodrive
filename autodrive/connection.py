@@ -265,7 +265,11 @@ class SheetsConnection(Connection):
         )
 
     def get_properties(self, spreadsheet_id: str) -> Dict[str, Any]:
+        gsheet_props = "properties(title)"
+        grid_props = "gridProperties(columnCount,rowCount)"
+        tab_props = f"sheets(properties(index,sheetId,title,{grid_props}))"
+
         return self._sheets.get(
             spreadsheetId=spreadsheet_id,
-            fields=("properties(title),sheets(properties(index,sheetId,title))"),
+            fields=f"{gsheet_props},{tab_props}"
         ).execute()

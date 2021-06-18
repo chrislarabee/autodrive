@@ -84,21 +84,13 @@ class Tab:
     def __init__(
         self,
         parent: GSheet,
-        tab_title: str = None,
-        tab_index: int = None,
-        properties: Dict[str, Any] = None,
+        properties: Dict[str, Any],
     ) -> None:
-        if not properties:
-            if tab_title and tab_index:
-                properties = dict(title=tab_title, index=tab_index)
-            else:
-                raise ValueError(
-                    "If properties is None then tab_title and tab_index are "
-                    "required."
-                )
         self._parent = parent
         self._title = str(properties["title"])
         self._index = int(properties["index"])
+        self._column_count = int(properties["gridProperties"]["columnCount"])
+        self._row_count = int(properties["gridProperties"]["rowCount"])
         self._values = []
 
     @property
@@ -108,6 +100,15 @@ class Tab:
     @property
     def index(self) -> int:
         return self._index
+
+
+    @property
+    def column_count(self) -> int:
+        return self._column_count
+
+    @property
+    def row_count(self) -> int:
+        return self._row_count
 
     @property
     def values(self) -> List[List[Any]]:
@@ -182,15 +183,7 @@ class GSheet:
         properties = self._conn.get_properties(self._file_id)
         name, sheets = self._parse_properties(properties)
         self._name = name
-        tabs = []
-        for sheet in sheets:
-            tabs.append(
-                Tab(
-                    parent=self,
-                    tab_title=sheet["title"],
-                    tab_index=sheet["index"],
-                )
-            )
+        tabs = [Tab(parent=self, properties=sheet_props) for sheet_props in sheets]
         self._tabs = tabs
         self._partial = False
         return self
