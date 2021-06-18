@@ -50,6 +50,10 @@ class Connection(ABC):
         self._auth_config = auth_config or AuthConfig()
         self._core = self._connect(api_scopes, api_name, api_version)
 
+    @property
+    def config(self) -> AuthConfig:
+        return self._auth_config
+
     @staticmethod
     def _authenticate(
         scopes: List[str],
@@ -135,7 +139,7 @@ class DriveConnection(Connection):
         obj_name: str,
         obj_type: Literal["sheet", "folder"],
         shared_drive_id: str = None,
-    ) -> List[Dict]:
+    ) -> List[Dict[str, Any]]:
         """
         Searches for a Google Drive Object in the attached Google Drive
         by name.
@@ -259,3 +263,9 @@ class SheetsConnection(Connection):
         self._sheets.batchUpdate(
             spreadsheetId=spreadsheet_id, body={"requests": requests}
         )
+
+    def get_properties(self, spreadsheet_id: str) -> Dict[str, Any]:
+        return self._sheets.get(
+            spreadsheetId=spreadsheet_id,
+            fields=("properties(title),sheets(properties(index,sheetId,title))"),
+        ).execute()

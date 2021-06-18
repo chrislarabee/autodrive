@@ -1,4 +1,4 @@
-import autodrive.gsheet as gs
+from autodrive.gsheet import GSheet, Tab
 
 
 # class TestTab:
@@ -14,11 +14,28 @@ import autodrive.gsheet as gs
 
 
 class TestGSheet:
+    def test_that_it_can_parse_properties(self):
+        expected = (
+            "scratch",
+            [
+                {"sheetId": 0, "title": "Sheet1", "index": 0},
+                {"sheetId": 1, "title": "Sheet2", "index": 1},
+            ],
+        )
+        raw = {
+            "properties": {"title": "scratch"},
+            "sheets": [
+                {"properties": {"sheetId": 0, "title": "Sheet1", "index": 0}},
+                {"properties": {"sheetId": 1, "title": "Sheet2", "index": 1}},
+            ],
+        }
+        assert GSheet._parse_properties(raw) == expected
+
     def test_that_it_can_add_tabs_requests(self, sheets_conn):
         expected = [
             {"addSheet": {"properties": {"title": "new_sheet", "index": 0}}},
             {"addSheet": {"properties": {"title": "nuevo_sheet", "index": 3}}},
         ]
-        gsheet = gs.GSheet("test", sheets_conn=sheets_conn)
+        gsheet = GSheet("test", sheets_conn=sheets_conn)
         gsheet.add_tab("new_sheet").add_tab("nuevo_sheet", 3)
         assert gsheet.requests == expected

@@ -76,33 +76,30 @@ Drive:
 """
 
 
+class GSheetError(Exception):
+    pass
+
+
 class Tab:
     def __init__(
         self,
-        values: List[Dict[str, Any]],
+        parent: GSheet,
         tab_title: str = None,
         tab_index: int = None,
-        parent_file_id: str = None,
-        properties: Dict = None,
-        parent: GSheet = None,
+        properties: Dict[str, Any] = None,
     ) -> None:
         if not properties:
-            try:
-                assert tab_title and tab_index and parent_file_id
-            except AssertionError:
-                raise ValueError(
-                    "If metadata is None then tab_title, tab_index, and "
-                    "parent_file_id are required."
-                )
+            if tab_title and tab_index:
+                properties = dict(title=tab_title, index=tab_index)
             else:
-                properties = dict(
-                    title=tab_title, index=tab_index, sheetId=parent_file_id
+                raise ValueError(
+                    "If properties is None then tab_title and tab_index are "
+                    "required."
                 )
+        self._parent = parent
         self._title = str(properties["title"])
         self._index = int(properties["index"])
-        self._file_id = str(properties["sheetId"])
-        self._values = self.parse_row_data(values)
-        self._parent = parent
+        self._values = []
 
     @property
     def title(self) -> str:
@@ -136,17 +133,32 @@ class Tab:
         return results
 
 
+class PartialGSheet:
+    def __init__(self, file_id: str, title: str, sheets_conn: SheetsConnection) -> None:
+        self._conn = sheets_conn
+        self._file_id = file_id
+        self._title = title
+
+    def fetch(self) -> GSheet:
+        return GSheet.from_id(self._file_id, sheets_conn=self._conn)
+
+
 class GSheet:
     def __init__(
         self,
         file_id: str,
+        title: str = None,
+        tabs: List[Tab] = None,
+        *,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
     ) -> None:
         self._conn = sheets_conn or SheetsConnection(auth_config=auth_config)
-        self._tabs = []
         self._file_id = file_id
+        self._title = title
+        self._tabs = tabs or []
         self._requests: List[Dict[str, Any]] = []
+        self._partial = True
 
     @property
     def requests(self) -> List[Dict[str, Any]]:
@@ -156,17 +168,60 @@ class GSheet:
     def tabs(self) -> Dict[str, Tab]:
         return {tab.title: tab for tab in self._tabs}
 
+    @classmethod
+    def from_id(
+        cls,
+        file_id: str,
+        auth_config: AuthConfig = None,
+        sheets_conn: SheetsConnection = None,
+    ) -> GSheet:
+        gs = GSheet(file_id, auth_config=auth_config, sheets_conn=sheets_conn)
+        return gs.fetch()
+
+    def fetch(self) -> GSheet:
+        properties = self._conn.get_properties(self._file_id)
+        name, sheets = self._parse_properties(properties)
+        self._name = name
+        tabs = []
+        for sheet in sheets:
+            tabs.append(
+                Tab(
+                    parent=self,
+                    tab_title=sheet["title"],
+                    tab_index=sheet["index"],
+                )
+            )
+        self._tabs = tabs
+        self._partial = False
+        return self
+
+    @staticmethod
+    def _parse_properties(
+        properties: Dict[str, Any]
+    ) -> Tuple[str, List[Dict[str, Any]]]:
+        sheet_title = properties["properties"]["title"]
+        sheet_props = [sheet["properties"] for sheet in properties["sheets"]]
+        return sheet_title, sheet_props
+
     def commit(self) -> None:
         self._conn.execute_requests(self._file_id, self._requests)
         self._requests = []
 
     def add_tab(self, title: str, index: int = None) -> GSheet:
+        self._ensure_not_partial()
         if title in self.tabs.keys():
             raise ValueError(f"Sheet already has tab with title {title}")
         self._requests.append(
             {"addSheet": {"properties": {"title": title, "index": index or 0}}}
         )
         return self
+
+    def _ensure_not_partial(self) -> None:
+        if self._partial:
+            raise GSheetError(
+                f"PartialGSheetError: {self} is only partially instantiated. This "
+                "method cannot be called. Execute .fetch() to resolve this error."
+            )
 
     def get_tab_index_by_title(self, tab_title: str) -> Optional[int]:
         for t in self._tabs:
