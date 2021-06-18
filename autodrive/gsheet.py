@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Dict, List, Optional, Any, Tuple
-
+from abc import ABC
 
 from .connection import SheetsConnection, AuthConfig
 
@@ -80,12 +80,58 @@ class GSheetError(Exception):
     pass
 
 
-class Tab:
+class Component(ABC):
+    def __init__(
+        self,
+        *,
+        auth_config: AuthConfig = None,
+        sheets_conn: SheetsConnection = None,
+    ) -> None:
+        self._conn = sheets_conn or SheetsConnection(auth_config=auth_config)
+
+    @staticmethod
+    def _parse_row_data(
+        row_data: List[Dict[str, List[Dict[str, Any]]]], get_formatted: bool = True
+    ) -> List[List[Any]]:
+        results = []
+        for row in row_data:
+            row_list = []
+            for cell in row.get("values", []):
+                value = None
+                if get_formatted:
+                    value = cell.get("formattedValue")
+                else:
+                    user_entered_value = cell.get("userEnteredValue")
+                    if user_entered_value:
+                        for key in [
+                            "stringValue",
+                            "formulaValue",
+                            "numberValue",
+                            "boolValue",
+                        ]:
+                            value = user_entered_value.get(key)
+                            if value:
+                                break
+                row_list.append(value)
+            results.append(row_list)
+        return results
+
+
+class Range:
+    def __init__(self) -> None:
+        pass
+
+
+class Tab(Component):
     def __init__(
         self,
         parent: GSheet,
         properties: Dict[str, Any],
+        *,
+        auth_config: AuthConfig = None,
+        sheets_conn: SheetsConnection = None,
     ) -> None:
+        super().__init__(auth_config=auth_config, sheets_conn=sheets_conn)
         self._parent = parent
         self._title = str(properties["title"])
         self._index = int(properties["index"])
@@ -101,7 +147,6 @@ class Tab:
     def index(self) -> int:
         return self._index
 
-
     @property
     def column_count(self) -> int:
         return self._column_count
@@ -114,24 +159,11 @@ class Tab:
     def values(self) -> List[List[Any]]:
         return self._values
 
-    @staticmethod
-    def parse_row_data(
-        row_data: List[Dict[str, List[Dict[str, Any]]]]
-    ) -> List[List[Any]]:
-        results = []
-        for row in row_data:
-            row_list = []
-            for cell in row.get("values", []):
-                user_entered_value = cell.get("userEnteredValue")
-                if user_entered_value:
-                    for key in ["stringValue", "formulaValue", "numberValue"]:
-                        value = user_entered_value.get(key)
-                        if value:
-                            row_list.append(value)
-                else:
-                    row_list.append(None)
-            results.append(row_list)
-        return results
+    def get_values(self) -> Tab:
+        raw = self._parent.conn.get_values(self._parent.file_id, [self._title])
+        row_data = raw["sheets"][0]["data"][0]["rowData"]
+        self._values = self._parse_row_data(row_data)
+        return self
 
 
 class PartialGSheet:
@@ -144,7 +176,7 @@ class PartialGSheet:
         return GSheet.from_id(self._file_id, sheets_conn=self._conn)
 
 
-class GSheet:
+class GSheet(Component):
     def __init__(
         self,
         file_id: str,
@@ -154,7 +186,7 @@ class GSheet:
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
     ) -> None:
-        self._conn = sheets_conn or SheetsConnection(auth_config=auth_config)
+        super().__init__(auth_config=auth_config, sheets_conn=sheets_conn)
         self._file_id = file_id
         self._title = title
         self._tabs = tabs or []
@@ -168,6 +200,18 @@ class GSheet:
     @property
     def tabs(self) -> Dict[str, Tab]:
         return {tab.title: tab for tab in self._tabs}
+
+    @property
+    def conn(self) -> SheetsConnection:
+        return self._conn
+
+    @property
+    def file_id(self) -> str:
+        return self._file_id
+
+    @property
+    def title(self) -> Optional[str]:
+        return self._title
 
     @classmethod
     def from_id(

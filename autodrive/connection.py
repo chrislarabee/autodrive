@@ -270,6 +270,18 @@ class SheetsConnection(Connection):
         tab_props = f"sheets(properties(index,sheetId,title,{grid_props}))"
 
         return self._sheets.get(
+            spreadsheetId=spreadsheet_id, fields=f"{gsheet_props},{tab_props}"
+        ).execute()
+
+    def get_values(
+        self, spreadsheet_id: str, ranges: List[str] = None
+    ) -> Dict[str, Any]:
+        data_values="userEnteredValue,formattedValue"
+        # TODO: Collect formatting values as well.
+        # formatting_values=""
+        values = f"values({data_values})"
+        return self._sheets.get(
             spreadsheetId=spreadsheet_id,
-            fields=f"{gsheet_props},{tab_props}"
+            fields=f"sheets(data(rowData({values})))",
+            ranges=ranges or [],
         ).execute()

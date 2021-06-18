@@ -1,4 +1,20 @@
-from autodrive.gsheet import GSheet, Tab
+from autodrive.gsheet import GSheet, Component
+
+
+class TestComponent:
+    def test_that_it_can_parse_row_data(self):
+        value1 = {"formattedValue": "test", "userEnteredValue": {"stringValue": "test"}}
+        value2 = {"formattedValue": 1, "userEnteredValue": {"numberValue": 1}}
+        value3 = {"formattedValue": 3, "userEnteredValue": {"stringValue": "=A1+A2"}}
+        raw = [
+            dict(values=[{}, {}, value1]),
+            dict(values=[{}, value2, {}]),
+            dict(values=[value3]),
+        ]
+        expected = [[None, None, "test"], [None, 1, None], ["=A1+A2"]]
+        assert Component._parse_row_data(raw, get_formatted=False) == expected
+        expected = [[None, None, "test"], [None, 1, None], [3]]
+        assert Component._parse_row_data(raw, get_formatted=True) == expected
 
 
 # class TestTab:
@@ -37,5 +53,6 @@ class TestGSheet:
             {"addSheet": {"properties": {"title": "nuevo_sheet", "index": 3}}},
         ]
         gsheet = GSheet("test", sheets_conn=sheets_conn)
+        gsheet._partial = False
         gsheet.add_tab("new_sheet").add_tab("nuevo_sheet", 3)
         assert gsheet.requests == expected
