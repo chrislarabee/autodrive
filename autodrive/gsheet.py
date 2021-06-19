@@ -121,7 +121,7 @@ class Component(ABC):
         return self
 
     @staticmethod
-    def _gen_cell_value(python_val: Any) -> Dict[str, Any]:
+    def _gen_cell_write_value(python_val: Any) -> Dict[str, Any]:
         type_ = type(python_val)
         type_str = terms.TYPE_MAP.get(type_, terms.STRING)
         return {terms.USER_ENTER_VAL: {type_str: python_val}}

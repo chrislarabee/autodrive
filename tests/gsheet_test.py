@@ -18,15 +18,17 @@ class TestComponent:
         expected = [[None, None, "test"], [None, 1, None], [3]]
         assert Component._parse_row_data(raw, get_formatted=True) == expected
 
-    def test_that_it_can_gen_cell_value(self):
-        assert Component._gen_cell_value(1) == {"userEnteredValue": {"numberValue": 1}}
-        assert Component._gen_cell_value(1.123) == {
+    def test_that_it_can_gen_cell_write_value(self):
+        assert Component._gen_cell_write_value(1) == {
+            "userEnteredValue": {"numberValue": 1}
+        }
+        assert Component._gen_cell_write_value(1.123) == {
             "userEnteredValue": {"numberValue": 1.123}
         }
-        assert Component._gen_cell_value([1, 2, 3]) == {
+        assert Component._gen_cell_write_value([1, 2, 3]) == {
             "userEnteredValue": {"stringValue": [1, 2, 3]}
         }
-        assert Component._gen_cell_value(True) == {
+        assert Component._gen_cell_write_value(True) == {
             "userEnteredValue": {"boolValue": True}
         }
 
