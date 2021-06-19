@@ -1,4 +1,6 @@
-from autodrive.gsheet import GSheet, Component
+import pytest
+
+from autodrive.gsheet import GSheet, Component, Range
 
 
 class TestComponent:
@@ -15,6 +17,28 @@ class TestComponent:
         assert Component._parse_row_data(raw, get_formatted=False) == expected
         expected = [[None, None, "test"], [None, 1, None], [3]]
         assert Component._parse_row_data(raw, get_formatted=True) == expected
+
+    def test_that_it_can_gen_cell_value(self):
+        assert Component._gen_cell_value(1) == {"userEnteredValue": {"numberValue": 1}}
+        assert Component._gen_cell_value(1.123) == {
+            "userEnteredValue": {"numberValue": 1.123}
+        }
+        assert Component._gen_cell_value([1, 2, 3]) == {
+            "userEnteredValue": {"stringValue": [1, 2, 3]}
+        }
+        assert Component._gen_cell_value(True) == {
+            "userEnteredValue": {"boolValue": True}
+        }
+
+
+class TestRange:
+    def test_that_it_can_parse_range_strings(self):
+        assert Range._parse_range("Sheet1!A1:C5") == ("Sheet1", "A1", "C5")
+        assert Range._parse_range("A1:C50") == (None, "A1", "C50")
+        assert Range._parse_range("A1:A") == (None, "A1", "A")
+        assert Range._parse_range("A1") == (None, "A1", None)
+        with pytest.raises(ValueError, match="parb is not a valid range."):
+            Range._parse_range("parb")
 
 
 # class TestTab:

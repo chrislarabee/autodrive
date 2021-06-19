@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional, Any, Tuple, TypeVar
 from abc import ABC
+import re
 
 from .connection import SheetsConnection, AuthConfig
 from . import google_terms as terms
@@ -119,10 +120,25 @@ class Component(ABC):
     def _write_values(self: T, data: List) -> T:
         return self
 
+    @staticmethod
+    def _gen_cell_value(python_val: Any) -> Dict[str, Any]:
+        type_ = type(python_val)
+        type_str = terms.TYPE_MAP.get(type_, terms.STRING)
+        return {terms.USER_ENTER_VAL: {type_str: python_val}}
+
 
 class Range:
-    def __init__(self) -> None:
+    def __init__(self, gsheet_range: str) -> None:
         pass
+
+    @staticmethod
+    def _parse_range(range: str) -> Tuple[Optional[str], str, Optional[str]]:
+        result = re.match(r"(?:(.*)!)?([A-Z]+\d+?)(?::([A-Z]*\d*))?", range)
+        if result:
+            grps = result.groups()
+            return grps  # type: ignore
+        else:
+            raise ValueError(f"{range} is not a valid range.")
 
 
 class Tab(Component):
