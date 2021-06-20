@@ -9,6 +9,7 @@ from autodrive.connection import (
     DEFAULT_CREDS,
     DEFAULT_TOKEN,
 )
+from autodrive.gsheet import Component
 from .testing_tools import CREATED_IDS
 
 
@@ -46,3 +47,12 @@ def sheets_conn():
     else:
         warnings.warn(conn_warning.format(DEFAULT_CREDS, DEFAULT_TOKEN, os.getcwd()))
         return None
+
+
+class GSheetComponent(Component):
+    pass
+
+
+@pytest.fixture
+def testing_component():
+    return GSheetComponent

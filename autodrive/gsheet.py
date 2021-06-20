@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional, Any, Tuple, TypeVar
 from abc import ABC
 import re
+import string
 
 from .connection import SheetsConnection, AuthConfig
 from . import google_terms as terms
@@ -85,6 +86,12 @@ class GSheetError(Exception):
     pass
 
 
+class ParseRangeError(GSheetError):
+    def __init__(self, range: str, *args: object) -> None:
+        msg = f"{range} is not a valid range."
+        super().__init__(msg, *args)
+
+
 class Component(ABC):
     def __init__(
         self,
@@ -94,6 +101,14 @@ class Component(ABC):
     ) -> None:
         self._conn = sheets_conn or SheetsConnection(auth_config=auth_config)
         self._requests: List[Dict[str, Any]] = []
+
+    @property
+    def requests(self) -> List[Dict[str, Any]]:
+        return self._requests
+
+    @property
+    def conn(self) -> SheetsConnection:
+        return self._conn
 
     @staticmethod
     def _parse_row_data(
@@ -117,28 +132,137 @@ class Component(ABC):
             results.append(row_list)
         return results
 
-    def _write_values(self: T, data: List) -> T:
+    def _write_values(self: T, data: List[List[Any]]) -> T:
+        write_values = [
+            [self._gen_cell_write_value(val) for val in row] for row in data
+        ]
+        request = {
+            "updateCells": {
+                terms.FIELDS: "*",
+                terms.ROWS: [{terms.VALUES: write_values}],
+            }
+        }
+        self._requests.append(request)
         return self
 
     @staticmethod
     def _gen_cell_write_value(python_val: Any) -> Dict[str, Any]:
         type_ = type(python_val)
-        type_str = terms.TYPE_MAP.get(type_, terms.STRING)
+        if (
+            isinstance(python_val, str)
+            and len(python_val) >= 2
+            and python_val[0] == "="
+        ):
+            type_str = terms.FORMULA
+        else:
+            type_str = terms.TYPE_MAP.get(type_, terms.STRING)
         return {terms.USER_ENTER_VAL: {type_str: python_val}}
 
+    @staticmethod
+    def gen_alpha_keys(num: int) -> List[str]:
+        """
+        Generates a list of characters from the Latin alphabet a la gsheet/excel
+        headers.
 
-class Range:
-    def __init__(self, gsheet_range: str) -> None:
-        pass
+        Args:
+            num (int): The desired length of the list.
+
+        Returns:
+            List[str]: A list containing as many letters and letter combos as
+                desired. Can be used to generate sets up to 676 in length.
+        """
+        a = string.ascii_uppercase
+        result = list()
+        x = num // 26
+        for i in range(x + 1):
+            root = a[i - 1] if i > 0 else ""
+            keys = [root + a[j] for j in range(26)]
+            for k in keys:
+                result.append(k) if len(result) < num else None
+        return result
+
+
+class Range(Component):
+    def __init__(
+        self,
+        parent_tab: Tab,
+        gsheet_range: str = None,
+        row_range: Tuple[int, int] = None,
+        col_range: Tuple[int, int] = None,
+        auth_config: AuthConfig = None,
+        sheets_conn: SheetsConnection = None,
+    ) -> None:
+        super().__init__(auth_config=auth_config, sheets_conn=sheets_conn)
+        self._parent = parent_tab
+        if gsheet_range:
+            tab_title, start, end = self._parse_range_str(gsheet_range)
+            tab_title = tab_title if tab_title else parent_tab.title
+            end_range = f":{end}" if end else ""
+            self._range_str = f"{tab_title}!{start}{end_range}"
+        elif row_range and col_range:
+            self._range_str = self._construct_range_str(
+                parent_tab.title, row_range, col_range
+            )
+            self._start_row = row_range[0]
+            self._end_row = row_range[1]
+            self._start_col = col_range[0]
+            self._end_col = col_range[1]
+
+        self._range_str = ""
+        self._start_row = 0
+        self._end_row = 1
+        self._start_col = 0
+        self._end_col = 0
+
+    @classmethod
+    def _construct_range_str(
+        cls,
+        tab_title: str,
+        row_range: Tuple[int, int] = None,
+        col_range: Tuple[int, int] = None,
+    ) -> str:
+        rng = ""
+        if col_range and row_range:
+            start_letter = cls.gen_alpha_keys(col_range[0])[-1]
+            end_letter = cls.gen_alpha_keys(col_range[1])[-1]
+            start_int = row_range[0] + 1
+            end_int = row_range[1] + 1
+            rng = f"!{start_letter}{start_int}:{end_letter}{end_int}"
+        return tab_title + rng
 
     @staticmethod
-    def _parse_range(range: str) -> Tuple[Optional[str], str, Optional[str]]:
+    def _parse_range_str(range: str) -> Tuple[Optional[str], str, Optional[str]]:
         result = re.match(r"(?:(.*)!)?([A-Z]+\d+?)(?::([A-Z]*\d*))?", range)
         if result:
             grps = result.groups()
             return grps  # type: ignore
         else:
-            raise ValueError(f"{range} is not a valid range.")
+            raise ParseRangeError(range)
+
+    @staticmethod
+    def _parse_cell_str(cell_str: str) -> Tuple[str, Optional[str]]:
+        result = re.match(r"([A-Z]+)(\d+)?", cell_str)
+        if result:
+            grps = result.groups()
+            return grps  # type: ignore
+        else:
+            raise ParseRangeError(cell_str)
+
+    @classmethod
+    def _convert_cell_str_to_coord(cls, cell_str: str) -> Tuple[int, Optional[int]]:
+        col, row = cls._parse_cell_str(cell_str)
+        col_idx = cls._convert_alpha_col_to_idx(col)
+        row_idx = int(row) + 1 if row else None
+        return col_idx, row_idx
+
+    @staticmethod
+    def _convert_alpha_col_to_idx(alpha_col: str) -> int:
+        values = []
+        for i, a in enumerate(alpha_col, start=1):
+            base_idx = string.ascii_uppercase.index(a) + 1
+            remainder = len(alpha_col[i:])
+            values.append(26 ** remainder * base_idx)
+        return sum(values) - 1
 
 
 class Tab(Component):
