@@ -18,7 +18,7 @@ TAB_IDX = "index"
 TAB_ID = "sheetId"
 TAB_NAME = "title"
 GRID_PROPS = "gridProperties"
-COL_CT = "columntCount"
+COL_CT = "columnCount"
 ROW_CT = "rowCount"
 # Data property names:
 DATA = "data"

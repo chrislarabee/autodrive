@@ -68,6 +68,26 @@ class TestComponent:
 
 
 class TestRange:
+    def test_that_it_instantiates_properly(self, test_tab):
+        rng = Range(test_tab, "Sheet1!D5:E50")
+        assert rng.start_row_idx == 4
+        assert rng.end_row_idx == 49
+        assert rng.start_col_idx == 3
+        assert rng.end_col_idx == 4
+        assert rng.range_str == "Sheet1!D5:E50"
+        rng = Range(test_tab)
+        assert rng.start_row_idx == 0
+        assert rng.end_row_idx == 999
+        assert rng.start_col_idx == 0
+        assert rng.end_col_idx == 25
+        assert rng.range_str == "Sheet1!A1:Z1000"
+        rng = Range(test_tab, row_range=(0, 99), col_range=(0, 9))
+        assert rng.start_row_idx == 0
+        assert rng.end_row_idx == 99
+        assert rng.start_col_idx == 0
+        assert rng.end_col_idx == 9
+        assert rng.range_str == "Sheet1!A1:J100"
+
     def test_that_it_can_parse_range_strings(self):
         assert Range._parse_range_str("Sheet1!A1:C5") == ("Sheet1", "A1", "C5")
         assert Range._parse_range_str("A1:C50") == (None, "A1", "C50")
@@ -81,13 +101,13 @@ class TestRange:
         assert Range._parse_cell_str("A") == ("A", None)
 
     def test_that_it_can_convert_cell_str_to_coordinate(self):
-        assert Range._convert_cell_str_to_coord("A5") == (0, 6)
+        assert Range._convert_cell_str_to_coord("A5") == (0, 4)
         assert Range._convert_cell_str_to_coord("AA") == (26, None)
-        assert Range._convert_cell_str_to_coord("BC127") == (54, 128)
+        assert Range._convert_cell_str_to_coord("BC127") == (54, 126)
 
     def test_that_it_can_construct_range_strings(self):
         assert Range._construct_range_str("Sheet1") == "Sheet1"
-        assert Range._construct_range_str("Sheet1", (0, 5), (5, 10)) == "Sheet1!E1:J6"
+        assert Range._construct_range_str("Sheet1", (0, 5), (4, 9)) == "Sheet1!E1:J6"
 
     def test_that_it_can_handle_alpha_to_idx_col_conversions(self):
         assert Range._convert_alpha_col_to_idx("A") == 0

@@ -192,27 +192,69 @@ class Range(Component):
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
     ) -> None:
-        super().__init__(auth_config=auth_config, sheets_conn=sheets_conn)
+        super().__init__(
+            auth_config=auth_config, sheets_conn=sheets_conn or parent_tab.conn
+        )
         self._parent = parent_tab
+        self._start_row = 0
+        self._end_row = 999
+        self._start_col = 0
+        self._end_col = 25
         if gsheet_range:
             tab_title, start, end = self._parse_range_str(gsheet_range)
             tab_title = tab_title if tab_title else parent_tab.title
+            # Assemble start/end row/col indices:
+            col, row = self._convert_cell_str_to_coord(start)
+            self._start_row = row or 0
+            self._start_col = col or 0
+            if end:
+                col, row = self._convert_cell_str_to_coord(end)
+                col = col or parent_tab.column_count - 1
+                row = row or parent_tab.row_count - 1
+            else:
+                col = parent_tab.column_count - 1
+                row = parent_tab.row_count - 1
+            self._end_row = row
+            self._end_col = col
+            # Construct fully formatted range str:
             end_range = f":{end}" if end else ""
             self._range_str = f"{tab_title}!{start}{end_range}"
         elif row_range and col_range:
             self._range_str = self._construct_range_str(
                 parent_tab.title, row_range, col_range
             )
-            self._start_row = row_range[0]
-            self._end_row = row_range[1]
-            self._start_col = col_range[0]
-            self._end_col = col_range[1]
+            self._start_row = row_range[0] or 0
+            self._end_row = row_range[1] or 999
+            self._start_col = col_range[0] or 0
+            self._end_col = col_range[1] or 25
+        else:
+            self._range_str = self._construct_range_str(
+                parent_tab.title, (0, 999), (0, 25)
+            )
 
-        self._range_str = ""
-        self._start_row = 0
-        self._end_row = 1
-        self._start_col = 0
-        self._end_col = 0
+    @property
+    def start_row_idx(self) -> int:
+        return self._start_row
+
+    @property
+    def end_row_idx(self) -> int:
+        return self._end_row
+
+    @property
+    def start_col_idx(self) -> int:
+        return self._start_col
+
+    @property
+    def end_col_idx(self) -> int:
+        return self._end_col
+
+    @property
+    def range_str(self) -> str:
+        return self._range_str
+
+    @property
+    def parent_tab(self) -> Tab:
+        return self._parent
 
     @classmethod
     def _construct_range_str(
@@ -223,8 +265,8 @@ class Range(Component):
     ) -> str:
         rng = ""
         if col_range and row_range:
-            start_letter = cls.gen_alpha_keys(col_range[0])[-1]
-            end_letter = cls.gen_alpha_keys(col_range[1])[-1]
+            start_letter = cls._convert_col_idx_to_alpha(col_range[0])
+            end_letter = cls._convert_col_idx_to_alpha(col_range[1])
             start_int = row_range[0] + 1
             end_int = row_range[1] + 1
             rng = f"!{start_letter}{start_int}:{end_letter}{end_int}"
@@ -252,7 +294,7 @@ class Range(Component):
     def _convert_cell_str_to_coord(cls, cell_str: str) -> Tuple[int, Optional[int]]:
         col, row = cls._parse_cell_str(cell_str)
         col_idx = cls._convert_alpha_col_to_idx(col)
-        row_idx = int(row) + 1 if row else None
+        row_idx = int(row) - 1 if row else None
         return col_idx, row_idx
 
     @staticmethod
@@ -282,14 +324,14 @@ class Range(Component):
 class Tab(Component):
     def __init__(
         self,
-        parent: GSheet,
+        parent_gsheet: GSheet,
         properties: Dict[str, Any],
         *,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
     ) -> None:
         super().__init__(auth_config=auth_config, sheets_conn=sheets_conn)
-        self._parent = parent
+        self._parent = parent_gsheet
         self._title = str(properties[terms.TAB_NAME])
         self._index = int(properties[terms.TAB_IDX])
         self._column_count = int(properties[terms.GRID_PROPS][terms.COL_CT])
@@ -383,7 +425,9 @@ class GSheet(Component):
         properties = self._conn.get_properties(self._file_id)
         name, sheets = self._parse_properties(properties)
         self._name = name
-        tabs = [Tab(parent=self, properties=sheet_props) for sheet_props in sheets]
+        tabs = [
+            Tab(parent_gsheet=self, properties=sheet_props) for sheet_props in sheets
+        ]
         self._tabs = tabs
         self._partial = False
         return self
