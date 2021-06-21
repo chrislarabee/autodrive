@@ -37,10 +37,13 @@ class TestComponent:
             "userEnteredValue": {"formulaValue": "=A1+B2"}
         }
 
-    def test_that_it_can_create_write_values_requests(self, testing_component):
+    def test_that_it_can_create_write_values_requests(
+        self, testing_component, test_tab
+    ):
         comp = testing_component()
+        rng = Range(test_tab, "Sheet1!A1:C3")
         data = [["a", "b", "c"], [1, 2, 3], [4, 5, 6]]
-        comp._write_values(data)
+        comp._write_values(data, rng)
         str_w_vals = [{"userEnteredValue": {"stringValue": v}} for v in data[0]]
         int_w_vals = [
             [{"userEnteredValue": {"numberValue": v}} for v in row] for row in data[1:]
@@ -57,6 +60,13 @@ class TestComponent:
                             ]
                         }
                     ],
+                    "range": {
+                        "sheetId": 0,
+                        "startRowIndex": 0,
+                        "endRowIndex": 2,
+                        "startColumnIndex": 0,
+                        "endColumnIndex": 2,
+                    },
                 }
             }
         ]
@@ -75,6 +85,7 @@ class TestRange:
         assert rng.start_col_idx == 3
         assert rng.end_col_idx == 4
         assert rng.range_str == "Sheet1!D5:E50"
+        assert str(rng) == "Sheet1!D5:E50"
         rng = Range(test_tab)
         assert rng.start_row_idx == 0
         assert rng.end_row_idx == 999

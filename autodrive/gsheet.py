@@ -132,7 +132,7 @@ class Component(ABC):
             results.append(row_list)
         return results
 
-    def _write_values(self: T, data: List[List[Any]]) -> T:
+    def _write_values(self: T, data: List[List[Any]], range: Range) -> T:
         write_values = [
             [self._gen_cell_write_value(val) for val in row] for row in data
         ]
@@ -140,6 +140,7 @@ class Component(ABC):
             "updateCells": {
                 terms.FIELDS: "*",
                 terms.ROWS: [{terms.VALUES: write_values}],
+                terms.RNG: range.to_dict(),
             }
         }
         self._requests.append(request)
@@ -256,6 +257,18 @@ class Range(Component):
     def parent_tab(self) -> Tab:
         return self._parent
 
+    def __str__(self) -> str:
+        return self._range_str
+
+    def to_dict(self) -> Dict[str, int]:
+        return {
+            terms.TAB_ID: self._parent.id,
+            "startRowIndex": self._start_row,
+            "endRowIndex": self._end_row,
+            "startColumnIndex": self._start_col,
+            "endColumnIndex": self._end_col,
+        }
+
     @classmethod
     def _construct_range_str(
         cls,
@@ -334,6 +347,7 @@ class Tab(Component):
         self._parent = parent_gsheet
         self._title = str(properties[terms.TAB_NAME])
         self._index = int(properties[terms.TAB_IDX])
+        self._sheet_id = int(properties[terms.TAB_ID])
         self._column_count = int(properties[terms.GRID_PROPS][terms.COL_CT])
         self._row_count = int(properties[terms.GRID_PROPS][terms.ROW_CT])
         self._values = []
@@ -345,6 +359,10 @@ class Tab(Component):
     @property
     def index(self) -> int:
         return self._index
+
+    @property
+    def id(self) -> int:
+        return self._sheet_id
 
     @property
     def column_count(self) -> int:

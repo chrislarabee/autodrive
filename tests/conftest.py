@@ -9,7 +9,7 @@ from autodrive.connection import (
     DEFAULT_CREDS,
     DEFAULT_TOKEN,
 )
-from autodrive.gsheet import Component, GSheet, Tab
+from autodrive.gsheet import Component, GSheet, Tab, Range
 from .testing_tools import CREATED_IDS
 
 
@@ -73,8 +73,14 @@ def test_tab(sheets_conn, test_gsheet):
         parent_gsheet=test_gsheet,
         properties={
             "title": "Sheet1",
+            "sheetId": 0,
             "index": 0,
             "gridProperties": {"columnCount": 10, "rowCount": 500},
         },
         sheets_conn=sheets_conn,
     )
+
+
+@pytest.fixture(scope="session")
+def test_range(sheets_conn, test_tab):
+    return Range(test_tab, sheets_conn=sheets_conn)

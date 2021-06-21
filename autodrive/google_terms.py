@@ -46,3 +46,4 @@ TYPE_MAP = {
 ADDTAB = "addSheet"
 # Update cell property names:
 ROWS = "rows"
+RNG = "range"
