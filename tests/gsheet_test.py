@@ -89,24 +89,27 @@ class TestRange:
         assert Range._construct_range_str("Sheet1") == "Sheet1"
         assert Range._construct_range_str("Sheet1", (0, 5), (5, 10)) == "Sheet1!E1:J6"
 
-    def test_that_it_can_convert_alpha_col_to_idx(self):
+    def test_that_it_can_handle_alpha_to_idx_col_conversions(self):
         assert Range._convert_alpha_col_to_idx("A") == 0
         assert Range._convert_alpha_col_to_idx("AA") == 26
-        assert Range._convert_alpha_col_to_idx("AAA") == 702
+        assert Range._convert_alpha_col_to_idx("AB") == 27
+        assert Range._convert_alpha_col_to_idx("AK") == 36
+        assert Range._convert_alpha_col_to_idx("AZ") == 51
         assert Range._convert_alpha_col_to_idx("BA") == 52
         assert Range._convert_alpha_col_to_idx("ZA") == 676
+        assert Range._convert_alpha_col_to_idx("AAA") == 702
+        # Reverse conversions:
+        assert Range._convert_col_idx_to_alpha(0) == "A"
+        assert Range._convert_col_idx_to_alpha(26) == "AA"
+        assert Range._convert_col_idx_to_alpha(27) == "AB"
+        assert Range._convert_col_idx_to_alpha(36) == "AK"
+        assert Range._convert_col_idx_to_alpha(51) == "AZ"
+        assert Range._convert_col_idx_to_alpha(52) == "BA"
+        assert Range._convert_col_idx_to_alpha(676) == "ZA"
+        assert Range._convert_col_idx_to_alpha(702) == "AAA"
 
 
 # class TestTab:
-#     class TestParseRowData:
-#         def test_that_it_can_parse_mixed_empty_and_populated_cells(self):
-#             raw = [
-#                 {'values': [{}, {}, {'userEnteredValue': {'stringValue': 'test'}}]},
-#                 {'values': [{}, {'userEnteredValue': {'numberValue': 1}}, {}]},
-#                 {'values': [{'userEnteredValue': {'stringValue': '=A1+A2'}}]},
-#             ]
-#             expected = [[None, None, "test"], [None, 1, None], ["=A1+A2"]]
-#             assert gs.Tab.parse_row_data(raw) == expected
 
 
 class TestGSheet:

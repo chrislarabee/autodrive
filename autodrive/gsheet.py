@@ -264,6 +264,20 @@ class Range(Component):
             values.append(26 ** remainder * base_idx)
         return sum(values) - 1
 
+    @staticmethod
+    def _convert_col_idx_to_alpha(idx: int) -> str:
+        chars = []
+        col_num = idx + 1
+        while col_num > 0:
+            remainder = col_num % 26
+            if remainder == 0:
+                remainder = 26
+            col_letter = chr(ord("A") + remainder - 1)
+            chars.append(col_letter)
+            col_num = int((col_num - 1) / 26)
+        chars.reverse()
+        return "".join(chars)
+
 
 class Tab(Component):
     def __init__(
