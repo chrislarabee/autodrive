@@ -1,5 +1,6 @@
 import os
 import warnings
+from datetime import datetime as dt
 
 import pytest
 
@@ -31,7 +32,7 @@ def drive_conn():
         # warnings.warn(f"Successfully cleaned up {len(ids)} objects.")
     else:
         warnings.warn(conn_warning.format(DEFAULT_CREDS, DEFAULT_TOKEN, os.getcwd()))
-        return None
+        yield None
 
 
 @pytest.fixture(scope="session")
@@ -39,14 +40,9 @@ def sheets_conn():
     if os.path.exists(DEFAULT_TOKEN) or os.path.exists(DEFAULT_CREDS):
         conn = SheetsConnection()
         yield conn
-        # warnings.warn("Cleaning up google drive objects created for tests...")
-        ids = CREATED_IDS
-        # for i in ids:
-        #     conn.delete_object(i)
-        # warnings.warn(f"Successfully cleaned up {len(ids)} objects.")
     else:
         warnings.warn(conn_warning.format(DEFAULT_CREDS, DEFAULT_TOKEN, os.getcwd()))
-        return None
+        yield None
 
 
 class GSheetComponent(Component):
@@ -59,12 +55,24 @@ def testing_component():
 
 
 @pytest.fixture(scope="session")
-def test_gsheet(sheets_conn):
-    return GSheet(
-        "test",
-        "test",
-        sheets_conn=sheets_conn,
-    )
+def test_gsheet(drive_conn, sheets_conn):
+    title = f"autodrive_test_sheet-{dt.now()}"
+    if drive_conn:
+        id_str = drive_conn.create_object(title, "sheet")
+        CREATED_IDS.insert(0, id_str)
+        gsheet = GSheet(
+            id_str,
+            title,
+            sheets_conn=sheets_conn,
+        )
+        gsheet.fetch()
+        return gsheet
+    else:
+        return GSheet(
+            "test",
+            title,
+            sheets_conn=sheets_conn,
+        )
 
 
 @pytest.fixture(scope="session")

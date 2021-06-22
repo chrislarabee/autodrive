@@ -53,7 +53,7 @@ class Connection(ABC):
         self._core = self._connect(api_scopes, api_name, api_version)
 
     @property
-    def config(self) -> AuthConfig:
+    def auth(self) -> AuthConfig:
         return self._auth_config
 
     @staticmethod
@@ -262,9 +262,10 @@ class SheetsConnection(Connection):
     def execute_requests(
         self, spreadsheet_id: str, requests: List[Dict[str, Any]]
     ) -> None:
-        self._sheets.batchUpdate(
+        result = self._sheets.batchUpdate(
             spreadsheetId=spreadsheet_id, body={"requests": requests}
-        )
+        ).execute()
+        return result
 
     def get_properties(self, spreadsheet_id: str) -> Dict[str, Any]:
         gsheet_props = f"{terms.FILE_PROPS}({terms.FILE_NAME})"

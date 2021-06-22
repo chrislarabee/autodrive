@@ -37,11 +37,9 @@ class TestComponent:
             "userEnteredValue": {"formulaValue": "=A1+B2"}
         }
 
-    def test_that_it_can_create_write_values_requests(
-        self, testing_component, test_tab
-    ):
+    def test_that_it_can_create_write_values_requests(self, testing_component):
         comp = testing_component()
-        rng = Range(test_tab, "Sheet1!A1:C3")
+        rng = Range("Sheet1!A1:C3", tab_id=0, autoconnect=False)
         data = [["a", "b", "c"], [1, 2, 3], [4, 5, 6]]
         comp._write_values(data, rng)
         str_w_vals = [{"userEnteredValue": {"stringValue": v}} for v in data[0]]
@@ -53,19 +51,15 @@ class TestComponent:
                 "updateCells": {
                     "fields": "*",
                     "rows": [
-                        {
-                            "values": [
-                                str_w_vals,
-                                *int_w_vals,
-                            ]
-                        }
+                        {"values": str_w_vals},
+                        *[{"values": int_vals} for int_vals in int_w_vals],
                     ],
                     "range": {
                         "sheetId": 0,
                         "startRowIndex": 0,
-                        "endRowIndex": 2,
+                        "endRowIndex": 3,
                         "startColumnIndex": 0,
-                        "endColumnIndex": 2,
+                        "endColumnIndex": 3,
                     },
                 }
             }
@@ -78,26 +72,14 @@ class TestComponent:
 
 
 class TestRange:
-    def test_that_it_instantiates_properly(self, test_tab):
-        rng = Range(test_tab, "Sheet1!D5:E50")
+    def test_that_it_instantiates_properly(self):
+        rng = Range("Sheet1!D5:E50", autoconnect=False)
         assert rng.start_row_idx == 4
-        assert rng.end_row_idx == 49
+        assert rng.end_row_idx == 50
         assert rng.start_col_idx == 3
-        assert rng.end_col_idx == 4
+        assert rng.end_col_idx == 5
         assert rng.range_str == "Sheet1!D5:E50"
         assert str(rng) == "Sheet1!D5:E50"
-        rng = Range(test_tab)
-        assert rng.start_row_idx == 0
-        assert rng.end_row_idx == 999
-        assert rng.start_col_idx == 0
-        assert rng.end_col_idx == 25
-        assert rng.range_str == "Sheet1!A1:Z1000"
-        rng = Range(test_tab, row_range=(0, 99), col_range=(0, 9))
-        assert rng.start_row_idx == 0
-        assert rng.end_row_idx == 99
-        assert rng.start_col_idx == 0
-        assert rng.end_col_idx == 9
-        assert rng.range_str == "Sheet1!A1:J100"
 
     def test_that_it_can_parse_range_strings(self):
         assert Range._parse_range_str("Sheet1!A1:C5") == ("Sheet1", "A1", "C5")
@@ -170,3 +152,37 @@ class TestGSheet:
         gsheet._partial = False
         gsheet.add_tab("new_sheet").add_tab("nuevo_sheet", 3)
         assert gsheet.requests == expected
+
+
+class TestCrud:
+    @pytest.fixture
+    def input_data(self):
+        return [[1, 2, 3], [4, 5, 6]]
+
+    @pytest.fixture
+    def expected_return(self, input_data):
+        inner_vals = [
+            {
+                "values": [
+                    {"formattedValue": str(i), "userEnteredValue": {"numberValue": i}}
+                    for i in row
+                ]
+            }
+            for row in input_data
+        ]
+        return {"sheets": [{"data": [{"rowData": inner_vals}]}]}
+
+    def test_that_range_can_write_values(
+        self, test_gsheet, sheets_conn, input_data, expected_return
+    ):
+        rng = Range(
+            "Sheet1!A1:C2",
+            tab_id=0,
+            file_id=test_gsheet.file_id,
+            sheets_conn=sheets_conn,
+        )
+        rng.write_values(input_data)
+        rng.requests[0]["updateCells"]["range"]["endColumnIndex"] = 3
+        rng.commit()
+        written_values = sheets_conn.get_values(test_gsheet.file_id)
+        assert written_values == expected_return

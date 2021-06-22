@@ -52,9 +52,7 @@ class Drive:
         sheets_conn: SheetsConnection = None,
     ) -> None:
         self._conn = drive_conn or DriveConnection(auth_config=auth_config)
-        self._sheets_conn = sheets_conn or SheetsConnection(
-            auth_config=self._conn.config
-        )
+        self._sheets_conn = sheets_conn or SheetsConnection(auth_config=self._conn.auth)
 
     def create_folder(self, folder_name: str, parent: Union[str, Folder] = None):
         parent_id = self._ensure_parent_id(parent)

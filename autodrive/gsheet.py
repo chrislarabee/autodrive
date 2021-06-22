@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Any, Tuple, TypeVar
+from typing import Dict, List, Optional, Any, Tuple, TypeVar, Type
 from abc import ABC
 import re
 import string
@@ -86,9 +86,15 @@ class GSheetError(Exception):
     pass
 
 
+class NoConnectionError(GSheetError):
+    def __init__(self, ctype: Type[Component], *args: object) -> None:
+        msg = f"No SheetsConnection has been established for this {ctype}."
+        super().__init__(msg, *args)
+
+
 class ParseRangeError(GSheetError):
-    def __init__(self, range: str, *args: object) -> None:
-        msg = f"{range} is not a valid range."
+    def __init__(self, range: str, msg_addon: str = None, *args: object) -> None:
+        msg = f"{range} is not a valid range.{' ' + msg_addon if msg_addon else ''}"
         super().__init__(msg, *args)
 
 
@@ -98,8 +104,12 @@ class Component(ABC):
         *,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
+        autoconnect: bool = True,
     ) -> None:
-        self._conn = sheets_conn or SheetsConnection(auth_config=auth_config)
+        if not sheets_conn and autoconnect:
+            sheets_conn = SheetsConnection(auth_config=auth_config)
+        self._conn = sheets_conn
+        self._auth = auth_config
         self._requests: List[Dict[str, Any]] = []
 
     @property
@@ -108,7 +118,20 @@ class Component(ABC):
 
     @property
     def conn(self) -> SheetsConnection:
+        if not self._conn:
+            raise NoConnectionError(type(self))
         return self._conn
+
+    @property
+    def auth(self) -> AuthConfig:
+        if not self._auth:
+            raise NoConnectionError(type(self))
+        return self._auth
+
+    def _commit(self, file_id: str):
+        if not self._conn:
+            raise NoConnectionError(type(self))
+        return self._conn.execute_requests(file_id, self._requests)
 
     @staticmethod
     def _parse_row_data(
@@ -139,7 +162,7 @@ class Component(ABC):
         request = {
             "updateCells": {
                 terms.FIELDS: "*",
-                terms.ROWS: [{terms.VALUES: write_values}],
+                terms.ROWS: [{terms.VALUES: values} for values in write_values],
                 terms.RNG: range.to_dict(),
             }
         }
@@ -159,6 +182,7 @@ class Component(ABC):
             type_str = terms.TYPE_MAP.get(type_, terms.STRING)
         return {terms.USER_ENTER_VAL: {type_str: python_val}}
 
+    # TODO: Delete this?
     @staticmethod
     def gen_alpha_keys(num: int) -> List[str]:
         """
@@ -186,52 +210,58 @@ class Component(ABC):
 class Range(Component):
     def __init__(
         self,
-        parent_tab: Tab,
-        gsheet_range: str = None,
-        row_range: Tuple[int, int] = None,
-        col_range: Tuple[int, int] = None,
+        gsheet_range: str,
+        parent_tab: Tab = None,
+        *,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
+        file_id: str = None,
+        tab_id: int = None,
+        autoconnect: bool = True,
     ) -> None:
         super().__init__(
-            auth_config=auth_config, sheets_conn=sheets_conn or parent_tab.conn
+            auth_config=auth_config,
+            sheets_conn=sheets_conn,
+            autoconnect=autoconnect,
         )
         self._parent = parent_tab
         self._start_row = 0
-        self._end_row = 999
+        self._end_row = 1000  # remember: end values are exclusive.
         self._start_col = 0
-        self._end_col = 25
-        if gsheet_range:
-            tab_title, start, end = self._parse_range_str(gsheet_range)
-            tab_title = tab_title if tab_title else parent_tab.title
-            # Assemble start/end row/col indices:
-            col, row = self._convert_cell_str_to_coord(start)
-            self._start_row = row or 0
-            self._start_col = col or 0
-            if end:
-                col, row = self._convert_cell_str_to_coord(end)
-                col = col or parent_tab.column_count - 1
-                row = row or parent_tab.row_count - 1
-            else:
-                col = parent_tab.column_count - 1
-                row = parent_tab.row_count - 1
-            self._end_row = row
-            self._end_col = col
-            # Construct fully formatted range str:
-            end_range = f":{end}" if end else ""
-            self._range_str = f"{tab_title}!{start}{end_range}"
-        elif row_range and col_range:
-            self._range_str = self._construct_range_str(
-                parent_tab.title, row_range, col_range
-            )
-            self._start_row = row_range[0] or 0
-            self._end_row = row_range[1] or 999
-            self._start_col = col_range[0] or 0
-            self._end_col = col_range[1] or 25
+        self._end_col = 26  # remember: end values are exclusive.
+        self._range_str = ""
+        self._file_id = file_id
+        self._tab_id = tab_id
+        tab_title, start, end = self._parse_range_str(gsheet_range)
+        tab_title = tab_title if tab_title else parent_tab.title
+        # Assemble start/end row/col indices:
+        col, row = self._convert_cell_str_to_coord(start)
+        self._start_row = row or 0
+        self._start_col = col or 0
+        if end:
+            col, row = self._convert_cell_str_to_coord(end)
+            col = col + 1 or parent_tab.column_count
+            row = row + 1 or parent_tab.row_count
         else:
-            self._range_str = self._construct_range_str(
-                parent_tab.title, (0, 999), (0, 25)
-            )
+            col = parent_tab.column_count
+            row = parent_tab.row_count
+        self._end_row = row
+        self._end_col = col
+        # Construct fully formatted range str:
+        end_range = f":{end}" if end else ""
+        self._range_str = f"{tab_title}!{start}{end_range}"
+        # elif row_range and col_range:
+        #     self._range_str = self._construct_range_str(
+        #         parent_tab.title, row_range, col_range
+        #     )
+        #     self._start_row = row_range[0] or 0
+        #     self._end_row = row_range[1] or 999
+        #     self._start_col = col_range[0] or 0
+        #     self._end_col = col_range[1] or 25
+        # else:
+        #     self._range_str = self._construct_range_str(
+        #         parent_tab.title, (0, 999), (0, 25)
+        #     )
 
     @property
     def start_row_idx(self) -> int:
@@ -255,19 +285,92 @@ class Range(Component):
 
     @property
     def parent_tab(self) -> Tab:
+        if not self._parent:
+            raise AttributeError("This Range has no parent_tab.")
         return self._parent
+
+    @parent_tab.setter
+    def parent_tab(self, tab: Tab) -> None:
+        self._parent = tab
 
     def __str__(self) -> str:
         return self._range_str
 
     def to_dict(self) -> Dict[str, int]:
+        if not self._tab_id:
+            raise ValueError(
+                "This range has no tab_id specified, you must specify tab_id."
+            )
         return {
-            terms.TAB_ID: self._parent.id,
+            terms.TAB_ID: self._tab_id,
             "startRowIndex": self._start_row,
             "endRowIndex": self._end_row,
             "startColumnIndex": self._start_col,
             "endColumnIndex": self._end_col,
         }
+
+    def write_values(self, data: List[List[Any]]) -> Range:
+        self._write_values(data, self)
+        return self
+
+    def commit(self) -> None:
+        if not self._file_id:
+            raise ValueError(
+                "This range has no file_id specified, you must specify file_id."
+            )
+        return self._commit(self._file_id)
+
+    @classmethod
+    def from_raw_args(
+        cls,
+        file_id: str,
+        row_range: Tuple[int, int],
+        col_range: Tuple[int, int],
+        tab_title: str = None,
+        tab_id: int = None,
+        parent_tab: Tab = None,
+        auth_config: AuthConfig = None,
+        sheets_conn: SheetsConnection = None,
+        autoconnect: bool = True,
+    ) -> Range:
+        if not tab_id and parent_tab:
+            tab_id = parent_tab.id
+        else:
+            raise ValueError("Must pass either tab_id or parent_tab.")
+        if not tab_title and parent_tab:
+            tab_title = parent_tab.title
+        else:
+            raise ValueError("Must pass either tab_title or parent_tab")
+        range_str = cls._construct_range_str(tab_title, row_range, col_range)
+        rng = Range(
+            range_str,
+            parent_tab,
+            auth_config=auth_config,
+            sheets_conn=sheets_conn,
+            file_id=file_id,
+            tab_id=tab_id,
+            autoconnect=autoconnect,
+        )
+        return rng
+
+    @classmethod
+    def _gen_args_from_range_str(cls, range_str: str):
+        tab_title, start, end = cls._parse_range_str(range_str)
+        error_msg = "Cannot generate Range args without {0}"
+        if not tab_title:
+            raise ParseRangeError(
+                range_str, error_msg.format("tab title (e.g. Sheet1!)")
+            )
+        if not end:
+            raise ParseRangeError(range_str, error_msg.format("end range."))
+        # Assemble start/end row/col indices:
+        col, row = cls._convert_cell_str_to_coord(start)
+        start_row = row or 0
+        start_col = col or 0
+        col, row = cls._convert_cell_str_to_coord(end)
+        end_row = row or 999
+        end_col = col or 25
+        return (start_col, end_col), (start_row, end_row), tab_title
 
     @classmethod
     def _construct_range_str(
@@ -418,10 +521,6 @@ class GSheet(Component):
         return {tab.title: tab for tab in self._tabs}
 
     @property
-    def conn(self) -> SheetsConnection:
-        return self._conn
-
-    @property
     def file_id(self) -> str:
         return self._file_id
 
@@ -458,10 +557,6 @@ class GSheet(Component):
         sheet_props = [sheet[terms.TAB_PROPS] for sheet in properties[terms.TABS_PROP]]
         return sheet_title, sheet_props
 
-    def commit(self) -> None:
-        self._conn.execute_requests(self._file_id, self._requests)
-        self._requests = []
-
     def add_tab(self, title: str, index: int = None) -> GSheet:
         self._ensure_not_partial()
         if title in self.tabs.keys():
@@ -473,6 +568,26 @@ class GSheet(Component):
                 }
             }
         )
+        return self
+
+    def commit(self) -> None:
+        self._commit(self._file_id)
+
+    def write_values(
+        self, data: List[List[Any]], to_tab: str, range: Range = None
+    ) -> GSheet:
+        tab = self.tabs.get(to_tab)
+        if not tab:
+            raise KeyError(f"{to_tab} not found in {self._title} tabs.")
+        if not range:
+            range = Range.from_raw_args(
+                self._file_id,
+                (0, len(data)),
+                (0, len(data[0])),
+                parent_tab=tab,
+                sheets_conn=self.conn,
+            )
+        self._write_values(data, range)
         return self
 
     def _ensure_not_partial(self) -> None:
