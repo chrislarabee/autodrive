@@ -24,24 +24,6 @@ ROW_CT = "rowCount"
 DATA = "data"
 ROWDATA = "rowData"
 VALUES = "values"
-FORMATTED_VAL = "formattedValue"
-USER_ENTER_VAL = "userEnteredValue"
-# Data types:
-STRING = "stringValue"
-FORMULA = "formulaValue"
-NUMBER = "numberValue"
-BOOLEAN = "boolValue"
-DATA_TYPE_KEYS = [STRING, FORMULA, NUMBER, BOOLEAN]
-TYPE_MAP = {
-    STRING: str,
-    FORMULA: str,
-    NUMBER: float,
-    BOOLEAN: bool,
-    bool: BOOLEAN,
-    str: STRING,
-    float: NUMBER,
-    int: NUMBER,
-}
 # Requests:
 ADDTAB = "addSheet"
 # Update cell property names:
