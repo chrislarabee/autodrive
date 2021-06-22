@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Union, Optional
+from typing import List, Optional
 
 from .connection import DriveConnection, AuthConfig, SheetsConnection
 from .gsheet import GSheet
@@ -54,11 +54,11 @@ class Drive:
         self._conn = drive_conn or DriveConnection(auth_config=auth_config)
         self._sheets_conn = sheets_conn or SheetsConnection(auth_config=self._conn.auth)
 
-    def create_folder(self, folder_name: str, parent: Union[str, Folder] = None):
+    def create_folder(self, folder_name: str, parent: str | Folder = None):
         parent_id = self._ensure_parent_id(parent)
         result = self._conn.create_object(folder_name, "folder", parent_id)
 
-    def create_gsheet(self, gsheet_name: str, parent: Union[str, Folder] = None):
+    def create_gsheet(self, gsheet_name: str, parent: str | Folder = None):
         parent_id = self._ensure_parent_id(parent)
         result = self._conn.create_object(gsheet_name, "sheet", parent_id)
 
@@ -78,5 +78,5 @@ class Drive:
         ]
 
     @staticmethod
-    def _ensure_parent_id(parent: Union[str, Folder] = None) -> Optional[str]:
+    def _ensure_parent_id(parent: str | Folder = None) -> Optional[str]:
         return parent.id if isinstance(parent, Folder) else parent

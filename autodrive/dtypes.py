@@ -1,4 +1,4 @@
-from typing import Any, Union
+from __future__ import annotations
 
 
 class GoogleDtype(type):
@@ -32,7 +32,7 @@ class Number(metaclass=GoogleDtype):
     type_key = "numberValue"
 
     @classmethod
-    def parse(cls, value: str) -> Union[float, int]:
+    def parse(cls, value: str) -> float | int:
         if value.isnumeric():
             return int(value)
         else:

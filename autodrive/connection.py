@@ -1,4 +1,6 @@
-from typing import List, Dict, Union, Any, Literal
+from __future__ import annotations
+
+from typing import List, Dict, Any, Literal
 import pickle
 from abc import ABC
 from pathlib import Path
@@ -20,8 +22,8 @@ class AuthConfig:
     def __init__(
         self,
         secrets_config: Dict[str, Any] = None,
-        token_filepath: Union[str, Path] = DEFAULT_TOKEN,
-        creds_filepath: Union[str, Path] = DEFAULT_CREDS,
+        token_filepath: str | Path = DEFAULT_TOKEN,
+        creds_filepath: str | Path = DEFAULT_CREDS,
     ) -> None:
         self.secrets_config = secrets_config
         self._token_filepath = Path(token_filepath)
@@ -223,7 +225,7 @@ class DriveConnection(Connection):
         self._files.delete(fileId=object_id, supportsAllDrives=True).execute()
 
     @staticmethod
-    def _setup_drive_id_kwargs(drive_id: str = None) -> Dict[str, Union[str, bool]]:
+    def _setup_drive_id_kwargs(drive_id: str = None) -> Dict[str, str | bool]:
         """
         Whenever a drive_id is needed to access a shared drive, two
         other kwargs need to be passed to the relevant function. This
