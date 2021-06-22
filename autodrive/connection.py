@@ -9,6 +9,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
 from . import google_terms as terms
+from .dtypes import GoogleValueType, EffectiveVal, UserEnteredVal, FormattedVal
 
 
 DEFAULT_TOKEN = "gdrive_token.pickle"
@@ -279,9 +280,9 @@ class SheetsConnection(Connection):
     def get_values(
         self, spreadsheet_id: str, ranges: List[str] = None
     ) -> Dict[str, Any]:
-        data_values = f"{terms.USER_ENTER_VAL},{terms.FORMATTED_VAL}"
+        data_values = f"{UserEnteredVal},{FormattedVal},{EffectiveVal}"
         # TODO: Collect formatting values as well.
-        # formatting_values=""
+        # formatting_values=f""
         values = f"{terms.VALUES}({data_values})"
         return self._sheets.get(
             spreadsheetId=spreadsheet_id,
