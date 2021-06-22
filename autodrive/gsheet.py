@@ -148,10 +148,12 @@ class Component(ABC):
     def gsheet_id(self) -> str:
         return self._gsheet_id
 
-    def _commit(self, gsheet_id: str):
+    def commit(self) -> Dict[str, Any]:
         if not self._conn:
             raise NoConnectionError(type(self))
-        return self._conn.execute_requests(gsheet_id, self._requests)
+        results = self._conn.execute_requests(self._gsheet_id, self._requests)
+        self._requests = []
+        return results
 
     @classmethod
     def _parse_row_data(
@@ -343,9 +345,6 @@ class Range(Component):
     def write_values(self, data: List[List[Any]]) -> Range:
         self._write_values(data, self)
         return self
-
-    def commit(self) -> None:
-        return self._commit(self._gsheet_id)
 
     @classmethod
     def from_raw_args(
@@ -602,10 +601,6 @@ class Tab(Component):
         self.commit()
         return self
 
-    def commit(self) -> None:
-        self._commit(self._gsheet_id)
-        self._requests = []
-
 
 class GSheet(Component):
     def __init__(
@@ -674,9 +669,6 @@ class GSheet(Component):
             }
         )
         return self
-
-    def commit(self) -> None:
-        self._commit(self._gsheet_id)
 
     def write_values(
         self, data: List[List[Any]], to_tab: str, rng: Range = None

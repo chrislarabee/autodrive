@@ -148,7 +148,7 @@ class TestTab:
                         "columnCount": 10,
                     },
                     "sheetId": 1234,
-                    "index": 0
+                    "index": 0,
                 }
             }
         }

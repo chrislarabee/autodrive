@@ -262,7 +262,7 @@ class SheetsConnection(Connection):
 
     def execute_requests(
         self, spreadsheet_id: str, requests: List[Dict[str, Any]]
-    ) -> None:
+    ) -> Dict[str, Any]:
         result = self._sheets.batchUpdate(
             spreadsheetId=spreadsheet_id, body={"requests": requests}
         ).execute()
