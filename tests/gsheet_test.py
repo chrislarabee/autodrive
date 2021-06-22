@@ -2,23 +2,38 @@ import string
 
 import pytest
 
-from autodrive.gsheet import GSheet, Component, Range, ParseRangeError
+from autodrive.gsheet import GSheet, Component, Tab, Range, ParseRangeError
+from autodrive.dtypes import FormattedVal, UserEnteredVal, EffectiveVal
 
 
 class TestComponent:
     def test_that_it_can_parse_row_data(self):
-        value1 = {"formattedValue": "test", "userEnteredValue": {"stringValue": "test"}}
-        value2 = {"formattedValue": 1, "userEnteredValue": {"numberValue": 1}}
-        value3 = {"formattedValue": 3, "userEnteredValue": {"stringValue": "=A1+A2"}}
+        value1 = {
+            "formattedValue": "test",
+            "userEnteredValue": {"stringValue": "test"},
+            "effectiveValue": {"stringValue": "test"},
+        }
+        value2 = {
+            "formattedValue": "1",
+            "userEnteredValue": {"numberValue": "1"},
+            "effectiveValue": {"numberValue": 1},
+        }
+        value3 = {
+            "formattedValue": "3",
+            "userEnteredValue": {"formulaValue": "=A1+A2"},
+            "effectiveValue": {"numberValue": 3},
+        }
         raw = [
             dict(values=[{}, {}, value1]),
             dict(values=[{}, value2, {}]),
             dict(values=[value3]),
         ]
         expected = [[None, None, "test"], [None, 1, None], ["=A1+A2"]]
-        assert Component._parse_row_data(raw, get_formatted=False) == expected
+        assert Component._parse_row_data(raw, value_type=UserEnteredVal) == expected
         expected = [[None, None, "test"], [None, 1, None], [3]]
-        assert Component._parse_row_data(raw, get_formatted=True) == expected
+        assert Component._parse_row_data(raw, value_type=EffectiveVal) == expected
+        expected = [[None, None, "test"], [None, "1", None], ["3"]]
+        assert Component._parse_row_data(raw, value_type=FormattedVal) == expected
 
     def test_that_it_can_gen_cell_write_value(self):
         assert Component._gen_cell_write_value(1) == {
@@ -38,8 +53,8 @@ class TestComponent:
         }
 
     def test_that_it_can_create_write_values_requests(self, testing_component):
-        comp = testing_component()
-        rng = Range("Sheet1!A1:C3", tab_id=0, autoconnect=False)
+        comp = testing_component(gsheet_id="test")
+        rng = Range("Sheet1!A1:C3", gsheet_id="test", tab_id=0, autoconnect=False)
         data = [["a", "b", "c"], [1, 2, 3], [4, 5, 6]]
         comp._write_values(data, rng)
         str_w_vals = [{"userEnteredValue": {"stringValue": v}} for v in data[0]]
@@ -73,7 +88,7 @@ class TestComponent:
 
 class TestRange:
     def test_that_it_instantiates_properly(self):
-        rng = Range("Sheet1!D5:E50", autoconnect=False)
+        rng = Range("Sheet1!D5:E50", gsheet_id="test", tab_id=0, autoconnect=False)
         assert rng.start_row_idx == 4
         assert rng.end_row_idx == 50
         assert rng.start_col_idx == 3
@@ -122,7 +137,32 @@ class TestRange:
         assert Range._convert_col_idx_to_alpha(702) == "AAA"
 
 
-# class TestTab:
+class TestTab:
+    def test_that_new_tab_requests_generates_proper_request(self):
+        assert Tab.new_tab_request("test", 1234, 0, 500, 10) == {
+            "addSheet": {
+                "properties": {
+                    "title": "test",
+                    "gridProperties": {
+                        "rowCount": 500,
+                        "columnCount": 10,
+                    },
+                    "sheetId": 1234,
+                    "index": 0
+                }
+            }
+        }
+        assert Tab.new_tab_request("test") == {
+            "addSheet": {
+                "properties": {
+                    "title": "test",
+                    "gridProperties": {
+                        "rowCount": 1000,
+                        "columnCount": 26,
+                    },
+                }
+            }
+        }
 
 
 class TestGSheet:
@@ -143,6 +183,7 @@ class TestGSheet:
         }
         assert GSheet._parse_properties(raw) == expected
 
+    @pytest.mark.skip
     def test_that_it_can_add_tabs_requests(self, sheets_conn):
         expected = [
             {"addSheet": {"properties": {"title": "new_sheet", "index": 0}}},
@@ -159,30 +200,32 @@ class TestCrud:
     def input_data(self):
         return [[1, 2, 3], [4, 5, 6]]
 
-    @pytest.fixture
-    def expected_return(self, input_data):
-        inner_vals = [
-            {
-                "values": [
-                    {"formattedValue": str(i), "userEnteredValue": {"numberValue": i}}
-                    for i in row
-                ]
-            }
-            for row in input_data
-        ]
-        return {"sheets": [{"data": [{"rowData": inner_vals}]}]}
-
-    def test_that_range_can_write_values(
-        self, test_gsheet, sheets_conn, input_data, expected_return
+    def test_that_range_can_write_and_read_values(
+        self, test_gsheet, sheets_conn, input_data
     ):
         rng = Range(
-            "Sheet1!A1:C2",
+            "Sheet1!A4:C5",
             tab_id=0,
-            file_id=test_gsheet.file_id,
+            gsheet_id=test_gsheet.gsheet_id,
             sheets_conn=sheets_conn,
         )
         rng.write_values(input_data)
-        rng.requests[0]["updateCells"]["range"]["endColumnIndex"] = 3
         rng.commit()
-        written_values = sheets_conn.get_values(test_gsheet.file_id)
-        assert written_values == expected_return
+        rng.get_values()
+        assert rng.values == input_data
+
+    def test_that_tab_can_write_and_read_values(
+        self, test_gsheet, sheets_conn, input_data
+    ):
+        tab = Tab(
+            test_gsheet.gsheet_id,
+            tab_title="test_sheet",
+            tab_idx=1,
+            tab_id=123456789,
+            sheets_conn=sheets_conn,
+        )
+        tab.create()
+        tab.write_values(input_data)
+        tab.commit()
+        tab.get_values()
+        assert tab.values == input_data

@@ -1,12 +1,24 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Any, Tuple, TypeVar, Type
+from typing import Dict, List, Optional, Any, Tuple, TypeVar, Type, Union
 from abc import ABC
 import re
 import string
 
 from .connection import SheetsConnection, AuthConfig
 from . import google_terms as terms
+from .dtypes import (
+    Boolean,
+    GOOGLE_DTYPES,
+    GoogleDtype,
+    GoogleValueType,
+    TYPE_MAP,
+    UserEnteredVal,
+    EffectiveVal,
+    FormattedVal,
+    String,
+    Formula,
+)
 
 """
 THIS CAN BE DONE:
@@ -93,17 +105,19 @@ class NoConnectionError(GSheetError):
 
 
 class ParseRangeError(GSheetError):
-    def __init__(self, range: str, msg_addon: str = None, *args: object) -> None:
-        msg = f"{range} is not a valid range.{' ' + msg_addon if msg_addon else ''}"
+    def __init__(self, rng: str, msg_addon: str = None, *args: object) -> None:
+        msg = f"{rng} is not a valid range.{' ' + msg_addon if msg_addon else ''}"
         super().__init__(msg, *args)
 
 
 class Component(ABC):
     def __init__(
         self,
+        gsheet_id: str,
         *,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
+        parent: Component = None,
         autoconnect: bool = True,
     ) -> None:
         if not sheets_conn and autoconnect:
@@ -111,6 +125,8 @@ class Component(ABC):
         self._conn = sheets_conn
         self._auth = auth_config
         self._requests: List[Dict[str, Any]] = []
+        self._gsheet_id = gsheet_id
+        self._parent = parent
 
     @property
     def requests(self) -> List[Dict[str, Any]]:
@@ -128,34 +144,50 @@ class Component(ABC):
             raise NoConnectionError(type(self))
         return self._auth
 
-    def _commit(self, file_id: str):
+    @property
+    def gsheet_id(self) -> str:
+        return self._gsheet_id
+
+    def _commit(self, gsheet_id: str):
         if not self._conn:
             raise NoConnectionError(type(self))
-        return self._conn.execute_requests(file_id, self._requests)
+        return self._conn.execute_requests(gsheet_id, self._requests)
 
-    @staticmethod
+    @classmethod
     def _parse_row_data(
-        row_data: List[Dict[str, List[Dict[str, Any]]]], get_formatted: bool = True
+        cls,
+        row_data: List[Dict[str, List[Dict[str, Any]]]],
+        value_type: GoogleValueType = EffectiveVal,
     ) -> List[List[Any]]:
         results = []
         for row in row_data:
             row_list = []
             for cell in row.get(terms.VALUES, []):
-                value = None
-                if get_formatted:
-                    value = cell.get(terms.FORMATTED_VAL)
-                else:
-                    user_entered_value = cell.get(terms.USER_ENTER_VAL)
-                    if user_entered_value:
-                        for key in terms.DATA_TYPE_KEYS:
-                            value = user_entered_value.get(key)
+                raw_value = cell.get(str(value_type))
+                value = raw_value
+                if value_type in (UserEnteredVal, EffectiveVal):
+                    if raw_value:
+                        for dtype in GOOGLE_DTYPES:
+                            value = raw_value.get(str(dtype))
                             if value:
+                                if value_type == UserEnteredVal:
+                                    value = dtype.parse(value)
                                 break
                 row_list.append(value)
             results.append(row_list)
         return results
 
-    def _write_values(self: T, data: List[List[Any]], range: Range) -> T:
+    def _get_values(
+        self,
+        gsheet_id: str,
+        rng: Range,
+        value_type: GoogleValueType = EffectiveVal,
+    ) -> List[List[Any]]:
+        raw = self._conn.get_values(gsheet_id, [str(rng)])
+        row_data = raw[terms.TABS_PROP][0][terms.DATA][0][terms.ROWDATA]
+        return self._parse_row_data(row_data, value_type=value_type)
+
+    def _write_values(self: T, data: List[List[Any]], rng: Range) -> T:
         write_values = [
             [self._gen_cell_write_value(val) for val in row] for row in data
         ]
@@ -163,7 +195,7 @@ class Component(ABC):
             "updateCells": {
                 terms.FIELDS: "*",
                 terms.ROWS: [{terms.VALUES: values} for values in write_values],
-                terms.RNG: range.to_dict(),
+                terms.RNG: rng.to_dict(),
             }
         }
         self._requests.append(request)
@@ -177,10 +209,10 @@ class Component(ABC):
             and len(python_val) >= 2
             and python_val[0] == "="
         ):
-            type_str = terms.FORMULA
+            dtype = Formula
         else:
-            type_str = terms.TYPE_MAP.get(type_, terms.STRING)
-        return {terms.USER_ENTER_VAL: {type_str: python_val}}
+            dtype = TYPE_MAP.get(type_, String)
+        return {UserEnteredVal.value_key: {dtype.type_key: python_val}}
 
     # TODO: Delete this?
     @staticmethod
@@ -211,27 +243,26 @@ class Range(Component):
     def __init__(
         self,
         gsheet_range: str,
-        parent_tab: Tab = None,
+        gsheet_id: str,
+        tab_id: int,
         *,
+        parent_tab: Tab = None,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
-        file_id: str = None,
-        tab_id: int = None,
         autoconnect: bool = True,
     ) -> None:
         super().__init__(
+            gsheet_id=gsheet_id,
             auth_config=auth_config,
             sheets_conn=sheets_conn,
             autoconnect=autoconnect,
+            parent=parent_tab,
         )
-        self._parent = parent_tab
-        self._start_row = 0
+        self._tab_id = tab_id
+        self._values: List[List[Any]] = []
         self._end_row = 1000  # remember: end values are exclusive.
-        self._start_col = 0
         self._end_col = 26  # remember: end values are exclusive.
         self._range_str = ""
-        self._file_id = file_id
-        self._tab_id = tab_id
         tab_title, start, end = self._parse_range_str(gsheet_range)
         tab_title = tab_title if tab_title else parent_tab.title
         # Assemble start/end row/col indices:
@@ -250,18 +281,10 @@ class Range(Component):
         # Construct fully formatted range str:
         end_range = f":{end}" if end else ""
         self._range_str = f"{tab_title}!{start}{end_range}"
-        # elif row_range and col_range:
-        #     self._range_str = self._construct_range_str(
-        #         parent_tab.title, row_range, col_range
-        #     )
-        #     self._start_row = row_range[0] or 0
-        #     self._end_row = row_range[1] or 999
-        #     self._start_col = col_range[0] or 0
-        #     self._end_col = col_range[1] or 25
-        # else:
-        #     self._range_str = self._construct_range_str(
-        #         parent_tab.title, (0, 999), (0, 25)
-        #     )
+
+    @property
+    def tab_id(self) -> int:
+        return self._tab_id
 
     @property
     def start_row_idx(self) -> int:
@@ -284,6 +307,10 @@ class Range(Component):
         return self._range_str
 
     @property
+    def values(self) -> List[List[Any]]:
+        return self._values
+
+    @property
     def parent_tab(self) -> Tab:
         if not self._parent:
             raise AttributeError("This Range has no parent_tab.")
@@ -297,7 +324,7 @@ class Range(Component):
         return self._range_str
 
     def to_dict(self) -> Dict[str, int]:
-        if not self._tab_id:
+        if self._tab_id is None:  # tab_id can be 0
             raise ValueError(
                 "This range has no tab_id specified, you must specify tab_id."
             )
@@ -309,21 +336,21 @@ class Range(Component):
             "endColumnIndex": self._end_col,
         }
 
+    def get_values(self) -> Range:
+        self._values = self._get_values(self._gsheet_id, self)
+        return self
+
     def write_values(self, data: List[List[Any]]) -> Range:
         self._write_values(data, self)
         return self
 
     def commit(self) -> None:
-        if not self._file_id:
-            raise ValueError(
-                "This range has no file_id specified, you must specify file_id."
-            )
-        return self._commit(self._file_id)
+        return self._commit(self._gsheet_id)
 
     @classmethod
     def from_raw_args(
         cls,
-        file_id: str,
+        gsheet_id: str,
         row_range: Tuple[int, int],
         col_range: Tuple[int, int],
         tab_title: str = None,
@@ -344,10 +371,10 @@ class Range(Component):
         range_str = cls._construct_range_str(tab_title, row_range, col_range)
         rng = Range(
             range_str,
-            parent_tab,
+            parent_tab=parent_tab,
             auth_config=auth_config,
             sheets_conn=sheets_conn,
-            file_id=file_id,
+            gsheet_id=gsheet_id,
             tab_id=tab_id,
             autoconnect=autoconnect,
         )
@@ -389,13 +416,13 @@ class Range(Component):
         return tab_title + rng
 
     @staticmethod
-    def _parse_range_str(range: str) -> Tuple[Optional[str], str, Optional[str]]:
-        result = re.match(r"(?:(.*)!)?([A-Z]+\d+?)(?::([A-Z]*\d*))?", range)
+    def _parse_range_str(rng: str) -> Tuple[Optional[str], str, Optional[str]]:
+        result = re.match(r"(?:(.*)!)?([A-Z]+\d+?)(?::([A-Z]*\d*))?", rng)
         if result:
             grps = result.groups()
             return grps  # type: ignore
         else:
-            raise ParseRangeError(range)
+            raise ParseRangeError(rng)
 
     @staticmethod
     def _parse_cell_str(cell_str: str) -> Tuple[str, Optional[str]]:
@@ -440,19 +467,30 @@ class Range(Component):
 class Tab(Component):
     def __init__(
         self,
-        parent_gsheet: GSheet,
-        properties: Dict[str, Any],
+        gsheet_id: str,
+        tab_title: str,
+        tab_idx: int,
+        tab_id: int,
+        column_count: int = 26,
+        row_count: int = 1000,
         *,
+        parent_gsheet: GSheet = None,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
+        autoconnect: bool = True,
     ) -> None:
-        super().__init__(auth_config=auth_config, sheets_conn=sheets_conn)
-        self._parent = parent_gsheet
-        self._title = str(properties[terms.TAB_NAME])
-        self._index = int(properties[terms.TAB_IDX])
-        self._sheet_id = int(properties[terms.TAB_ID])
-        self._column_count = int(properties[terms.GRID_PROPS][terms.COL_CT])
-        self._row_count = int(properties[terms.GRID_PROPS][terms.ROW_CT])
+        super().__init__(
+            gsheet_id=gsheet_id,
+            auth_config=auth_config,
+            sheets_conn=sheets_conn,
+            autoconnect=autoconnect,
+            parent=parent_gsheet,
+        )
+        self._title = tab_title
+        self._index = tab_idx
+        self._tab_id = tab_id
+        self._column_count = column_count
+        self._row_count = row_count
         self._values = []
 
     @property
@@ -465,7 +503,7 @@ class Tab(Component):
 
     @property
     def id(self) -> int:
-        return self._sheet_id
+        return self._tab_id
 
     @property
     def column_count(self) -> int:
@@ -476,41 +514,118 @@ class Tab(Component):
         return self._row_count
 
     @property
+    def data_shape(self) -> Tuple[int, int]:
+        width = len(self._values[0]) if self._values else 0
+        return len(self._values), width
+
+    @property
     def values(self) -> List[List[Any]]:
         return self._values
 
-    def get_values(self) -> Tab:
-        raw = self._parent.conn.get_values(self._parent.file_id, [self._title])
-        row_data = raw[terms.TABS_PROP][0][terms.DATA][0][terms.ROWDATA]
-        self._values = self._parse_row_data(row_data)
+    @classmethod
+    def from_properties(
+        cls,
+        gsheet_id: str,
+        properties: Dict[str, Any],
+        parent_gsheet: GSheet = None,
+        auth_config: AuthConfig = None,
+        sheets_conn: SheetsConnection = None,
+        autoconnect: bool = True,
+    ) -> Tab:
+        title = str(properties[terms.TAB_NAME])
+        index = int(properties[terms.TAB_IDX])
+        tab_id = int(properties[terms.TAB_ID])
+        column_count = int(properties[terms.GRID_PROPS][terms.COL_CT])
+        row_count = int(properties[terms.GRID_PROPS][terms.ROW_CT])
+        return Tab(
+            gsheet_id,
+            tab_title=title,
+            tab_idx=index,
+            tab_id=tab_id,
+            column_count=column_count,
+            row_count=row_count,
+            parent_gsheet=parent_gsheet,
+            auth_config=auth_config,
+            sheets_conn=sheets_conn,
+            autoconnect=autoconnect,
+        )
+
+    def get_values(self, rng: Range = None) -> Tab:
+        if not rng:
+            rng = Range.from_raw_args(
+                self._gsheet_id,
+                row_range=(0, self._row_count),
+                col_range=(0, self._column_count),
+                parent_tab=self,
+                sheets_conn=self._conn,
+            )
+        self._values = self._get_values(self._gsheet_id, rng)
         return self
 
+    def write_values(self, data: List[List[Any]], rng: Range = None) -> Tab:
+        if not rng:
+            rng = Range.from_raw_args(
+                self._gsheet_id,
+                row_range=(0, len(data)),
+                col_range=(0, len(data[0])),
+                parent_tab=self,
+                sheets_conn=self._conn,
+            )
+        self._write_values(data, rng)
+        return self
 
-class PartialGSheet:
-    def __init__(self, file_id: str, title: str, sheets_conn: SheetsConnection) -> None:
-        self._conn = sheets_conn
-        self._file_id = file_id
-        self._title = title
+    @classmethod
+    def new_tab_request(
+        cls,
+        tab_title: str,
+        tab_id: int = None,
+        tab_idx: int = None,
+        num_rows: int = 1000,
+        num_cols: int = 26,
+    ) -> Dict[str, Any]:
+        props: Dict[str, Any] = {
+            terms.TAB_NAME: tab_title,
+            terms.GRID_PROPS: {terms.COL_CT: num_cols, terms.ROW_CT: num_rows},
+        }
+        if tab_id is not None:
+            props[terms.TAB_ID] = tab_id
+        if tab_idx is not None:
+            props[terms.TAB_IDX] = tab_idx
+        result = {terms.ADDTAB: {terms.TAB_PROPS: props}}
+        return result
 
-    def fetch(self) -> GSheet:
-        return GSheet.from_id(self._file_id, sheets_conn=self._conn)
+    def create(self) -> Tab:
+        req = self.new_tab_request(
+            self.title, self.id, self.index, self.row_count, self.column_count
+        )
+        self._requests.append(req)
+        self.commit()
+        return self
+
+    def commit(self) -> None:
+        self._commit(self._gsheet_id)
+        self._requests = []
 
 
 class GSheet(Component):
     def __init__(
         self,
-        file_id: str,
+        gsheet_id: str,
         title: str = None,
-        tabs: List[Tab] = None,
         *,
+        tabs: List[Tab] = None,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
+        autoconnect: bool = True,
     ) -> None:
-        super().__init__(auth_config=auth_config, sheets_conn=sheets_conn)
-        self._file_id = file_id
+        super().__init__(
+            gsheet_id=gsheet_id,
+            auth_config=auth_config,
+            sheets_conn=sheets_conn,
+            autoconnect=autoconnect,
+        )
         self._title = title
         self._tabs = tabs or []
-        self._partial = True
 
     @property
     def requests(self) -> List[Dict[str, Any]]:
@@ -521,29 +636,20 @@ class GSheet(Component):
         return {tab.title: tab for tab in self._tabs}
 
     @property
-    def file_id(self) -> str:
-        return self._file_id
+    def id(self) -> str:
+        return self._gsheet_id
 
     @property
     def title(self) -> Optional[str]:
         return self._title
 
-    @classmethod
-    def from_id(
-        cls,
-        file_id: str,
-        auth_config: AuthConfig = None,
-        sheets_conn: SheetsConnection = None,
-    ) -> GSheet:
-        gs = GSheet(file_id, auth_config=auth_config, sheets_conn=sheets_conn)
-        return gs.fetch()
-
     def fetch(self) -> GSheet:
-        properties = self._conn.get_properties(self._file_id)
+        properties = self._conn.get_properties(self._gsheet_id)
         name, sheets = self._parse_properties(properties)
         self._name = name
         tabs = [
-            Tab(parent_gsheet=self, properties=sheet_props) for sheet_props in sheets
+            Tab.from_properties(self._gsheet_id, props, self, sheets_conn=self._conn)
+            for props in sheets
         ]
         self._tabs = tabs
         self._partial = False
@@ -558,7 +664,6 @@ class GSheet(Component):
         return sheet_title, sheet_props
 
     def add_tab(self, title: str, index: int = None) -> GSheet:
-        self._ensure_not_partial()
         if title in self.tabs.keys():
             raise ValueError(f"Sheet already has tab with title {title}")
         self._requests.append(
@@ -571,31 +676,24 @@ class GSheet(Component):
         return self
 
     def commit(self) -> None:
-        self._commit(self._file_id)
+        self._commit(self._gsheet_id)
 
     def write_values(
-        self, data: List[List[Any]], to_tab: str, range: Range = None
+        self, data: List[List[Any]], to_tab: str, rng: Range = None
     ) -> GSheet:
         tab = self.tabs.get(to_tab)
         if not tab:
             raise KeyError(f"{to_tab} not found in {self._title} tabs.")
-        if not range:
-            range = Range.from_raw_args(
-                self._file_id,
+        if not rng:
+            rng = Range.from_raw_args(
+                self._gsheet_id,
                 (0, len(data)),
                 (0, len(data[0])),
                 parent_tab=tab,
                 sheets_conn=self.conn,
             )
-        self._write_values(data, range)
+        self._write_values(data, rng)
         return self
-
-    def _ensure_not_partial(self) -> None:
-        if self._partial:
-            raise GSheetError(
-                f"PartialGSheetError: {self} is only partially instantiated. This "
-                "method cannot be called. Execute .fetch() to resolve this error."
-            )
 
     def get_tab_index_by_title(self, tab_title: str) -> Optional[int]:
         for t in self._tabs:
