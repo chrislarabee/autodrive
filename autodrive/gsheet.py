@@ -1,21 +1,19 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Any, Tuple, TypeVar, Type, Union
+from typing import Dict, List, Optional, Any, Tuple, TypeVar, Type
 from abc import ABC
 import re
 import string
+from functools import singledispatchmethod
 
 from .connection import SheetsConnection, AuthConfig
 from . import google_terms as terms
 from .dtypes import (
-    Boolean,
     GOOGLE_DTYPES,
-    GoogleDtype,
     GoogleValueType,
     TYPE_MAP,
     UserEnteredVal,
     EffectiveVal,
-    FormattedVal,
     String,
     Formula,
 )
@@ -521,6 +519,16 @@ class Tab(Component):
     def values(self) -> List[List[Any]]:
         return self._values
 
+    @values.setter
+    def values(self, new_values: List[List[Any]]) -> None:
+        values_error = "Tab.values must be a list of lists."
+        if not isinstance(new_values, list):
+            raise TypeError(values_error)
+        else:
+            if len(new_values) > 0 and not isinstance(new_values[0], list):
+                raise TypeError(values_error)
+        self._values = new_values
+
     @classmethod
     def from_properties(
         cls,
@@ -593,6 +601,11 @@ class Tab(Component):
         result = {terms.ADDTAB: {terms.TAB_PROPS: props}}
         return result
 
+    def gen_add_tab_request(self) -> Dict[str, Any]:
+        return self.new_tab_request(
+            self._title, self._tab_id, self._index, self._row_count, self._column_count
+        )
+
     def create(self) -> Tab:
         req = self.new_tab_request(
             self.title, self.id, self.index, self.row_count, self.column_count
@@ -647,7 +660,6 @@ class GSheet(Component):
             for props in sheets
         ]
         self._tabs = tabs
-        self._partial = False
         return self
 
     @staticmethod
@@ -658,22 +670,35 @@ class GSheet(Component):
         sheet_props = [sheet[terms.TAB_PROPS] for sheet in properties[terms.TABS_PROP]]
         return sheet_title, sheet_props
 
-    def add_tab(self, title: str, index: int = None) -> GSheet:
-        if title in self.tabs.keys():
-            raise ValueError(f"Sheet already has tab with title {title}")
-        self._requests.append(
-            {
-                terms.ADDTAB: {
-                    terms.TAB_PROPS: {terms.TAB_NAME: title, terms.TAB_IDX: index or 0}
-                }
-            }
-        )
+    @singledispatchmethod
+    def add_tab(self, tab: Tab) -> GSheet:
+        if tab.title in self.tabs.keys():
+            raise ValueError(f"GSheet already has tab with title {tab.title}")
+        self._tabs.insert(tab.index, tab)
+        self._requests.append(tab.gen_add_tab_request())
         return self
 
+    # @add_tab.register
+    # def add_tab_by_name(
+    #     self,
+    #     tab: str,
+    #     tab_id: int = None,
+    #     tab_idx: int = None,
+    #     num_rows: int = 1000,
+    #     num_cols: int = 26,
+    # ) -> GSheet:
+    #     if tab in self.tabs.keys():
+    #         raise ValueError(f"GSheet already has tab with title {tab}")
+    #     req = Tab.new_tab_request(
+    #         tab, tab_id=tab_id, tab_idx=tab_idx, num_rows=num_rows, num_cols=num_cols
+    #     )
+    #     self._requests.append(req)
+    #     return self
+
     def write_values(
-        self, data: List[List[Any]], to_tab: str, rng: Range = None
+        self, data: List[List[Any]], to_tab: str = None, rng: Range = None
     ) -> GSheet:
-        tab = self.tabs.get(to_tab)
+        tab = self.tabs.get(to_tab) if to_tab else self._tabs[0]
         if not tab:
             raise KeyError(f"{to_tab} not found in {self._title} tabs.")
         if not rng:
@@ -686,6 +711,38 @@ class GSheet(Component):
             )
         self._write_values(data, rng)
         return self
+
+    def get_values(self, tab: str | int = None, rng: Range = None) -> GSheet:
+        if isinstance(tab, str):
+            tab_ = self.tabs.get(tab)
+            if not tab_:
+                raise ValueError(f"{tab} not found in GSheet tabs.")
+        elif isinstance(tab, int) or tab is None:
+            tab_ = self._tabs[tab or 0]
+        else:
+            raise TypeError(f"tab must be a string, integer, or None. type = {type(tab)}")
+        if not rng:
+            rng = Range.from_raw_args(
+                self._gsheet_id,
+                row_range=(0, tab_.row_count),
+                col_range=(0, tab_.column_count),
+                parent_tab=tab_,
+                sheets_conn=self._conn
+            )
+        tab_.values = self._get_values(self._gsheet_id, rng)
+        return self
+
+    def __iter__(self):
+        return self._tabs
+
+    def __len__(self):
+        return len(self._tabs)
+
+    def __getitem__(self, key: int | str) -> Tab:
+        if isinstance(key, int):
+            return self._tabs[key]
+        else:
+            return self.tabs[key]
 
     def get_tab_index_by_title(self, tab_title: str) -> Optional[int]:
         for t in self._tabs:

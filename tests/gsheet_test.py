@@ -186,19 +186,27 @@ class TestGSheet:
     @pytest.mark.skip
     def test_that_it_can_add_tabs_requests(self, sheets_conn):
         expected = [
-            {"addSheet": {"properties": {"title": "new_sheet", "index": 0}}},
+            {"addSheet": {"properties": {"title": "new_sheet"}}},
             {"addSheet": {"properties": {"title": "nuevo_sheet", "index": 3}}},
         ]
-        gsheet = GSheet("test", sheets_conn=sheets_conn)
-        gsheet._partial = False
+        gsheet = GSheet("test", sheets_conn=sheets_conn, autoconnect=False)
         gsheet.add_tab("new_sheet").add_tab("nuevo_sheet", 3)
         assert gsheet.requests == expected
 
 
-class TestCrud:
+class TestCRUD:
     @pytest.fixture
     def input_data(self):
         return [[1, 2, 3], [4, 5, 6]]
+
+    def test_that_gsheet_can_write_and_read_values(
+        self, test_gsheet, input_data
+    ):
+        test_gsheet.write_values(input_data)
+        test_gsheet.commit()
+        test_gsheet.get_values()
+        test_gsheet.tabs
+        assert test_gsheet[0].values == input_data
 
     def test_that_range_can_write_and_read_values(
         self, test_gsheet, sheets_conn, input_data
