@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Any, Tuple, TypeVar, Type
+from typing import Dict, KeysView, List, Optional, Any, Tuple, TypeVar, Type, ValuesView
 from abc import ABC
 import re
 import string
@@ -743,6 +743,12 @@ class GSheet(Component):
             return self._tabs[key]
         else:
             return self.tabs[key]
+
+    def keys(self) -> KeysView:
+        return self.tabs.keys()
+
+    def values(self) -> ValuesView:
+        return self.tabs.values()
 
     def get_tab_index_by_title(self, tab_title: str) -> Optional[int]:
         for t in self._tabs:

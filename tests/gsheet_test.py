@@ -166,6 +166,18 @@ class TestTab:
 
 
 class TestGSheet:
+    def test_that_it_acts_like_an_iterable(self):
+        gsheet = GSheet(
+            "test",
+            tabs=[Tab("test", "Sheet1", 0, 0), Tab("test", "Sheet2", 1, 1)],
+            autoconnect=False,
+        )
+        assert len(gsheet) == 2
+        assert len(gsheet.keys()) == 2
+        assert len(gsheet.values()) == 2
+        assert gsheet["Sheet1"] 
+        assert gsheet[0]
+
     def test_that_it_can_parse_properties(self):
         expected = (
             "scratch",
@@ -199,9 +211,7 @@ class TestCRUD:
     def input_data(self):
         return [[1, 2, 3], [4, 5, 6]]
 
-    def test_that_gsheet_can_write_and_read_values(
-        self, test_gsheet, input_data
-    ):
+    def test_that_gsheet_can_write_and_read_values(self, test_gsheet, input_data):
         test_gsheet.write_values(input_data)
         test_gsheet.commit()
         test_gsheet.get_values()
