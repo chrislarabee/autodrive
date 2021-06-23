@@ -6,7 +6,7 @@ import string
 from functools import singledispatchmethod
 
 from .connection import SheetsConnection, AuthConfig
-from .core import GSheetView, Component
+from .core import GSheetView, Component, RangeDict
 from .formatting.formatting import RangeGridFormatting, TabGridFormatting
 from . import google_terms as terms
 
@@ -159,13 +159,15 @@ class Range(Component):
         return self._range_str
 
     def to_dict(self) -> Dict[str, int]:
-        return {
-            terms.TAB_ID: self._tab_id,
-            "startRowIndex": self._start_row,
-            "endRowIndex": self._end_row,
-            "startColumnIndex": self._start_col,
-            "endColumnIndex": self._end_col,
-        }
+        return dict(
+            RangeDict(
+                tab_id=self._tab_id,
+                start_row=self._start_row,
+                end_row=self._end_row,
+                start_col=self._start_col,
+                end_col=self._end_col
+            )
+        )
 
     def get_values(self) -> Range:
         self._values = self._get_values(self._gsheet_id, str(self))
