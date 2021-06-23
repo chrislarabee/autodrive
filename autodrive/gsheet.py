@@ -1,24 +1,14 @@
 from __future__ import annotations
 
-from typing import Dict, KeysView, List, Optional, Any, Tuple, TypeVar, Type, ValuesView
-from abc import ABC
+from typing import Dict, KeysView, List, Optional, Any, Tuple, TypeVar, ValuesView
 import re
 import string
 from functools import singledispatchmethod
 
 from .connection import SheetsConnection, AuthConfig
 from .core import GSheetView, Component
-from .formatting.formatting import RangeGridFormatting
+from .formatting.formatting import RangeGridFormatting, TabGridFormatting
 from . import google_terms as terms
-from .dtypes import (
-    GOOGLE_DTYPES,
-    GoogleValueType,
-    TYPE_MAP,
-    UserEnteredVal,
-    EffectiveVal,
-    String,
-    Formula,
-)
 
 """
 THIS CAN BE DONE:
@@ -116,7 +106,6 @@ class Range(Component):
         sheets_conn: SheetsConnection = None,
         autoconnect: bool = True,
     ) -> None:
-        self._grid_formatting = RangeGridFormatting(self)
         self._range_str = ""
         tab_title, start, end = self._parse_range_str(gsheet_range)
         tab_title = tab_title if tab_title else parent_tab.title
@@ -141,11 +130,16 @@ class Range(Component):
             end_row_idx=end_row or 1000,  # remember: end values are exclusive.
             start_col_idx=start_col or 0,
             end_col_idx=end_col or 26,  # remember: end values are exclusive.
+            grid_formatting=RangeGridFormatting,
             auth_config=auth_config,
             sheets_conn=sheets_conn,
             autoconnect=autoconnect,
             parent=parent_tab,
         )
+
+    @property
+    def format_grid(self) -> RangeGridFormatting:
+        return self._format_grid
 
     @property
     def range_str(self) -> str:
@@ -160,10 +154,6 @@ class Range(Component):
     @parent_tab.setter
     def parent_tab(self, tab: Tab) -> None:
         self._parent = tab
-
-    @property
-    def format_grid(self) -> RangeGridFormatting:
-        return self._grid_formatting
 
     def __str__(self) -> str:
         return self._range_str
@@ -317,6 +307,10 @@ class Tab(Component):
         sheets_conn: SheetsConnection = None,
         autoconnect: bool = True,
     ) -> None:
+        self._title = tab_title
+        self._index = tab_idx
+        self._column_count = column_count
+        self._row_count = row_count
         super().__init__(
             gsheet_id=gsheet_id,
             tab_id=tab_id,
@@ -324,15 +318,16 @@ class Tab(Component):
             end_row_idx=row_count,
             start_col_idx=0,
             end_col_idx=column_count,
+            grid_formatting=TabGridFormatting,
             auth_config=auth_config,
             sheets_conn=sheets_conn,
             autoconnect=autoconnect,
             parent=parent_gsheet,
         )
-        self._title = tab_title
-        self._index = tab_idx
-        self._column_count = column_count
-        self._row_count = row_count
+
+    @property
+    def format_grid(self) -> TabGridFormatting:
+        return self._format_grid
 
     @property
     def title(self) -> str:

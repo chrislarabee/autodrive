@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Type, TypeVar, Tuple
+from typing import Any, Dict, List, Type, TypeVar, Tuple, Generic
 from abc import ABC
 import string
 
@@ -17,12 +17,21 @@ from .dtypes import (
 )
 
 T = TypeVar("T", bound="GSheetView")
+FT = TypeVar("FT", bound="Formatting")
 
 
 class NoConnectionError(Exception):
     def __init__(self, ctype: Type[GSheetView], *args: object) -> None:
         msg = f"No SheetsConnection has been established for this {ctype}."
         super().__init__(msg, *args)
+
+
+class Formatting:
+    number_fmt = ""
+    accounting_fmt = ("NUMBER", '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)')
+
+    def __init__(self, parent: Component):
+        self._parent = parent
 
 
 class GSheetView(ABC):
@@ -155,7 +164,7 @@ class GSheetView(ABC):
         return result
 
 
-class Component(GSheetView):
+class Component(GSheetView, Generic[FT]):
     def __init__(
         self,
         gsheet_id: str,
@@ -164,6 +173,7 @@ class Component(GSheetView):
         end_row_idx: int,
         start_col_idx: int,
         end_col_idx: int,
+        grid_formatting: Type[FT],
         *,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
@@ -183,6 +193,7 @@ class Component(GSheetView):
         self._end_row = end_row_idx
         self._start_col = start_col_idx
         self._end_col = end_col_idx
+        self._format_grid = grid_formatting(self)
 
     @property
     def tab_id(self) -> int:
