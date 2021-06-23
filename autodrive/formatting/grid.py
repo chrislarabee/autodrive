@@ -3,14 +3,14 @@ from __future__ import annotations
 from typing import Any, Dict, overload
 
 from .. import google_terms as terms
-from ..core import RangeDict
+from ..interfaces import OneDRange
 
 
 def auto_column_width(tab_id: int, start_col: int, end_col: int) -> Dict[str, Any]:
     return {
         "autoResizeDimensions": {
             terms.DIMS: {
-                **dict(RangeDict(tab_id, start_idx=start_col, end_idx=end_col)),
+                **dict(OneDRange(tab_id, start_col, end_col)),
                 terms.DIM: terms.COLDIM,
             }
         }
@@ -31,7 +31,7 @@ def insert_rows(tab_id: int, num_rows: int, at_row: int) -> Dict[str, Any]:
     return {
         "insertDimension": {
             terms.RNG: {
-                **dict(RangeDict(tab_id, start_idx=at_row, end_idx=at_row + num_rows)),
+                **dict(OneDRange(tab_id, at_row, at_row + num_rows)),
                 terms.DIM: terms.ROWDIM,
             },
             "inheritFromBefore": False,
@@ -43,7 +43,7 @@ def delete_rows(tab_id: int, start_row: int, end_row: int) -> Dict[str, Any]:
     return {
         "deleteDimension": {
             terms.RNG: {
-                **dict(RangeDict(tab_id, start_idx=start_row, end_idx=end_row)),
+                **dict(OneDRange(tab_id, start_row, end_row)),
                 terms.DIM: terms.ROWDIM,
             }
         }

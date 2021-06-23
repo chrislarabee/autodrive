@@ -7,10 +7,9 @@ import pytest
 from autodrive.connection import (
     DriveConnection,
     SheetsConnection,
-    DEFAULT_CREDS,
-    DEFAULT_TOKEN,
 )
-from autodrive.gsheet import GSheetView, GSheet, Tab, Range
+from autodrive.gsheet import GSheetView, GSheet, Tab
+from autodrive.interfaces import DEFAULT_CREDS, DEFAULT_TOKEN
 from .testing_tools import CREATED_IDS
 
 

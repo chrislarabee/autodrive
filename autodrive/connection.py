@@ -11,31 +11,8 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
 from . import google_terms as terms
-from .dtypes import GoogleValueType, EffectiveVal, UserEnteredVal, FormattedVal
-
-
-DEFAULT_TOKEN = "gdrive_token.pickle"
-DEFAULT_CREDS = "credentials.json"
-
-
-class AuthConfig:
-    def __init__(
-        self,
-        secrets_config: Dict[str, Any] = None,
-        token_filepath: str | Path = DEFAULT_TOKEN,
-        creds_filepath: str | Path = DEFAULT_CREDS,
-    ) -> None:
-        self.secrets_config = secrets_config
-        self._token_filepath = Path(token_filepath)
-        self._creds_filepath = Path(creds_filepath)
-
-    @property
-    def token_filepath(self) -> Path:
-        return self._token_filepath
-
-    @property
-    def creds_filepath(self) -> Path:
-        return self._creds_filepath
+from .dtypes import EffectiveVal, UserEnteredVal, FormattedVal
+from .interfaces import AuthConfig
 
 
 class Connection(ABC):
