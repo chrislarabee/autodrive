@@ -10,7 +10,7 @@ from autodrive.connection import (
     DEFAULT_CREDS,
     DEFAULT_TOKEN,
 )
-from autodrive.gsheet import Component, GSheet, Tab, Range
+from autodrive.gsheet import GSheetView, GSheet, Tab, Range
 from .testing_tools import CREATED_IDS
 
 
@@ -45,13 +45,13 @@ def sheets_conn():
         yield None
 
 
-class GSheetComponent(Component):
+class GSheetGSheetView(GSheetView):
     pass
 
 
 @pytest.fixture
-def testing_component():
-    return GSheetComponent
+def testing_GSheetView():
+    return GSheetGSheetView
 
 
 @pytest.fixture(scope="session")
