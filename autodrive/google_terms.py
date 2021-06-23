@@ -29,3 +29,11 @@ ADDTAB = "addSheet"
 # Update cell property names:
 ROWS = "rows"
 RNG = "range"
+RNG1D = "range"
+DIM = "dimension"
+DIMS = "dimensions"
+ROWDIM = "ROWS"
+COLDIM = "COLUMNS"
+# Range properties:
+START_IDX = "startIndex"
+END_IDX = "endIndex"

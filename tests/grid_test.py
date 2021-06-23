@@ -13,3 +13,62 @@ def test_auto_column_width():
             }
         }
     }
+
+
+def test_append_rows():
+    result = grid.append_rows(0, 5)
+    assert result == {
+        "appendDimension": {"sheetId": 0, "dimension": "ROWS", "length": 5}
+    }
+
+
+def test_insert_rows():
+    result = grid.insert_rows(0, 3, 2)
+    assert result == {
+        "insertDimension": {
+            "range": {
+                "sheetId": 0,
+                "dimension": "ROWS",
+                "startIndex": 2,
+                "endIndex": 5,
+            },
+            "inheritFromBefore": False,
+        }
+    }
+
+
+def test_delete_rows():
+    result = grid.delete_rows(0, 5, 10)
+    assert result == {
+        "deleteDimension": {
+            "range": {
+                "sheetId": 0,
+                "dimension": "ROWS",
+                "startIndex": 5,
+                "endIndex": 10,
+            }
+        }
+    }
+
+
+def test_freeze():
+    result = grid.freeze(0, 1)
+    assert result == {
+        "updateSheetProperties": {
+            "properties": {
+                "sheetId": 0,
+                "gridProperties": {"frozenRowCount": 1},
+            },
+            "fields": "gridProperties(frozenRowCount, frozenColumnCount)",
+        }
+    }
+    result = grid.freeze(0, 2, 4)
+    assert result == {
+        "updateSheetProperties": {
+            "properties": {
+                "sheetId": 0,
+                "gridProperties": {"frozenRowCount": 2, "frozenColumnCount": 4},
+            },
+            "fields": "gridProperties(frozenRowCount, frozenColumnCount)",
+        }
+    }
