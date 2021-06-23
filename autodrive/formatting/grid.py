@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, overload
 
 from .. import google_terms as terms
 
@@ -55,7 +55,15 @@ def delete_rows(tab_id: int, start_row: int, end_row: int) -> Dict[str, Any]:
     }
 
 
-def freeze(tab_id: int, rows: int = None, columns: int = None) -> Dict[str, Any]:
+@overload
+def freeze(tab_id: int, *, rows: int, columns: int = None) -> Dict[str, Any]:
+    ...
+
+@overload
+def freeze(tab_id: int, *, columns: int, rows: int = None) -> Dict[str, Any]:
+    ...
+
+def freeze(tab_id: int, *, rows: int = None, columns: int = None) -> Dict[str, Any]:
     grid_prop = {}
     if not rows and not columns:
         raise ValueError("One of rows or columns must not be None.")

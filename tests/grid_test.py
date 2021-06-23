@@ -1,3 +1,5 @@
+import pytest
+
 from autodrive.formatting import grid
 
 
@@ -52,7 +54,7 @@ def test_delete_rows():
 
 
 def test_freeze():
-    result = grid.freeze(0, 1)
+    result = grid.freeze(0, rows=1)
     assert result == {
         "updateSheetProperties": {
             "properties": {
@@ -62,7 +64,7 @@ def test_freeze():
             "fields": "gridProperties(frozenRowCount, frozenColumnCount)",
         }
     }
-    result = grid.freeze(0, 2, 4)
+    result = grid.freeze(0, rows=2, columns=4)
     assert result == {
         "updateSheetProperties": {
             "properties": {
@@ -72,3 +74,6 @@ def test_freeze():
             "fields": "gridProperties(frozenRowCount, frozenColumnCount)",
         }
     }
+    with pytest.raises(ValueError, match="One of rows or columns must not be None"):
+        # Set to ignore because this is properly flagged as an error.
+        result = grid.freeze(0)  # type: ignore

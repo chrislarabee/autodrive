@@ -105,34 +105,6 @@ class TabGridFormatting(Formatting):
 #         self.requests.append(request)
 #         return self
 
-#     def freeze(self, rows: int = None, columns: int = None):
-#         """
-#         Adds a freeze rows and/or columns request to the
-#         GSheetFormatting object's request queue.
-
-#         Args:
-#             rows: Number of rows to freeze.
-#             columns: Number of columns to freeze.
-
-#         Returns: self.
-
-#         """
-#         grid_prop = dict()
-#         if not rows and not columns:
-#             raise ValueError("One of rows or columns must not be None.")
-#         if rows:
-#             grid_prop["frozenRowCount"] = rows
-#         if columns:
-#             grid_prop["frozenColumnCount"] = columns
-#         request = dict(
-#             updateSheetProperties=dict(
-#                 properties=dict(sheetId=self.sheet_id, gridProperties=grid_prop),
-#                 fields="gridProperties(frozenRowCount, frozenColumnCount)",
-#             )
-#         )
-#         self.requests.append(request)
-#         return self
-
 #     def alternate_row_background(
 #         self, *rgb_vals, row_idxs: tuple = (None, None), col_idxs: tuple = (None, None)
 #     ):
