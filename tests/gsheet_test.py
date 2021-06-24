@@ -6,13 +6,27 @@ from autodrive.interfaces import TextFormat
 
 class TestRange:
     def test_that_it_instantiates_properly(self):
-        rng = Range("Sheet1!D5:E50", gsheet_id="test", tab_id=0, autoconnect=False)
+        rng = Range(
+            "Sheet1!D5:E50",
+            tab_title="test",
+            gsheet_id="test",
+            tab_id=0,
+            autoconnect=False,
+        )
         assert rng.start_row_idx == 4
         assert rng.end_row_idx == 50
         assert rng.start_col_idx == 3
         assert rng.end_col_idx == 5
         assert rng.range_str == "Sheet1!D5:E50"
         assert str(rng) == "Sheet1!D5:E50"
+        rng = Range(
+            "D5:E", tab_title="test", gsheet_id="test", tab_id=0, autoconnect=False
+        )
+        assert rng.start_row_idx == 4
+        assert rng.end_row_idx is None
+        assert rng.start_col_idx == 3
+        assert rng.end_col_idx == 5
+        assert rng.range_str == "test!D5:E"
 
     def test_that_it_can_parse_range_strings(self):
         assert Range._parse_range_str("Sheet1!A1:C5") == ("Sheet1", "A1", "C5")
@@ -132,7 +146,7 @@ class TestCRUD:
     def test_that_gsheet_can_write_and_read_values(self, test_gsheet, input_data):
         test_gsheet.write_values(input_data)
         test_gsheet.commit()
-        test_gsheet.get_values()
+        test_gsheet.get_data()
         test_gsheet.tabs
         assert test_gsheet[0].values == input_data
 
@@ -142,14 +156,16 @@ class TestCRUD:
         rng = Range(
             "Sheet1!A4:C5",
             tab_id=0,
+            tab_title="",
             gsheet_id=test_gsheet.gsheet_id,
             sheets_conn=sheets_conn,
         )
         rng.write_values(input_data)
         rng.format_text.apply_format(TextFormat(font_size=14, bold=True))
         rng.commit()
-        rng.get_values()
-        # TODO: Add assertions about formatting here.
+        rng.get_data()
+        assert rng.formats[0][0]["textFormat"]["fontSize"] == 14
+        assert rng.formats[0][0]["textFormat"]["bold"]
         assert rng.values == input_data
 
     def test_that_tab_can_write_and_read_values(
@@ -165,5 +181,5 @@ class TestCRUD:
         tab.create()
         tab.write_values(input_data)
         tab.commit()
-        tab.get_values()
+        tab.get_data()
         assert tab.values == input_data

@@ -108,43 +108,42 @@ class Range(Component):
         gsheet_range: str,
         gsheet_id: str,
         tab_id: int,
+        tab_title: str,
         *,
-        parent_tab: Tab = None,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
         autoconnect: bool = True,
     ) -> None:
         self._range_str = ""
-        tab_title, start, end = self._parse_range_str(gsheet_range)
-        tab_title = tab_title if tab_title else parent_tab.title
+        title, start, end = self._parse_range_str(gsheet_range)
+        title = title or tab_title
         # Assemble start/end row/col indices:
         start_col, start_row = self._convert_cell_str_to_coord(start)
         if end:
             end_col, end_row = self._convert_cell_str_to_coord(end)
-            # TODO: Handle the possible error state here where users passes a
-            #       gsheet range with no end cell and also does not pass parent_tab.
-            end_col = end_col + 1 or parent_tab.column_count
-            end_row = end_row + 1 or parent_tab.row_count
+            end_col = end_col + 1
+            end_row = end_row + 1 if end_row else end_row
         else:
-            end_col = parent_tab.column_count
-            end_row = parent_tab.row_count
+            end_row = start_row
+            end_col = start_col
+            start_row = 0
+            start_col = 0
         # Construct fully formatted range str:
         end_range = f":{end}" if end else ""
-        self._range_str = f"{tab_title}!{start}{end_range}"
+        self._range_str = f"{title}!{start}{end_range}"
         super().__init__(
             gsheet_id=gsheet_id,
             tab_id=tab_id,
             start_row_idx=start_row or 0,
-            end_row_idx=end_row or 1000,  # remember: end values are exclusive.
+            end_row_idx=end_row,
             start_col_idx=start_col or 0,
-            end_col_idx=end_col or 26,  # remember: end values are exclusive.
+            end_col_idx=end_col,
             grid_formatting=RangeGridFormatting,
             text_formatting=RangeTextFormatting,
             cell_formatting=RangeCellFormatting,
             auth_config=auth_config,
             sheets_conn=sheets_conn,
             autoconnect=autoconnect,
-            parent=parent_tab,
         )
 
     @property
@@ -163,16 +162,6 @@ class Range(Component):
     def range_str(self) -> str:
         return self._range_str
 
-    @property
-    def parent_tab(self) -> Tab:
-        if not self._parent:
-            raise AttributeError("This Range has no parent_tab.")
-        return self._parent
-
-    @parent_tab.setter
-    def parent_tab(self, tab: Tab) -> None:
-        self._parent = tab
-
     def __str__(self) -> str:
         return self._range_str
 
@@ -187,8 +176,8 @@ class Range(Component):
             )
         )
 
-    def get_values(self) -> Range:
-        self._values = self._get_values(self._gsheet_id, str(self))
+    def get_data(self) -> Range:
+        self._values, self._formats = self._get_data(self._gsheet_id, str(self))
         return self
 
     def write_values(self, data: List[List[Any]]) -> Range:
@@ -219,7 +208,7 @@ class Range(Component):
         range_str = cls._construct_range_str(tab_title, row_range, col_range)
         rng = Range(
             range_str,
-            parent_tab=parent_tab,
+            tab_title=tab_title,
             auth_config=auth_config,
             sheets_conn=sheets_conn,
             gsheet_id=gsheet_id,
@@ -322,7 +311,6 @@ class Tab(Component):
         column_count: int = 26,
         row_count: int = 1000,
         *,
-        parent_gsheet: GSheet = None,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
         autoconnect: bool = True,
@@ -344,7 +332,6 @@ class Tab(Component):
             auth_config=auth_config,
             sheets_conn=sheets_conn,
             autoconnect=autoconnect,
-            parent=parent_gsheet,
         )
 
     @property
@@ -389,13 +376,12 @@ class Tab(Component):
             tab_id=tab_id,
             column_count=column_count,
             row_count=row_count,
-            parent_gsheet=parent_gsheet,
             auth_config=auth_config,
             sheets_conn=sheets_conn,
             autoconnect=autoconnect,
         )
 
-    def get_values(self, rng: Range = None) -> Tab:
+    def get_data(self, rng: Range = None) -> Tab:
         if not rng:
             rng = Range.from_raw_args(
                 self._gsheet_id,
@@ -404,7 +390,7 @@ class Tab(Component):
                 parent_tab=self,
                 sheets_conn=self._conn,
             )
-        self._values = self._get_values(self._gsheet_id, str(rng))
+        self._values, self._formats = self._get_data(self._gsheet_id, str(rng))
         return self
 
     def write_values(self, data: List[List[Any]], rng: Range = None) -> Tab:
@@ -546,7 +532,7 @@ class GSheet(GSheetView):
         self._write_values(data, rng.to_dict())
         return self
 
-    def get_values(self, tab: str | int = None, rng: Range = None) -> GSheet:
+    def get_data(self, tab: str | int = None, rng: Range = None) -> GSheet:
         if isinstance(tab, str):
             tab_ = self.tabs.get(tab)
             if not tab_:
@@ -565,7 +551,9 @@ class GSheet(GSheetView):
                 parent_tab=tab_,
                 sheets_conn=self._conn,
             )
-        tab_.values = self._get_values(self._gsheet_id, str(rng))
+        values, formats = self._get_data(self._gsheet_id, str(rng))
+        tab_.values = values
+        tab_.formats = formats
         return self
 
     def __iter__(self):

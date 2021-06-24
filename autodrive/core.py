@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Type, TypeVar, Tuple, Generic
+from typing import Any, Dict, List, Type, TypeVar, Tuple, Generic, Optional
 from abc import ABC
 import string
 
 from .connection import AuthConfig, SheetsConnection
 from . import google_terms as terms
 from .dtypes import (
+    EffectiveFmt,
     GOOGLE_DTYPES,
     GoogleValueType,
     TYPE_MAP,
@@ -80,12 +81,15 @@ class GSheetView(ABC):
         cls,
         row_data: List[Dict[str, List[Dict[str, Any]]]],
         value_type: GoogleValueType = EffectiveVal,
-    ) -> List[List[Any]]:
-        results = []
+    ) -> Tuple[List[List[Any]], List[List[Dict[str, Any]]]]:
+        values = []
+        formats = []
         for row in row_data:
-            row_list = []
+            value_list = []
+            fmt_list = []
             for cell in row.get(terms.VALUES, []):
                 raw_value = cell.get(str(value_type))
+                fmt = cell.get(str(EffectiveFmt))
                 value = raw_value
                 if value_type in (UserEnteredVal, EffectiveVal):
                     if raw_value:
@@ -95,17 +99,19 @@ class GSheetView(ABC):
                                 if value_type == UserEnteredVal:
                                     value = dtype.parse(value)
                                 break
-                row_list.append(value)
-            results.append(row_list)
-        return results
+                value_list.append(value)
+                fmt_list.append(fmt)
+            values.append(value_list)
+            formats.append(fmt_list)
+        return values, formats
 
-    def _get_values(
+    def _get_data(
         self,
         gsheet_id: str,
         rng_str: str,
         value_type: GoogleValueType = EffectiveVal,
-    ) -> List[List[Any]]:
-        raw = self._conn.get_values(gsheet_id, [rng_str])
+    ) -> Tuple[List[List[Any]], List[List[Dict[str, Any]]]]:
+        raw = self.conn.get_data(gsheet_id, [rng_str])
         row_data = raw[terms.TABS_PROP][0][terms.DATA][0][terms.ROWDATA]
         return self._parse_row_data(row_data, value_type=value_type)
 
@@ -164,19 +170,18 @@ class GSheetView(ABC):
 class Component(GSheetView, Generic[FT]):
     def __init__(
         self,
+        *,
         gsheet_id: str,
         tab_id: int,
         start_row_idx: int,
-        end_row_idx: int,
         start_col_idx: int,
         end_col_idx: int,
         grid_formatting: Type[FT],
         text_formatting: Type[FT],
         cell_formatting: Type[FT],
-        *,
+        end_row_idx: int = None,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
-        parent: GSheetView = None,
         autoconnect: bool = True,
     ) -> None:
         super().__init__(
@@ -185,9 +190,9 @@ class Component(GSheetView, Generic[FT]):
             sheets_conn=sheets_conn,
             autoconnect=autoconnect,
         )
-        self._parent = parent
         self._tab_id = tab_id
         self._values: List[List[Any]] = []
+        self._formats: List[List[Dict[str, Any]]] = []
         self._start_row = start_row_idx
         self._end_row = end_row_idx
         self._start_col = start_col_idx
@@ -215,6 +220,20 @@ class Component(GSheetView, Generic[FT]):
         self._values = new_values
 
     @property
+    def formats(self) -> List[List[Dict[str, Any]]]:
+        return self._formats
+
+    @formats.setter
+    def formats(self, new_formats: List[List[Dict[str, Any]]]) -> None:
+        formats_error = "new_formats must be a list of lists of dictionaries."
+        if not isinstance(new_formats, list):
+            raise TypeError(formats_error)
+        else:
+            if len(new_formats) > 0 and not isinstance(new_formats[0], list):
+                raise TypeError(formats_error)
+        self._formats = new_formats
+
+    @property
     def data_shape(self) -> Tuple[int, int]:
         width = len(self._values[0]) if self._values else 0
         return len(self._values), width
@@ -224,7 +243,7 @@ class Component(GSheetView, Generic[FT]):
         return self._start_row
 
     @property
-    def end_row_idx(self) -> int:
+    def end_row_idx(self) -> Optional[int]:
         return self._end_row
 
     @property
