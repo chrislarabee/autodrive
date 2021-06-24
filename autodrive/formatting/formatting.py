@@ -32,11 +32,6 @@ class TabGridFormatting(Formatting):
         return self
 
 
-# class SubFormatting:
-#     def __init(self, parent: Formatting):
-#         self._parent = parent
-
-
 #     def apply_font(
 #         self,
 #         row_idxs: tuple = (None, None),
@@ -105,41 +100,6 @@ class TabGridFormatting(Formatting):
 #         self.requests.append(request)
 #         return self
 
-#     def alternate_row_background(
-#         self, *rgb_vals, row_idxs: tuple = (None, None), col_idxs: tuple = (None, None)
-#     ):
-#         """
-#         Adds a background of the specified color to every other row in
-#         the passed range.
-
-#         Args:
-#             row_idxs: A tuple of the start and stop row indexes.
-#             col_idxs: A tuple of the start and stop column indexes.
-#             *rgb_vals: Red, green, and blue values, in order. More than
-#                 3 values will be ignored, default value is 0, so you
-#                 only need to specify up to the last non-zero value.
-
-#         Returns: self.
-
-#         """
-#         request = dict(
-#             addConditionalFormatRule=dict(
-#                 rule=dict(
-#                     ranges=[self._build_range_dict(self.sheet_id, row_idxs, col_idxs)],
-#                     booleanRule=dict(
-#                         condition=dict(
-#                             type="CUSTOM_FORMULA",
-#                             values=[dict(userEnteredValue="=MOD(ROW(), 2)")],
-#                         ),
-#                         format=dict(backgroundColor=self._build_color_dict(*rgb_vals)),
-#                     ),
-#                 ),
-#                 index=0,
-#             )
-#         )
-#         self.requests.append(request)
-#         return self
-
 #     @classmethod
 #     def _build_repeat_cell_dict(
 #         cls,
@@ -169,66 +129,3 @@ class TabGridFormatting(Formatting):
 #             range=cls._build_range_dict(sheet_id, row_idxs, col_idxs),
 #             cell=dict(userEnteredFormat=fmt_dict),
 #         )
-
-#     @staticmethod
-#     def _build_range_dict(
-#         sheet_id: int = 0,
-#         row_idxs: tuple = (None, None),
-#         col_idxs: tuple = (None, None),
-#     ) -> dict:
-#         """
-#         Quick method for building a range dictionary for use in a
-#         request dictionary wrapper intended to change cell formatting or
-#         contents (like changing font, borders, background, contents,
-#         etc).
-
-#         Args:
-#             sheet_id: The id of the sheet to build a range for,
-#                 default is 0, the first sheet.
-#             row_idxs: A tuple of the start and stop row indexes.
-#             col_idxs: A tuple of the start and stop column indexes.
-
-#         Returns: A dictionary ready to be slotted into a format request
-#             generating function.
-
-#         """
-#         range_dict = dict(sheetId=sheet_id)
-
-#         range_ = (*row_idxs, *col_idxs)
-#         non_nulls = 0
-#         for r in range_:
-#             non_nulls += 1 if r is not None else 0
-#         if non_nulls < 2:
-#             raise ValueError("Must pass one or both of row_idxs, col_idxs.")
-
-#         start_row_idx, end_row_idx = row_idxs
-#         start_col_idx, end_col_idx = col_idxs
-#         # Must specify is not None because python interprets 0 as false.
-#         if start_row_idx is not None:
-#             range_dict["startRowIndex"] = start_row_idx
-#         if end_row_idx is not None:
-#             range_dict["endRowIndex"] = end_row_idx
-#         if start_col_idx is not None:
-#             range_dict["startColumnIndex"] = start_col_idx
-#         if end_col_idx is not None:
-#             range_dict["endColumnIndex"] = end_col_idx
-#         return range_dict
-
-#     @staticmethod
-#     def _build_color_dict(*rgb_vals) -> Dict[str, float]:
-#         """
-#         Quick method for building a color dictionary for use in a
-#         foreground, background, or font color dictionary.
-
-#         Args:
-#             *rgb_vals: Red, green, and blue values, in order. More than
-#                 3 values will be ignored, default value is 0, so you
-#                 only need to specify up to the last non-zero value.
-
-#         Returns: A dictionary containing RGB color names and values.
-
-#         """
-#         rgb_vals = list(rgb_vals)
-#         rgb = ["red", "green", "blue"]
-#         rgb_vals += [0] * (3 - len(rgb_vals))
-#         return {k: v for k, v in dict(zip(rgb, rgb_vals)).items()}

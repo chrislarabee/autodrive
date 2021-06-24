@@ -30,12 +30,9 @@ class AuthConfig:
         return self._creds_filepath
 
 
-class RangeArgs(Mapping):
-    def __init__(self, tab_id: int) -> None:
-        self.tab_id = tab_id
-
-    def to_dict(self) -> Dict[str, int]:
-        return {terms.TAB_ID: self.tab_id}
+class Args(Mapping):
+    def to_dict(self) -> Dict[str, Any]:
+        return {}
 
     def __iter__(self) -> Iterator[int | str]:
         return iter(self.to_dict())
@@ -45,6 +42,14 @@ class RangeArgs(Mapping):
 
     def __len__(self) -> int:
         return len(self.to_dict())
+
+
+class RangeArgs(Args):
+    def __init__(self, tab_id: int) -> None:
+        self.tab_id = tab_id
+
+    def to_dict(self) -> Dict[str, int]:
+        return {terms.TAB_ID: self.tab_id}
 
 
 class OneDRange(RangeArgs):
@@ -90,3 +95,15 @@ class TwoDRange(RangeArgs):
         if self.end_col is not None:
             result["endColumnIndex"] = self.end_col
         return result
+
+
+class Color(Args):
+    def __init__(
+        self, red: int | float = 0, green: int | float = 0, blue: int | float = 0
+    ) -> None:
+        self.red = red if isinstance(red, float) else red / 255
+        self.green = green if isinstance(green, float) else green / 255
+        self.blue = blue if isinstance(blue, float) else blue / 255
+
+    def to_dict(self) -> Dict[str, float]:
+        return {"red": self.red, "green": self.green, "blue": self.blue}
