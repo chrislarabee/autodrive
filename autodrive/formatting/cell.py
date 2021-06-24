@@ -19,6 +19,6 @@ def add_alternating_row_background(rng: TwoDRange, colors: Color) -> Dict[str, A
                     "format": {"backgroundColor": dict(colors)},
                 },
             },
-            "index": rng.start_row
+            "index": rng.start_row,
         }
     }

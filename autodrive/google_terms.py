@@ -26,14 +26,13 @@ ROWDATA = "rowData"
 VALUES = "values"
 # Requests:
 ADDTAB = "addSheet"
+RPT_CELL = "repeatCell"
 # Update cell property names:
 ROWS = "rows"
 RNG = "range"
+CELL = "cell"
 RNG1D = "range"
 DIM = "dimension"
 DIMS = "dimensions"
 ROWDIM = "ROWS"
 COLDIM = "COLUMNS"
-# Range properties:
-START_IDX = "startIndex"
-END_IDX = "endIndex"

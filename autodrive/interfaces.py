@@ -1,4 +1,5 @@
 from __future__ import annotations
+from autodrive.dtypes import Number
 
 from typing import Dict, Iterator, Any
 from collections.abc import Mapping
@@ -107,3 +108,49 @@ class Color(Interface):
 
     def to_dict(self) -> Dict[str, float]:
         return {"red": self.red, "green": self.green, "blue": self.blue}
+
+
+class Format(Interface):
+    def __init__(self, format_key: str) -> None:
+        self._format_key = format_key
+
+    @property
+    def format_key(self) -> str:
+        return self._format_key
+
+    def __str__(self) -> str:
+        return f"userEnteredFormat({self._format_key})"
+
+    def _fmt_contents(self) -> Dict[str, Any]:
+        return {}
+
+    def to_dict(self) -> Dict[str, Any]:
+        result = self._fmt_contents()
+        return {"userEnteredFormat": {self._format_key: result}}
+
+
+class TextFormat(Format):
+    def __init__(self, *, font_size: int = None, bold: bool = False) -> None:
+        super().__init__("textFormat")
+        self.font_size = font_size
+        self.bold = bold
+
+    def _fmt_contents(self) -> Dict[str, Any]:
+        result: Dict[str, Any] = {"bold": self.bold}
+        if self.font_size is not None:
+            result["fontSize"] = self.font_size
+        return result
+
+
+class NumericFormat(Format):
+    def __init__(self, pattern: str = "") -> None:
+        super().__init__("numberFormat")
+        self.type = "NUMBER"
+        self.pattern = pattern
+
+    def _fmt_contents(self) -> Dict[str, str]:
+        return {"type": self.type, "pattern": self.pattern}
+
+
+StdNumericFormat = NumericFormat()
+AccountingFormat = NumericFormat('_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)')

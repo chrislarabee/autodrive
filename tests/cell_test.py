@@ -28,6 +28,6 @@ def test_add_alternating_row_background():
                     },
                 },
             },
-            "index": 1
+            "index": 1,
         }
     }

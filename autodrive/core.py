@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Type, TypeVar, Tuple, Generic, Iterator
+from typing import Any, Dict, List, Type, TypeVar, Tuple, Generic
 from abc import ABC
-from collections.abc import Mapping
 import string
 
 from .connection import AuthConfig, SheetsConnection
@@ -28,9 +27,6 @@ class NoConnectionError(Exception):
 
 
 class Formatting:
-    number_fmt = ""
-    accounting_fmt = ("NUMBER", '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)')
-
     def __init__(self, parent: Component):
         self._parent = parent
 
