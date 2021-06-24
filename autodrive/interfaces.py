@@ -30,7 +30,7 @@ class AuthConfig:
         return self._creds_filepath
 
 
-class Args(Mapping):
+class Interface(Mapping):
     def to_dict(self) -> Dict[str, Any]:
         return {}
 
@@ -44,7 +44,7 @@ class Args(Mapping):
         return len(self.to_dict())
 
 
-class RangeArgs(Args):
+class RangeInterface(Interface):
     def __init__(self, tab_id: int) -> None:
         self.tab_id = tab_id
 
@@ -52,7 +52,7 @@ class RangeArgs(Args):
         return {terms.TAB_ID: self.tab_id}
 
 
-class OneDRange(RangeArgs):
+class OneDRange(RangeInterface):
     def __init__(self, tab_id: int, start_idx: int = None, end_idx: int = None) -> None:
         super().__init__(tab_id)
         self.start_idx = start_idx
@@ -68,7 +68,7 @@ class OneDRange(RangeArgs):
         return result
 
 
-class TwoDRange(RangeArgs):
+class TwoDRange(RangeInterface):
     def __init__(
         self,
         tab_id: int,
@@ -97,7 +97,7 @@ class TwoDRange(RangeArgs):
         return result
 
 
-class Color(Args):
+class Color(Interface):
     def __init__(
         self, red: int | float = 0, green: int | float = 0, blue: int | float = 0
     ) -> None:
