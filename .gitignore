@@ -3,5 +3,6 @@ venv/
 .vscode/
 *.json
 *.pickle
+*.text
 __pycache__
 sheets/[a-z]*.py
