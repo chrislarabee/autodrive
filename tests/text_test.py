@@ -1,5 +1,5 @@
 from autodrive.formatting import text
-from autodrive.interfaces import TwoDRange, TextFormat
+from autodrive.interfaces import TwoDRange, TextFormat, AccountingFormat
 
 
 def test_apply_format():
@@ -11,6 +11,21 @@ def test_apply_format():
                 "userEnteredFormat": {"textFormat": {"fontSize": 12, "bold": True}}
             },
             "fields": "userEnteredFormat(textFormat)",
+        }
+    }
+    result = text.apply_format(TwoDRange(0, 0, 4), AccountingFormat)
+    assert result == {
+        "repeatCell": {
+            "range": {"sheetId": 0, "startRowIndex": 0, "endRowIndex": 4},
+            "cell": {
+                "userEnteredFormat": {
+                    "numberFormat": {
+                        "type": "NUMBER",
+                        "pattern": AccountingFormat.pattern,
+                    }
+                }
+            },
+            "fields": "userEnteredFormat(numberFormat)",
         }
     }
 
