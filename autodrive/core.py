@@ -171,6 +171,8 @@ class Component(GSheetView, Generic[FT]):
         start_col_idx: int,
         end_col_idx: int,
         grid_formatting: Type[FT],
+        text_formatting: Type[FT],
+        cell_formatting: Type[FT],
         *,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
@@ -191,6 +193,8 @@ class Component(GSheetView, Generic[FT]):
         self._start_col = start_col_idx
         self._end_col = end_col_idx
         self._format_grid = grid_formatting(self)
+        self._format_text = text_formatting(self)
+        self._format_cell = cell_formatting(self)
 
     @property
     def tab_id(self) -> int:

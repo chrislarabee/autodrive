@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import List, Dict, Any, Literal
 import pickle
 from abc import ABC
-from pathlib import Path
 
 from googleapiclient.discovery import build, Resource
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -11,7 +10,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
 from . import google_terms as terms
-from .dtypes import EffectiveVal, UserEnteredVal, FormattedVal
+from .dtypes import EffectiveVal, UserEnteredVal, FormattedVal, EffectiveFmt
 from .interfaces import AuthConfig
 
 
@@ -261,8 +260,8 @@ class SheetsConnection(Connection):
     ) -> Dict[str, Any]:
         data_values = f"{UserEnteredVal},{FormattedVal},{EffectiveVal}"
         # TODO: Collect formatting values as well.
-        # formatting_values=f""
-        values = f"{terms.VALUES}({data_values})"
+        formatting_values = f"{EffectiveFmt}"
+        values = f"{terms.VALUES}({data_values},{formatting_values})"
         return self._sheets.get(
             spreadsheetId=spreadsheet_id,
             fields=f"{terms.TABS_PROP}({terms.DATA}({terms.ROWDATA}({values})))",

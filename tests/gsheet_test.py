@@ -1,6 +1,7 @@
 import pytest
 
 from autodrive.gsheet import GSheet, Tab, Range, ParseRangeError
+from autodrive.interfaces import TextFormat
 
 
 class TestRange:
@@ -145,8 +146,10 @@ class TestCRUD:
             sheets_conn=sheets_conn,
         )
         rng.write_values(input_data)
+        rng.format_text.apply_format(TextFormat(font_size=14, bold=True))
         rng.commit()
         rng.get_values()
+        # TODO: Add assertions about formatting here.
         assert rng.values == input_data
 
     def test_that_tab_can_write_and_read_values(

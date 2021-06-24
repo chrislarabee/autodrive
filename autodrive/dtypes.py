@@ -84,3 +84,22 @@ TYPE_MAP = {
     float: Number,
     bool: Boolean,
 }
+
+
+class GoogleFormatType(type):
+    format_key: str
+
+    def __str__(cls) -> str:
+        return cls.format_key
+
+
+class UserEnteredFmt(metaclass=GoogleFormatType):
+    format_key = "userEnteredFormat"
+
+
+class EffectiveFmt(metaclass=GoogleFormatType):
+    format_key = "effectiveFormat"
+
+
+class DefaultFmt(metaclass=GoogleFormatType):
+    format_key = "defaultFormat"

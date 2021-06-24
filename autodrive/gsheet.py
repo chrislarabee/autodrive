@@ -8,7 +8,14 @@ from functools import singledispatchmethod
 from .connection import SheetsConnection
 from .core import GSheetView, Component
 from .interfaces import TwoDRange, AuthConfig
-from .formatting.formatting import RangeGridFormatting, TabGridFormatting
+from .formatting.formatting import (
+    RangeGridFormatting,
+    RangeTextFormatting,
+    RangeCellFormatting,
+    TabGridFormatting,
+    TabCellFormatting,
+    TabTextFormatting,
+)
 from . import google_terms as terms
 
 """
@@ -132,6 +139,8 @@ class Range(Component):
             start_col_idx=start_col or 0,
             end_col_idx=end_col or 26,  # remember: end values are exclusive.
             grid_formatting=RangeGridFormatting,
+            text_formatting=RangeTextFormatting,
+            cell_formatting=RangeCellFormatting,
             auth_config=auth_config,
             sheets_conn=sheets_conn,
             autoconnect=autoconnect,
@@ -141,6 +150,14 @@ class Range(Component):
     @property
     def format_grid(self) -> RangeGridFormatting:
         return self._format_grid
+
+    @property
+    def format_text(self) -> RangeTextFormatting:
+        return self._format_text
+
+    @property
+    def format_cell(self) -> RangeCellFormatting:
+        return self._format_cell
 
     @property
     def range_str(self) -> str:
@@ -322,6 +339,8 @@ class Tab(Component):
             start_col_idx=0,
             end_col_idx=column_count,
             grid_formatting=TabGridFormatting,
+            text_formatting=TabTextFormatting,
+            cell_formatting=TabCellFormatting,
             auth_config=auth_config,
             sheets_conn=sheets_conn,
             autoconnect=autoconnect,
