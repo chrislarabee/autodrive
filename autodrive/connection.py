@@ -255,9 +255,7 @@ class SheetsConnection(Connection):
             spreadsheetId=spreadsheet_id, fields=f"{gsheet_props},{tabs_prop}"
         ).execute()
 
-    def get_data(
-        self, spreadsheet_id: str, ranges: List[str] = None
-    ) -> Dict[str, Any]:
+    def get_data(self, spreadsheet_id: str, ranges: List[str] = None) -> Dict[str, Any]:
         data_values = f"{UserEnteredVal},{FormattedVal},{EffectiveVal}"
         formatting_values = f"{EffectiveFmt}"
         values = f"{terms.VALUES}({data_values},{formatting_values})"

@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "gsheets-api"
+name = "autodrive"
 version = "0.1.0"
-description = "A simple python api for reading, writing, and formatting Google Sheets."
+description = "A simple python library with tools for reading, writing, and formatting Google Sheets via the Google API."
 authors = ["Chris Larabee"]
 license = "GNU"
 
