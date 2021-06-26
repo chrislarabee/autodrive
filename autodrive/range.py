@@ -3,19 +3,13 @@ from __future__ import annotations
 from typing import Dict, List, Any
 
 from .core import Component
-from .interfaces import AuthConfig, TwoDRange, OneDRange, RangeInterface
+from .interfaces import AuthConfig, TwoDRange
 from .connection import SheetsConnection
-from .formatting.formatting import (
+from .formatting import (
     RangeCellFormatting,
     RangeGridFormatting,
     RangeTextFormatting,
 )
-
-
-class ParseRangeError(Exception):
-    def __init__(self, rng: str, msg_addon: str = None, *args: object) -> None:
-        msg = f"{rng} is not a valid range.{' ' + msg_addon if msg_addon else ''}"
-        super().__init__(msg, *args)
 
 
 class Range(Component):

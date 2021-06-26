@@ -74,15 +74,3 @@ def test_gsheet(drive_conn, sheets_conn):
         )
 
 
-@pytest.fixture(scope="session")
-def test_tab(sheets_conn, test_gsheet):
-    return Tab(
-        test_gsheet.id,
-        parent_gsheet=test_gsheet,
-        tab_title="Sheet1",
-        tab_id=0,
-        tab_idx=0,
-        column_count=10,
-        row_count=500,
-        sheets_conn=sheets_conn,
-    )

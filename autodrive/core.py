@@ -32,6 +32,12 @@ class Formatting:
     def __init__(self, parent: Component):
         self._parent = parent
 
+    def add_request(self, request: Dict[str, Any]) -> None:
+        self._parent.requests.append(request)
+
+    def ensure_2d_range(self, rng: TwoDRange = None) -> TwoDRange:
+        return rng if rng else self._parent.range
+
 
 class GSheetView(ABC):
     def __init__(

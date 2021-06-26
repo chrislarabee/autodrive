@@ -5,7 +5,7 @@ from typing import Dict, List, Any
 from .core import Component
 from .interfaces import AuthConfig, TwoDRange, OneDRange
 from .connection import SheetsConnection
-from .formatting.formatting import (
+from .formatting import (
     TabCellFormatting,
     TabGridFormatting,
     TabTextFormatting,
@@ -58,6 +58,15 @@ class Tab(Component):
     @property
     def format_grid(self) -> TabGridFormatting:
         return self._format_grid
+
+    @property
+    def format_text(self) -> TabTextFormatting:
+        return self._format_text
+
+    @property
+    def format_cell(self) -> TabCellFormatting:
+        return self._format_cell
+
 
     @property
     def title(self) -> str:
