@@ -5,7 +5,7 @@ from functools import singledispatchmethod
 
 from .connection import SheetsConnection
 from .core import GSheetView
-from .interfaces import AuthConfig
+from .interfaces import AuthConfig, TwoDRange, OneDRange
 from . import google_terms as terms
 from .tab import Tab
 from .range import Range
@@ -88,24 +88,22 @@ class GSheet(GSheetView):
     #     return self
 
     def write_values(
-        self, data: List[List[Any]], to_tab: str = None, rng: Range = None
+        self,
+        data: List[List[Any]],
+        to_tab: str = None,
+        rng: TwoDRange | OneDRange = None,
     ) -> GSheet:
         tab = self.tabs.get(to_tab) if to_tab else self._tabs[0]
         if not tab:
             raise KeyError(f"{to_tab} not found in {self._title} tabs.")
         if not rng:
-            rng = Range.from_raw_args(
-                self._gsheet_id,
-                (0, len(data)),
-                (0, len(data[0])),
-                tab_id=tab.tab_id,
-                tab_title=tab.title,
-                sheets_conn=self.conn,
-            )
-        self._write_values(data, rng.to_dict())
+            rng = tab.two_d_range()
+        self._write_values(data, dict(rng))
         return self
 
-    def get_data(self, tab: str | int = None, rng: Range = None) -> GSheet:
+    def get_data(
+        self, tab: str | int = None, rng: TwoDRange | OneDRange = None
+    ) -> GSheet:
         if isinstance(tab, str):
             tab_ = self.tabs.get(tab)
             if not tab_:
@@ -117,14 +115,7 @@ class GSheet(GSheetView):
                 f"tab must be a string, integer, or None. type = {type(tab)}"
             )
         if not rng:
-            rng = Range.from_raw_args(
-                self._gsheet_id,
-                row_range=(0, tab_.row_count),
-                col_range=(0, tab_.column_count),
-                tab_id=tab_.tab_id,
-                tab_title=tab_.title,
-                sheets_conn=self._conn,
-            )
+            rng = tab_.two_d_range()
         values, formats = self._get_data(self._gsheet_id, str(rng))
         tab_.values = values
         tab_.formats = formats

@@ -76,7 +76,8 @@ class Connection(ABC):
                     )
                 else:
                     raise FileNotFoundError(
-                        f"Credentials file {auth_config.creds_filepath} could not be found."
+                        f"Credentials file {auth_config.creds_filepath} could not be "
+                        "found."
                     )
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run

@@ -1,6 +1,7 @@
 from __future__ import annotations
+from autodrive.interfaces import TwoDRange
 
-from typing import Any, Dict, List, Type, TypeVar, Tuple, Generic, Optional
+from typing import Any, Dict, List, Type, TypeVar, Tuple, Generic
 from abc import ABC
 import string
 
@@ -171,15 +172,11 @@ class Component(GSheetView, Generic[FT]):
     def __init__(
         self,
         *,
+        gsheet_range: TwoDRange,
         gsheet_id: str,
-        tab_id: int,
-        start_row_idx: int,
-        start_col_idx: int,
-        end_col_idx: int,
         grid_formatting: Type[FT],
         text_formatting: Type[FT],
         cell_formatting: Type[FT],
-        end_row_idx: int = None,
         auth_config: AuthConfig = None,
         sheets_conn: SheetsConnection = None,
         autoconnect: bool = True,
@@ -190,20 +187,24 @@ class Component(GSheetView, Generic[FT]):
             sheets_conn=sheets_conn,
             autoconnect=autoconnect,
         )
-        self._tab_id = tab_id
+        self._rng = gsheet_range
         self._values: List[List[Any]] = []
         self._formats: List[List[Dict[str, Any]]] = []
-        self._start_row = start_row_idx
-        self._end_row = end_row_idx
-        self._start_col = start_col_idx
-        self._end_col = end_col_idx
         self._format_grid = grid_formatting(self)
         self._format_text = text_formatting(self)
         self._format_cell = cell_formatting(self)
 
     @property
     def tab_id(self) -> int:
-        return self._tab_id
+        return self._rng.tab_id
+
+    @property
+    def range_str(self) -> str:
+        return str(self._rng)
+
+    @property
+    def range(self) -> TwoDRange:
+        return self._rng
 
     @property
     def values(self) -> List[List[Any]]:
@@ -237,19 +238,3 @@ class Component(GSheetView, Generic[FT]):
     def data_shape(self) -> Tuple[int, int]:
         width = len(self._values[0]) if self._values else 0
         return len(self._values), width
-
-    @property
-    def start_row_idx(self) -> int:
-        return self._start_row
-
-    @property
-    def end_row_idx(self) -> Optional[int]:
-        return self._end_row
-
-    @property
-    def start_col_idx(self) -> int:
-        return self._start_col
-
-    @property
-    def end_col_idx(self) -> int:
-        return self._end_col

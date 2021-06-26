@@ -1,10 +1,11 @@
 import pytest
 
 from autodrive.formatting import grid
+from autodrive.interfaces import OneDRange
 
 
 def test_auto_column_width():
-    result = grid.auto_column_width(0, 0, 5)
+    result = grid.auto_column_width(OneDRange(0, 0, 5, base0_idxs=True))
     assert result == {
         "autoResizeDimensions": {
             "dimensions": {
@@ -40,7 +41,7 @@ def test_insert_rows():
 
 
 def test_delete_rows():
-    result = grid.delete_rows(0, 5, 10)
+    result = grid.delete_rows(OneDRange(0, 5, 10, base0_idxs=True))
     assert result == {
         "deleteDimension": {
             "range": {

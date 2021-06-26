@@ -3,7 +3,9 @@ from autodrive.interfaces import TwoDRange, TextFormat, AccountingFormat
 
 
 def test_apply_format_works_with_text_format():
-    result = text.apply_format(TwoDRange(0, 0, 4), TextFormat(font_size=12, bold=True))
+    result = text.apply_format(
+        TwoDRange(0, 0, 4, base0_idxs=True), TextFormat(font_size=12, bold=True)
+    )
     assert result == {
         "repeatCell": {
             "range": {"sheetId": 0, "startRowIndex": 0, "endRowIndex": 4},
@@ -16,7 +18,7 @@ def test_apply_format_works_with_text_format():
 
 
 def test_apply_format_works_with_number_formats():
-    result = text.apply_format(TwoDRange(0, 0, 4), AccountingFormat)
+    result = text.apply_format(TwoDRange(0, 0, 4, base0_idxs=True), AccountingFormat)
     assert result == {
         "repeatCell": {
             "range": {"sheetId": 0, "startRowIndex": 0, "endRowIndex": 4},

@@ -4,7 +4,7 @@ from autodrive.interfaces import TwoDRange, Color
 
 def test_add_alternating_row_background():
     result = cell.add_alternating_row_background(
-        TwoDRange(0, 1, 5, 0, 10), Color(0.2, 0.3)
+        TwoDRange(0, 1, 5, 0, 10, base0_idxs=True), Color(0.2, 0.3)
     )
     assert result == {
         "addConditionalFormatRule": {

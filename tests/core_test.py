@@ -1,3 +1,4 @@
+from autodrive.interfaces import TwoDRange
 import string
 
 from autodrive.dtypes import FormattedVal, UserEnteredVal, EffectiveVal
@@ -7,7 +8,7 @@ from autodrive.gsheet import Range
 
 class TestGSheetView:
     def test_that_it_can_parse_row_data(self):
-        fmt1 = {"horizontalAlignment": "left"}
+        fmt1 = {"col_rangeAlignment": "left"}
         value1 = {
             "formattedValue": "test",
             "userEnteredValue": {"stringValue": "test"},
@@ -65,7 +66,10 @@ class TestGSheetView:
     def test_that_it_can_create_write_values_requests(self, testing_GSheetView):
         comp = testing_GSheetView(gsheet_id="test")
         rng = Range(
-            "Sheet1!A1:C3", tab_title="", gsheet_id="test", tab_id=0, autoconnect=False
+            TwoDRange(0, range_str="Sheet1!A1:C3"),
+            tab_title="",
+            gsheet_id="test",
+            autoconnect=False,
         )
         data = [["a", "b", "c"], [1, 2, 3], [4, 5, 6]]
         comp._write_values(data, rng.to_dict())

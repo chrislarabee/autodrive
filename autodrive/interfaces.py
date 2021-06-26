@@ -1,14 +1,21 @@
 from __future__ import annotations
-from autodrive.dtypes import Number
 
-from typing import Dict, Iterator, Any
+from typing import Dict, Iterator, Any, Tuple, Optional, Literal
 from collections.abc import Mapping
 from pathlib import Path
+import re
+import string
 
 from . import google_terms as terms
 
 DEFAULT_TOKEN = "gdrive_token.pickle"
 DEFAULT_CREDS = "credentials.json"
+
+
+class ParseRangeError(Exception):
+    def __init__(self, rng: str, msg_addon: str = None, *args: object) -> None:
+        msg = f"{rng} is not a valid range.{' ' + msg_addon if msg_addon else ''}"
+        super().__init__(msg, *args)
 
 
 class AuthConfig:
@@ -46,27 +53,146 @@ class Interface(Mapping):
 
 
 class RangeInterface(Interface):
-    def __init__(self, tab_id: int) -> None:
+    def __init__(self, tab_id: int, tab_title: str = None) -> None:
         self.tab_id = tab_id
+        self.tab_title = tab_title
 
     def to_dict(self) -> Dict[str, int]:
         return {terms.TAB_ID: self.tab_id}
 
+    @classmethod
+    def _construct_range_str(
+        cls,
+        start_row: Optional[int] = 0,
+        end_row: Optional[int] = None,
+        start_col: Optional[int] = 0,
+        end_col: Optional[int] = 0,
+    ) -> str:
+        start_letter = ""
+        end_letter = ""
+        start_letter = cls._convert_col_idx_to_alpha(start_col or 0)
+        end_letter = cls._convert_col_idx_to_alpha(end_col - 1 if end_col else 0)
+        start_int = (start_row or 0) + 1
+        end_int = end_row if end_row is not None else None
+        return f"{start_letter}{start_int}:{end_letter}{end_int or ''}"
+
+    @staticmethod
+    def _parse_range_str(rng: str) -> Tuple[Optional[str], str, Optional[str]]:
+        result = re.match(r"(?:(.*)!)?([A-Z]+\d+?)(?::([A-Z]*\d*))?", rng)
+        if result:
+            grps = result.groups()
+            return grps  # type: ignore
+        else:
+            raise ParseRangeError(rng)
+
+    @staticmethod
+    def _parse_cell_str(cell_str: str) -> Tuple[str, Optional[str]]:
+        result = re.match(r"([A-Z]+)(\d+)?", cell_str)
+        if result:
+            grps = result.groups()
+            return grps  # type: ignore
+        else:
+            raise ParseRangeError(cell_str)
+
+    @classmethod
+    def _convert_cell_str_to_coord(cls, cell_str: str) -> Tuple[int, Optional[int]]:
+        col, row = cls._parse_cell_str(cell_str)
+        col_idx = cls._convert_alpha_col_to_idx(col)
+        row_idx = int(row) - 1 if row else None
+        return col_idx, row_idx
+
+    @staticmethod
+    def _convert_alpha_col_to_idx(alpha_col: str) -> int:
+        values = []
+        for i, a in enumerate(alpha_col, start=1):
+            base_idx = string.ascii_uppercase.index(a) + 1
+            remainder = len(alpha_col[i:])
+            values.append(26 ** remainder * base_idx)
+        return sum(values) - 1
+
+    @staticmethod
+    def _convert_col_idx_to_alpha(idx: int) -> str:
+        chars = []
+        col_num = idx + 1
+        while col_num > 0:
+            remainder = col_num % 26
+            if remainder == 0:
+                remainder = 26
+            col_letter = chr(ord("A") + remainder - 1)
+            chars.append(col_letter)
+            col_num = int((col_num - 1) / 26)
+        chars.reverse()
+        return "".join(chars)
+
+    @classmethod
+    def _parse_idx(
+        cls, idx: str | int = None, base0_idxs: bool = False, mod: int = 1
+    ) -> Optional[int]:
+        adj = 0 if base0_idxs else mod
+        result = None
+        if isinstance(idx, str):
+            result = cls._convert_alpha_col_to_idx(idx)
+        elif idx is not None:
+            result = idx + adj
+        return result
+
 
 class OneDRange(RangeInterface):
-    def __init__(self, tab_id: int, start_idx: int = None, end_idx: int = None) -> None:
-        super().__init__(tab_id)
-        self.start_idx = start_idx
-        self.end_idx = end_idx
+    def __init__(
+        self,
+        tab_id: int,
+        start_idx: str | int = None,
+        end_idx: str | int = None,
+        *,
+        tab_title: str = None,
+        base0_idxs: bool = False,
+        column: bool = False,
+    ) -> None:
+        super().__init__(tab_id, tab_title)
+        self.start_idx = self._parse_idx(start_idx, base0_idxs, -1)
+        self.end_idx = self._parse_idx(end_idx, base0_idxs)
+        self.column = column
+        if isinstance(start_idx, str):
+            self.column = True
+        if self.column and self.end_idx and not base0_idxs:
+            self.end_idx += 1
 
-    # All of these must be is not None because any of them can be 0:
     def to_dict(self) -> Dict[str, int]:
         result = {terms.TAB_ID: self.tab_id}
+        # All of these must be is not None because any of them can be 0:
         if self.start_idx is not None:
             result["startIndex"] = self.start_idx
         if self.end_idx is not None:
             result["endIndex"] = self.end_idx
         return result
+
+    def __str__(self) -> str:
+        if self.column:
+            rng = self._construct_range_str(
+                start_col=self.start_idx, end_col=self.end_idx
+            )
+        else:
+            raise AttributeError(
+                f"{self}.column indicator is False. Cannot convert row OneDRanges to "
+                "strings."
+            )
+        return f"{self.tab_title or ''}{'!' if self.tab_title else ''}{rng}"
+
+    @property
+    def start_row(self) -> int:
+        return self.start_idx or 0
+
+    @property
+    def end_row(self) -> int:
+        return self.start_idx + 1 if self.start_idx else 0
+
+    @property
+    def start_col(self) -> int:
+        return self.start_idx or 0
+
+    @property
+    def end_col(self) -> int:
+        return self.start_idx + 1 if self.start_idx else 0
 
 
 class TwoDRange(RangeInterface):
@@ -75,14 +201,61 @@ class TwoDRange(RangeInterface):
         tab_id: int,
         start_row: int = None,
         end_row: int = None,
-        start_col: int = None,
-        end_col: int = None,
+        start_col: int | str = None,
+        end_col: int | str = None,
+        *,
+        range_str: str = None,
+        base0_idxs: bool = False,
+        tab_title: str = None,
     ) -> None:
-        super().__init__(tab_id)
-        self.start_row = start_row
-        self.end_row = end_row
-        self.start_col = start_col
-        self.end_col = end_col
+        super().__init__(tab_id, tab_title)
+        if range_str:
+            title, start, end = self._parse_range_str(range_str)
+            if title and not self.tab_title:
+                self.tab_title = title
+            if end:
+                cend, rend = self._convert_cell_str_to_coord(end)
+                cstart, rstart = self._convert_cell_str_to_coord(start)
+            else:
+                cend, rend = self._convert_cell_str_to_coord(start)
+                cstart = 0
+                rstart = 0
+            self.start_row = rstart
+            self.end_row = rend + 1 if rend else None
+            self.start_col = cstart
+            self.end_col = cend + 1 if cend else None
+        else:
+            self.start_row = self._parse_idx(start_row, base0_idxs, -1)
+            self.end_row = self._parse_idx(end_row, base0_idxs)
+            self.start_col = self._parse_idx(start_col, base0_idxs, -1)
+            self.end_col = self._parse_idx(end_col, base0_idxs)
+
+    @property
+    def row_range(self) -> OneDRange:
+        return OneDRange(
+            self.tab_id,
+            self.start_row,
+            self.end_row,
+            tab_title=self.tab_title,
+            base0_idxs=True,
+        )
+
+    @property
+    def col_range(self) -> OneDRange:
+        return OneDRange(
+            self.tab_id,
+            self.start_col,
+            self.end_col,
+            tab_title=self.tab_title,
+            base0_idxs=True,
+            column=True,
+        )
+
+    def __str__(self) -> str:
+        rng = self._construct_range_str(
+            self.start_row, self.end_row, self.start_col, self.end_col
+        )
+        return f"{self.tab_title or ''}{'!' if self.tab_title else ''}{rng}"
 
     def to_dict(self) -> Dict[str, int]:
         result = {terms.TAB_ID: self.tab_id}

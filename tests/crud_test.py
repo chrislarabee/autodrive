@@ -2,7 +2,7 @@ import pytest
 
 from autodrive.range import Range
 from autodrive.tab import Tab
-from autodrive.interfaces import TextFormat
+from autodrive.interfaces import TextFormat, TwoDRange
 
 
 class TestCRUD:
@@ -21,9 +21,8 @@ class TestCRUD:
         self, test_gsheet, sheets_conn, input_data
     ):
         rng = Range(
-            "Sheet1!A4:C5",
-            tab_id=0,
-            tab_title="",
+            TwoDRange(0, range_str="A4:C5"),
+            tab_title="Sheet1",
             gsheet_id=test_gsheet.gsheet_id,
             sheets_conn=sheets_conn,
         )

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Dict, List, Any
 
 from .core import Component
-from .interfaces import AuthConfig
+from .interfaces import AuthConfig, TwoDRange, OneDRange
 from .connection import SheetsConnection
 from .formatting.formatting import (
     TabCellFormatting,
@@ -11,7 +11,6 @@ from .formatting.formatting import (
     TabTextFormatting,
 )
 from . import google_terms as terms
-from .range import Range
 
 
 class Tab(Component):
@@ -28,17 +27,22 @@ class Tab(Component):
         sheets_conn: SheetsConnection = None,
         autoconnect: bool = True,
     ) -> None:
+        self._tab_id = tab_id
         self._title = tab_title
         self._index = tab_idx
         self._column_count = column_count
         self._row_count = row_count
         super().__init__(
             gsheet_id=gsheet_id,
-            tab_id=tab_id,
-            start_row_idx=0,
-            end_row_idx=row_count,
-            start_col_idx=0,
-            end_col_idx=column_count,
+            gsheet_range=TwoDRange(
+                self._tab_id,
+                start_row=0,
+                end_row=row_count,
+                start_col=0,
+                end_col=column_count,
+                tab_title=tab_title,
+                base0_idxs=True,
+            ),
             grid_formatting=TabGridFormatting,
             text_formatting=TabTextFormatting,
             cell_formatting=TabCellFormatting,
@@ -46,6 +50,10 @@ class Tab(Component):
             sheets_conn=sheets_conn,
             autoconnect=autoconnect,
         )
+
+    @property
+    def tab_id(self) -> int:
+        return self._tab_id
 
     @property
     def format_grid(self) -> TabGridFormatting:
@@ -93,30 +101,23 @@ class Tab(Component):
             autoconnect=autoconnect,
         )
 
-    def get_data(self, rng: Range = None) -> Tab:
-        if not rng:
-            rng = Range.from_raw_args(
-                self._gsheet_id,
-                row_range=(0, self._row_count),
-                col_range=(0, self._column_count),
-                tab_id=self._tab_id,
-                tab_title=self._title,
-                sheets_conn=self._conn,
-            )
-        self._values, self._formats = self._get_data(self._gsheet_id, str(rng))
+    def two_d_range(self) -> TwoDRange:
+        return TwoDRange(
+            self._tab_id, 0, self._row_count, 0, self._column_count, base0_idxs=True
+        )
+
+    def get_data(self, rng: TwoDRange | OneDRange = None) -> Tab:
+        rng = self.two_d_range() if not rng else rng
+        self._values, self._formats = self._get_data(
+            self._gsheet_id, f"{self._title}!{rng}"
+        )
         return self
 
-    def write_values(self, data: List[List[Any]], rng: Range = None) -> Tab:
-        if not rng:
-            rng = Range.from_raw_args(
-                self._gsheet_id,
-                row_range=(0, len(data)),
-                col_range=(0, len(data[0])),
-                tab_id=self._tab_id,
-                tab_title=self._title,
-                sheets_conn=self._conn,
-            )
-        self._write_values(data, rng.to_dict())
+    def write_values(
+        self, data: List[List[Any]], rng: TwoDRange | OneDRange = None
+    ) -> Tab:
+        rng = self.two_d_range() if not rng else rng
+        self._write_values(data, dict(rng))
         return self
 
     @classmethod
