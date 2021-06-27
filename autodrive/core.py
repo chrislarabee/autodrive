@@ -1,5 +1,4 @@
 from __future__ import annotations
-from autodrive.interfaces import TwoDRange
 
 from typing import Any, Dict, List, Type, TypeVar, Tuple, Generic
 from abc import ABC
@@ -7,9 +6,11 @@ import string
 
 from .connection import AuthConfig, SheetsConnection
 from . import google_terms as terms
+from .interfaces import TwoDRange
 from .dtypes import (
     EffectiveFmt,
     GOOGLE_DTYPES,
+    GoogleDtype,
     GoogleValueType,
     TYPE_MAP,
     UserEnteredVal,
@@ -19,24 +20,38 @@ from .dtypes import (
 )
 
 T = TypeVar("T", bound="GSheetView")
-FT = TypeVar("FT", bound="Formatting")
+FC = TypeVar("FC", bound="CellFormatting")
+FG = TypeVar("FG", bound="GridFormatting")
+FT = TypeVar("FT", bound="TextFormatting")
 
 
 class NoConnectionError(Exception):
-    def __init__(self, ctype: Type[GSheetView], *args: object) -> None:
-        msg = f"No SheetsConnection has been established for this {ctype}."
+    def __init__(self, vtype: Type[GSheetView], *args: object) -> None:
+        msg = f"No SheetsConnection has been established for this {vtype}."
         super().__init__(msg, *args)
 
 
 class Formatting:
-    def __init__(self, parent: Component):
+    def __init__(self, parent: Component[Any, Any, Any]):
         self._parent = parent
 
     def add_request(self, request: Dict[str, Any]) -> None:
         self._parent.requests.append(request)
 
-    def ensure_2d_range(self, rng: TwoDRange = None) -> TwoDRange:
+    def ensure_2d_range(self, rng: TwoDRange | None = None) -> TwoDRange:
         return rng if rng else self._parent.range
+
+
+class CellFormatting(Formatting):
+    pass
+
+
+class GridFormatting(Formatting):
+    pass
+
+
+class TextFormatting(Formatting):
+    pass
 
 
 class GSheetView(ABC):
@@ -44,8 +59,8 @@ class GSheetView(ABC):
         self,
         gsheet_id: str,
         *,
-        auth_config: AuthConfig = None,
-        sheets_conn: SheetsConnection = None,
+        auth_config: AuthConfig | None = None,
+        sheets_conn: SheetsConnection | None = None,
         autoconnect: bool = True,
     ) -> None:
         super().__init__()
@@ -89,21 +104,21 @@ class GSheetView(ABC):
         row_data: List[Dict[str, List[Dict[str, Any]]]],
         value_type: GoogleValueType = EffectiveVal,
     ) -> Tuple[List[List[Any]], List[List[Dict[str, Any]]]]:
-        values = []
-        formats = []
+        values: List[List[Any]] = []
+        formats: List[List[Dict[str, Any]]] = []
         for row in row_data:
-            value_list = []
-            fmt_list = []
+            value_list: List[Any] = []
+            fmt_list: List[Dict[str, Any]] = []
             for cell in row.get(terms.VALUES, []):
                 raw_value = cell.get(str(value_type))
-                fmt = cell.get(str(EffectiveFmt))
+                fmt = cell.get(str(EffectiveFmt), {})
                 value = raw_value
                 if value_type in (UserEnteredVal, EffectiveVal):
                     if raw_value:
                         for dtype in GOOGLE_DTYPES:
                             value = raw_value.get(str(dtype))
                             if value:
-                                if value_type == UserEnteredVal:
+                                if value_type == UserEnteredVal:  # type: ignore
                                     value = dtype.parse(value)
                                 break
                 value_list.append(value)
@@ -138,6 +153,7 @@ class GSheetView(ABC):
 
     @staticmethod
     def _gen_cell_write_value(python_val: Any) -> Dict[str, Any]:
+        dtype: GoogleDtype
         type_ = type(python_val)
         if (
             isinstance(python_val, str)
@@ -164,7 +180,7 @@ class GSheetView(ABC):
                 desired. Can be used to generate sets up to 676 in length.
         """
         a = string.ascii_uppercase
-        result = list()
+        result: List[str] = list()
         x = num // 26
         for i in range(x + 1):
             root = a[i - 1] if i > 0 else ""
@@ -174,17 +190,17 @@ class GSheetView(ABC):
         return result
 
 
-class Component(GSheetView, Generic[FT]):
+class Component(GSheetView, Generic[FC, FG, FT]):
     def __init__(
         self,
         *,
         gsheet_range: TwoDRange,
         gsheet_id: str,
-        grid_formatting: Type[FT],
+        grid_formatting: Type[FG],
         text_formatting: Type[FT],
-        cell_formatting: Type[FT],
-        auth_config: AuthConfig = None,
-        sheets_conn: SheetsConnection = None,
+        cell_formatting: Type[FC],
+        auth_config: AuthConfig | None = None,
+        sheets_conn: SheetsConnection | None = None,
         autoconnect: bool = True,
     ) -> None:
         super().__init__(
@@ -213,17 +229,29 @@ class Component(GSheetView, Generic[FT]):
         return self._rng
 
     @property
+    def format_grid(self) -> FG:
+        return self._format_grid
+
+    @property
+    def format_text(self) -> FT:
+        return self._format_text
+
+    @property
+    def format_cell(self) -> FC:
+        return self._format_cell
+
+    @property
     def values(self) -> List[List[Any]]:
         return self._values
 
     @values.setter
     def values(self, new_values: List[List[Any]]) -> None:
-        values_error = "new_values must be a list of lists."
-        if not isinstance(new_values, list):
-            raise TypeError(values_error)
-        else:
-            if len(new_values) > 0 and not isinstance(new_values[0], list):
-                raise TypeError(values_error)
+        # values_error = "new_values must be a list of lists."
+        # if not isinstance(new_values, list):
+        #     raise TypeError(values_error)
+        # else:
+        #     if len(new_values) > 0 and not isinstance(new_values[0], list):
+        #         raise TypeError(values_error)
         self._values = new_values
 
     @property
@@ -232,12 +260,12 @@ class Component(GSheetView, Generic[FT]):
 
     @formats.setter
     def formats(self, new_formats: List[List[Dict[str, Any]]]) -> None:
-        formats_error = "new_formats must be a list of lists of dictionaries."
-        if not isinstance(new_formats, list):
-            raise TypeError(formats_error)
-        else:
-            if len(new_formats) > 0 and not isinstance(new_formats[0], list):
-                raise TypeError(formats_error)
+        # formats_error = "new_formats must be a list of lists of dictionaries."
+        # if not isinstance(new_formats, list):
+        #     raise TypeError(formats_error)
+        # else:
+        #     if len(new_formats) > 0 and not isinstance(new_formats[0], list):
+        #         raise TypeError(formats_error)
         self._formats = new_formats
 
     @property

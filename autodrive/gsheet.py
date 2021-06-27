@@ -8,18 +8,17 @@ from .core import GSheetView
 from .interfaces import AuthConfig, TwoDRange, OneDRange
 from . import google_terms as terms
 from .tab import Tab
-from .range import Range
 
 
 class GSheet(GSheetView):
     def __init__(
         self,
         gsheet_id: str,
-        title: str = None,
+        title: str | None = None,
         *,
-        tabs: List[Tab] = None,
-        auth_config: AuthConfig = None,
-        sheets_conn: SheetsConnection = None,
+        tabs: List[Tab] | None = None,
+        auth_config: AuthConfig | None = None,
+        sheets_conn: SheetsConnection | None = None,
         autoconnect: bool = True,
     ) -> None:
         super().__init__(
@@ -90,19 +89,19 @@ class GSheet(GSheetView):
     def write_values(
         self,
         data: List[List[Any]],
-        to_tab: str = None,
-        rng: TwoDRange | OneDRange = None,
+        to_tab: str | None = None,
+        rng: TwoDRange | OneDRange | None = None,
     ) -> GSheet:
         tab = self.tabs.get(to_tab) if to_tab else self._tabs[0]
         if not tab:
             raise KeyError(f"{to_tab} not found in {self._title} tabs.")
         if not rng:
             rng = tab.two_d_range()
-        self._write_values(data, dict(rng))
+        self._write_values(data, rng.to_dict())
         return self
 
     def get_data(
-        self, tab: str | int = None, rng: TwoDRange | OneDRange = None
+        self, tab: str | int | None = None, rng: TwoDRange | OneDRange | None = None
     ) -> GSheet:
         if isinstance(tab, str):
             tab_ = self.tabs.get(tab)
@@ -133,10 +132,10 @@ class GSheet(GSheetView):
         else:
             return self.tabs[key]
 
-    def keys(self) -> KeysView:
+    def keys(self) -> KeysView[str]:
         return self.tabs.keys()
 
-    def values(self) -> ValuesView:
+    def values(self) -> ValuesView[Tab]:
         return self.tabs.values()
 
     def get_tab_index_by_title(self, tab_title: str) -> Optional[int]:

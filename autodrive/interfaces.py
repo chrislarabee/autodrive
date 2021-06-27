@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import Dict, Iterator, Any, Tuple, Optional, Literal
-from collections.abc import Mapping
-from pathlib import Path
 import re
 import string
+from pathlib import Path
+from typing import Any, Dict, Iterator, List, Mapping, Optional, Tuple, TypeVar
 
 from . import google_terms as terms
 
@@ -12,8 +11,11 @@ DEFAULT_TOKEN = "gdrive_token.pickle"
 DEFAULT_CREDS = "credentials.json"
 
 
+T = TypeVar("T")
+
+
 class ParseRangeError(Exception):
-    def __init__(self, rng: str, msg_addon: str = None, *args: object) -> None:
+    def __init__(self, rng: str, msg_addon: str | None = None, *args: object) -> None:
         msg = f"{rng} is not a valid range.{' ' + msg_addon if msg_addon else ''}"
         super().__init__(msg, *args)
 
@@ -21,7 +23,7 @@ class ParseRangeError(Exception):
 class AuthConfig:
     def __init__(
         self,
-        secrets_config: Dict[str, Any] = None,
+        secrets_config: Dict[str, Any] | None = None,
         token_filepath: str | Path = DEFAULT_TOKEN,
         creds_filepath: str | Path = DEFAULT_CREDS,
     ) -> None:
@@ -38,22 +40,22 @@ class AuthConfig:
         return self._creds_filepath
 
 
-class Interface(Mapping):
-    def to_dict(self) -> Dict[str, Any]:
+class Interface(Mapping[str, T]):
+    def to_dict(self) -> Dict[str, T]:
         return {}
 
-    def __iter__(self) -> Iterator[int | str]:
+    def __iter__(self) -> Iterator[str]:
         return iter(self.to_dict())
 
-    def __getitem__(self, k: str) -> int | None:
-        return self.to_dict().get(k)
+    def __getitem__(self, k: str) -> T:
+        return self.to_dict()[k]
 
     def __len__(self) -> int:
         return len(self.to_dict())
 
 
-class RangeInterface(Interface):
-    def __init__(self, tab_id: int, tab_title: str = None) -> None:
+class RangeInterface(Interface[int]):
+    def __init__(self, tab_id: int, tab_title: str | None = None) -> None:
         self.tab_id = tab_id
         self.tab_title = tab_title
 
@@ -103,16 +105,16 @@ class RangeInterface(Interface):
 
     @staticmethod
     def _convert_alpha_col_to_idx(alpha_col: str) -> int:
-        values = []
-        for i, a in enumerate(alpha_col, start=1):
-            base_idx = string.ascii_uppercase.index(a) + 1
+        values: List[int] = []
+        for i, a in enumerate(alpha_col, start=1):  # type: ignore
+            base_idx = string.ascii_uppercase.index(a) + 1  # type: ignore
             remainder = len(alpha_col[i:])
             values.append(26 ** remainder * base_idx)
         return sum(values) - 1
 
     @staticmethod
     def _convert_col_idx_to_alpha(idx: int) -> str:
-        chars = []
+        chars: List[str] = []
         col_num = idx + 1
         while col_num > 0:
             remainder = col_num % 26
@@ -126,7 +128,7 @@ class RangeInterface(Interface):
 
     @classmethod
     def _parse_idx(
-        cls, idx: str | int = None, base0_idxs: bool = False, mod: int = 1
+        cls, idx: str | int | None = None, base0_idxs: bool = False, mod: int = 1
     ) -> Optional[int]:
         adj = 0 if base0_idxs else mod
         result = None
@@ -141,10 +143,10 @@ class OneDRange(RangeInterface):
     def __init__(
         self,
         tab_id: int,
-        start_idx: str | int = None,
-        end_idx: str | int = None,
+        start_idx: str | int | None = None,
+        end_idx: str | int | None = None,
         *,
-        tab_title: str = None,
+        tab_title: str | None = None,
         base0_idxs: bool = False,
         column: bool = False,
     ) -> None:
@@ -199,14 +201,14 @@ class TwoDRange(RangeInterface):
     def __init__(
         self,
         tab_id: int,
-        start_row: int = None,
-        end_row: int = None,
-        start_col: int | str = None,
-        end_col: int | str = None,
+        start_row: int | None = None,
+        end_row: int | None = None,
+        start_col: int | str | None = None,
+        end_col: int | str | None = None,
         *,
-        range_str: str = None,
+        range_str: str | None = None,
         base0_idxs: bool = False,
-        tab_title: str = None,
+        tab_title: str | None = None,
     ) -> None:
         super().__init__(tab_id, tab_title)
         if range_str:
@@ -227,7 +229,7 @@ class TwoDRange(RangeInterface):
         else:
             self.start_row = self._parse_idx(start_row, base0_idxs, -1)
             self.end_row = self._parse_idx(end_row, base0_idxs)
-            self.start_col = self._parse_idx(start_col, base0_idxs, -1)
+            self.start_col = self._parse_idx(start_col, base0_idxs, -1) or 0
             self.end_col = self._parse_idx(end_col, base0_idxs)
 
     @property
@@ -271,7 +273,7 @@ class TwoDRange(RangeInterface):
         return result
 
 
-class Color(Interface):
+class Color(Interface[float]):
     def __init__(
         self, red: int | float = 0, green: int | float = 0, blue: int | float = 0
     ) -> None:
@@ -283,7 +285,7 @@ class Color(Interface):
         return {"red": self.red, "green": self.green, "blue": self.blue}
 
 
-class Format(Interface):
+class Format(Interface[Any]):
     def __init__(self, format_key: str) -> None:
         self._format_key = format_key
 
@@ -303,7 +305,7 @@ class Format(Interface):
 
 
 class TextFormat(Format):
-    def __init__(self, *, font_size: int = None, bold: bool = False) -> None:
+    def __init__(self, *, font_size: int | None = None, bold: bool = False) -> None:
         super().__init__("textFormat")
         self.font_size = font_size
         self.bold = bold

@@ -1,12 +1,21 @@
 from __future__ import annotations
 
-from ..core import Formatting
+from ..core import CellFormatting, GridFormatting, TextFormatting
 from ..interfaces import Format, OneDRange, TwoDRange, Color
 from . import grid, text, cell
 
 
-class TabGridFormatting(Formatting):
-    def auto_column_width(self, rng: OneDRange = None) -> TabGridFormatting:
+class TabCellFormatting(CellFormatting):
+    def add_alternating_row_background(
+        self, colors: Color, rng: TwoDRange | None = None
+    ) -> TabCellFormatting:
+        rng = rng if rng else self._parent.range
+        self.add_request(cell.add_alternating_row_background(rng, colors))
+        return self
+
+
+class TabGridFormatting(GridFormatting):
+    def auto_column_width(self, rng: OneDRange | None = None) -> TabGridFormatting:
         rng = rng if rng else self._parent.range.col_range
         self.add_request(grid.auto_column_width(rng))
         return self
@@ -24,17 +33,10 @@ class TabGridFormatting(Formatting):
         return self
 
 
-class TabTextFormatting(Formatting):
-    def apply_format(self, format: Format, rng: TwoDRange = None) -> TabTextFormatting:
+class TabTextFormatting(TextFormatting):
+    def apply_format(
+        self, format: Format, rng: TwoDRange | None = None
+    ) -> TabTextFormatting:
         rng = self.ensure_2d_range(rng)
         self.add_request(text.apply_format(rng, format))
-        return self
-
-
-class TabCellFormatting(Formatting):
-    def add_alternating_row_background(
-        self, colors: Color, rng: TwoDRange = None
-    ) -> TabCellFormatting:
-        rng = rng if rng else self._parent.range
-        self.add_request(cell.add_alternating_row_background(rng, colors))
         return self

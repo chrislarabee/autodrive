@@ -1,7 +1,7 @@
 import pytest
 
-from autodrive.gsheet import GSheet, Tab, Range
-from autodrive.interfaces import TextFormat
+from autodrive.gsheet import GSheet, Tab
+from autodrive.connection import SheetsConnection
 
 
 class TestGSheet:
@@ -35,7 +35,7 @@ class TestGSheet:
         assert GSheet._parse_properties(raw) == expected
 
     @pytest.mark.skip
-    def test_that_it_can_add_tabs_requests(self, sheets_conn):
+    def test_that_it_can_add_tabs_requests(self, sheets_conn: SheetsConnection):
         expected = [
             {"addSheet": {"properties": {"title": "new_sheet"}}},
             {"addSheet": {"properties": {"title": "nuevo_sheet", "index": 3}}},

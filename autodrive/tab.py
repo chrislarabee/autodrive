@@ -13,7 +13,7 @@ from .formatting import (
 from . import google_terms as terms
 
 
-class Tab(Component):
+class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
     def __init__(
         self,
         gsheet_id: str,
@@ -23,8 +23,8 @@ class Tab(Component):
         column_count: int = 26,
         row_count: int = 1000,
         *,
-        auth_config: AuthConfig = None,
-        sheets_conn: SheetsConnection = None,
+        auth_config: AuthConfig | None = None,
+        sheets_conn: SheetsConnection | None = None,
         autoconnect: bool = True,
     ) -> None:
         self._tab_id = tab_id
@@ -67,7 +67,6 @@ class Tab(Component):
     def format_cell(self) -> TabCellFormatting:
         return self._format_cell
 
-
     @property
     def title(self) -> str:
         return self._title
@@ -89,8 +88,8 @@ class Tab(Component):
         cls,
         gsheet_id: str,
         properties: Dict[str, Any],
-        auth_config: AuthConfig = None,
-        sheets_conn: SheetsConnection = None,
+        auth_config: AuthConfig | None = None,
+        sheets_conn: SheetsConnection | None = None,
         autoconnect: bool = True,
     ) -> Tab:
         title = str(properties[terms.TAB_NAME])
@@ -115,7 +114,7 @@ class Tab(Component):
             self._tab_id, 0, self._row_count, 0, self._column_count, base0_idxs=True
         )
 
-    def get_data(self, rng: TwoDRange | OneDRange = None) -> Tab:
+    def get_data(self, rng: TwoDRange | OneDRange | None = None) -> Tab:
         rng = self.two_d_range() if not rng else rng
         self._values, self._formats = self._get_data(
             self._gsheet_id, f"{self._title}!{rng}"
@@ -123,18 +122,18 @@ class Tab(Component):
         return self
 
     def write_values(
-        self, data: List[List[Any]], rng: TwoDRange | OneDRange = None
+        self, data: List[List[Any]], rng: TwoDRange | OneDRange | None = None
     ) -> Tab:
         rng = self.two_d_range() if not rng else rng
-        self._write_values(data, dict(rng))
+        self._write_values(data, rng.to_dict())
         return self
 
     @classmethod
     def new_tab_request(
         cls,
         tab_title: str,
-        tab_id: int = None,
-        tab_idx: int = None,
+        tab_id: int | None = None,
+        tab_idx: int | None = None,
         num_rows: int = 1000,
         num_cols: int = 26,
     ) -> Dict[str, Any]:

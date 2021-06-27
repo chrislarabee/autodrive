@@ -13,8 +13,8 @@ class Folder:
         name: str,
         *,
         parents: List[str],
-        auth_config: AuthConfig = None,
-        drive_conn: DriveConnection = None,
+        auth_config: AuthConfig | None = None,
+        drive_conn: DriveConnection | None = None,
     ) -> None:
         self._id = folder_id
         self._name = name
@@ -47,20 +47,26 @@ class Drive:
     def __init__(
         self,
         *,
-        auth_config: AuthConfig = None,
-        drive_conn: DriveConnection = None,
-        sheets_conn: SheetsConnection = None,
+        auth_config: AuthConfig | None = None,
+        drive_conn: DriveConnection | None = None,
+        sheets_conn: SheetsConnection | None = None,
     ) -> None:
         self._conn = drive_conn or DriveConnection(auth_config=auth_config)
         self._sheets_conn = sheets_conn or SheetsConnection(auth_config=self._conn.auth)
 
-    def create_folder(self, folder_name: str, parent: str | Folder = None):
+    def create_folder(
+        self, folder_name: str, parent: str | Folder | None = None
+    ) -> str:
         parent_id = self._ensure_parent_id(parent)
         result = self._conn.create_object(folder_name, "folder", parent_id)
+        return result
 
-    def create_gsheet(self, gsheet_name: str, parent: str | Folder = None):
+    def create_gsheet(
+        self, gsheet_name: str, parent: str | Folder | None = None
+    ) -> str:
         parent_id = self._ensure_parent_id(parent)
         result = self._conn.create_object(gsheet_name, "sheet", parent_id)
+        return result
 
     def find_gsheet(self, gsheet_name: str) -> List[GSheet]:
         result = self._conn.find_object(gsheet_name, "sheet")
@@ -69,7 +75,7 @@ class Drive:
         ]
 
     def find_folder(
-        self, folder_name: str, shared_drive_id: str = None
+        self, folder_name: str, shared_drive_id: str | None = None
     ) -> List[Folder]:
         result = self._conn.find_object(folder_name, "folder", shared_drive_id)
         return [
@@ -78,5 +84,5 @@ class Drive:
         ]
 
     @staticmethod
-    def _ensure_parent_id(parent: str | Folder = None) -> Optional[str]:
+    def _ensure_parent_id(parent: str | Folder | None = None) -> Optional[str]:
         return parent.id if isinstance(parent, Folder) else parent

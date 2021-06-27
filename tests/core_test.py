@@ -1,9 +1,11 @@
-from autodrive.interfaces import TwoDRange
+from typing import Type, List, Dict, Any
 import string
 
 from autodrive.dtypes import FormattedVal, UserEnteredVal, EffectiveVal
 from autodrive.core import GSheetView
-from autodrive.gsheet import Range
+from autodrive.interfaces import TwoDRange
+from autodrive.range import Range
+from .conftest import ExampleView
 
 
 class TestGSheetView:
@@ -29,13 +31,13 @@ class TestGSheetView:
             "effectiveValue": {"numberValue": 3},
             "effectiveFormat": fmt3,
         }
-        raw = [
+        raw: List[Dict[str, List[Dict[str, Any]]]] = [
             dict(values=[{}, {}, value1]),
             dict(values=[{}, value2, {}]),
             dict(values=[value3]),
         ]
         expected_values = [[None, None, "test"], [None, 1, None], ["=A1+A2"]]
-        expected_formats = [[None, None, fmt1], [None, fmt2, None], [fmt3]]
+        expected_formats = [[{}, {}, fmt1], [{}, fmt2, {}], [fmt3]]
         values, formats = GSheetView._parse_row_data(raw, value_type=UserEnteredVal)
         assert values == expected_values
         assert formats == expected_formats
@@ -63,16 +65,18 @@ class TestGSheetView:
             "userEnteredValue": {"formulaValue": "=A1+B2"}
         }
 
-    def test_that_it_can_create_write_values_requests(self, testing_GSheetView):
-        comp = testing_GSheetView(gsheet_id="test")
+    def test_that_it_can_create_write_values_requests(
+        self, gsheet_view: Type[ExampleView]
+    ):
+        comp = gsheet_view(gsheet_id="test")
         rng = Range(
             TwoDRange(0, range_str="Sheet1!A1:C3"),
             tab_title="",
             gsheet_id="test",
             autoconnect=False,
         )
-        data = [["a", "b", "c"], [1, 2, 3], [4, 5, 6]]
-        comp._write_values(data, rng.to_dict())
+        data: List[List[Any]] = [["a", "b", "c"], [1, 2, 3], [4, 5, 6]]
+        comp._write_values(data, rng.range.to_dict())
         str_w_vals = [{"userEnteredValue": {"stringValue": v}} for v in data[0]]
         int_w_vals = [
             [{"userEnteredValue": {"numberValue": v}} for v in row] for row in data[1:]

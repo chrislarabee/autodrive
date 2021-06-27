@@ -5,9 +5,9 @@ import pickle
 from abc import ABC
 
 from googleapiclient.discovery import build, Resource
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore
+from google.auth.transport.requests import Request  # type: ignore
+from google.oauth2.credentials import Credentials  # type: ignore
 
 from . import google_terms as terms
 from .dtypes import EffectiveVal, UserEnteredVal, FormattedVal, EffectiveFmt
@@ -26,7 +26,7 @@ class Connection(ABC):
         api_name: Literal["sheets", "drive"],
         api_version: str,
         api_scopes: List[str],
-        auth_config: AuthConfig = None,
+        auth_config: AuthConfig | None = None,
     ) -> None:
         self._auth_config = auth_config or AuthConfig()
         self._core = self._connect(api_scopes, api_name, api_version)
@@ -67,11 +67,11 @@ class Connection(ABC):
                 creds.refresh(Request())
             else:
                 if auth_config.secrets_config:
-                    flow = InstalledAppFlow.from_client_config(
+                    flow = InstalledAppFlow.from_client_config(  # type: ignore
                         auth_config.secrets_config, scopes
                     )
                 elif auth_config.creds_filepath.exists():
-                    flow = InstalledAppFlow.from_client_secrets_file(
+                    flow = InstalledAppFlow.from_client_secrets_file(  # type: ignore
                         str(auth_config.creds_filepath), scopes
                     )
                 else:
@@ -79,7 +79,7 @@ class Connection(ABC):
                         f"Credentials file {auth_config.creds_filepath} could not be "
                         "found."
                     )
-                creds = flow.run_local_server(port=0)
+                creds = flow.run_local_server(port=0)  # type: ignore
             # Save the credentials for the next run
             with open(auth_config.token_filepath, "wb") as token:
                 pickle.dump(creds, token)
@@ -105,7 +105,7 @@ class DriveConnection(Connection):
     def __init__(
         self,
         *,
-        auth_config: AuthConfig = None,
+        auth_config: AuthConfig | None = None,
         api_version: str = "v3",
     ) -> None:
         super().__init__(
@@ -120,7 +120,7 @@ class DriveConnection(Connection):
         self,
         obj_name: str,
         obj_type: Literal["sheet", "folder"],
-        shared_drive_id: str = None,
+        shared_drive_id: str | None = None,
     ) -> List[Dict[str, Any]]:
         """
         Searches for a Google Drive Object in the attached Google Drive
@@ -140,30 +140,33 @@ class DriveConnection(Connection):
             query += f" and mimeType='{self.google_obj_types[obj_type]}'"
         kwargs = self._setup_drive_id_kwargs(shared_drive_id)
         page_token = None
-        results = []
+        results: List[Dict[str, Any]] = []
         while True:
-            response = self._files.list(
+            response = self._files.list(  # type: ignore
                 q=query,
                 spaces="drive",
                 fields=f"nextPageToken, files({terms.ID},{terms.NAME},{terms.PARENTS})",
                 pageToken=page_token,
                 **kwargs,
             ).execute()
-            for file in response.get("files", []):
+            for file in response.get("files", []):  # type: ignore
                 results.append(
                     dict(
-                        name=file.get(terms.NAME),
-                        id=file.get(terms.ID),
-                        parents=file.get(terms.PARENTS),
+                        name=file.get(terms.NAME),  # type: ignore
+                        id=file.get(terms.ID),  # type: ignore
+                        parents=file.get(terms.PARENTS),  # type: ignore
                     )
                 )
-            page_token = response.get("nextPageToken", None)
+            page_token = response.get("nextPageToken", None)  # type: ignore
             if page_token is None:
                 break
         return results
 
     def create_object(
-        self, obj_name: str, obj_type: Literal["sheet", "folder"], parent_id: str = None
+        self,
+        obj_name: str,
+        obj_type: Literal["sheet", "folder"],
+        parent_id: str | None = None,
     ) -> str:
         """
         Creates a file or folder via the Google Drive connection.
@@ -179,14 +182,16 @@ class DriveConnection(Connection):
         Returns:
 
         """
-        kwargs = dict(parents=[parent_id]) if parent_id else dict()
-        file_metadata = dict(
+        kwargs: Dict[str, List[str]] = (
+            dict(parents=[parent_id]) if parent_id else dict()
+        )
+        file_metadata: Dict[str, Any] = dict(
             name=obj_name, mimeType=self.google_obj_types[obj_type], **kwargs
         )
-        file = self._files.create(
+        file = self._files.create(  # type: ignore
             body=file_metadata, fields=terms.ID, supportsAllDrives=True
         ).execute()
-        return file.get(terms.ID)
+        return file.get(terms.ID)  # type: ignore
 
     def delete_object(self, object_id: str) -> None:
         """
@@ -199,10 +204,12 @@ class DriveConnection(Connection):
         Returns: None
 
         """
-        self._files.delete(fileId=object_id, supportsAllDrives=True).execute()
+        self._files.delete(  # type: ignore
+            fileId=object_id, supportsAllDrives=True
+        ).execute()
 
     @staticmethod
-    def _setup_drive_id_kwargs(drive_id: str = None) -> Dict[str, str | bool]:
+    def _setup_drive_id_kwargs(drive_id: str | None = None) -> Dict[str, str | bool]:
         """
         Whenever a drive_id is needed to access a shared drive, two
         other kwargs need to be passed to the relevant function. This
@@ -215,7 +222,7 @@ class DriveConnection(Connection):
             appropriate kwargs if drive_id is passed.
 
         """
-        kwargs = dict()
+        kwargs: Dict[str, str | bool] = dict()
         if drive_id:
             kwargs["corpora"] = "drive"
             kwargs["driveId"] = drive_id
@@ -228,7 +235,7 @@ class SheetsConnection(Connection):
     def __init__(
         self,
         *,
-        auth_config: AuthConfig = None,
+        auth_config: AuthConfig | None = None,
         api_version: str = "v4",
     ) -> None:
         super().__init__(
@@ -242,7 +249,7 @@ class SheetsConnection(Connection):
     def execute_requests(
         self, spreadsheet_id: str, requests: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        result = self._sheets.batchUpdate(
+        result: Dict[str, Any] = self._sheets.batchUpdate(  # type: ignore
             spreadsheetId=spreadsheet_id, body={"requests": requests}
         ).execute()
         return result
@@ -252,15 +259,17 @@ class SheetsConnection(Connection):
         grid_props = f"{terms.GRID_PROPS}({terms.COL_CT},{terms.ROW_CT})"
         tab_props = f"{terms.TAB_IDX},{terms.TAB_ID},{terms.TAB_NAME},{grid_props}"
         tabs_prop = f"{terms.TABS_PROP}({terms.TAB_PROPS}({tab_props}))"
-        return self._sheets.get(
+        return self._sheets.get(  # type: ignore
             spreadsheetId=spreadsheet_id, fields=f"{gsheet_props},{tabs_prop}"
         ).execute()
 
-    def get_data(self, spreadsheet_id: str, ranges: List[str] = None) -> Dict[str, Any]:
+    def get_data(
+        self, spreadsheet_id: str, ranges: List[str] | None = None
+    ) -> Dict[str, Any]:
         data_values = f"{UserEnteredVal},{FormattedVal},{EffectiveVal}"
         formatting_values = f"{EffectiveFmt}"
         values = f"{terms.VALUES}({data_values},{formatting_values})"
-        return self._sheets.get(
+        return self._sheets.get(  # type: ignore
             spreadsheetId=spreadsheet_id,
             fields=f"{terms.TABS_PROP}({terms.DATA}({terms.ROWDATA}({values})))",
             ranges=ranges or [],

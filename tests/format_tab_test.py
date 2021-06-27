@@ -1,14 +1,18 @@
 from autodrive.tab import Tab
 from autodrive.interfaces import Color, TextFormat
+from autodrive.gsheet import GSheet
+from autodrive.connection import SheetsConnection
 
 
 class TestTabFormatting:
-    def test_formatting_applications(self, test_gsheet, sheets_conn):
+    def test_formatting_applications(
+        self, test_gsheet: GSheet, sheets_conn: SheetsConnection
+    ):
         tab = Tab(
             test_gsheet.gsheet_id,
             tab_title="tab_format",
             tab_id=11,
-            tab_idx=3,
+            tab_idx=0,
             column_count=10,
             row_count=500,
             sheets_conn=sheets_conn,

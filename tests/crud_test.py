@@ -1,8 +1,12 @@
+from typing import List
+
 import pytest
 
+from autodrive.gsheet import GSheet
 from autodrive.range import Range
 from autodrive.tab import Tab
 from autodrive.interfaces import TextFormat, TwoDRange
+from autodrive.connection import SheetsConnection
 
 
 class TestCRUD:
@@ -10,7 +14,9 @@ class TestCRUD:
     def input_data(self):
         return [[1, 2, 3], [4, 5, 6]]
 
-    def test_that_gsheet_can_write_and_read_values(self, test_gsheet, input_data):
+    def test_that_gsheet_can_write_and_read_values(
+        self, test_gsheet: GSheet, input_data: List[List[int]]
+    ):
         test_gsheet.write_values(input_data)
         test_gsheet.commit()
         test_gsheet.get_data()
@@ -18,7 +24,10 @@ class TestCRUD:
         assert test_gsheet[0].values == input_data
 
     def test_that_range_can_write_and_read_values(
-        self, test_gsheet, sheets_conn, input_data
+        self,
+        test_gsheet: GSheet,
+        sheets_conn: SheetsConnection,
+        input_data: List[List[int]],
     ):
         rng = Range(
             TwoDRange(0, range_str="A4:C5"),
@@ -35,7 +44,10 @@ class TestCRUD:
         assert rng.values == input_data
 
     def test_that_tab_can_write_and_read_values(
-        self, test_gsheet, sheets_conn, input_data
+        self,
+        test_gsheet: GSheet,
+        sheets_conn: SheetsConnection,
+        input_data: List[List[int]],
     ):
         tab = Tab(
             test_gsheet.gsheet_id,

@@ -8,7 +8,7 @@ from autodrive.connection import (
     DriveConnection,
     SheetsConnection,
 )
-from autodrive.gsheet import GSheetView, GSheet, Tab
+from autodrive.gsheet import GSheetView, GSheet
 from autodrive.interfaces import DEFAULT_CREDS, DEFAULT_TOKEN
 from .testing_tools import CREATED_IDS
 
@@ -44,17 +44,17 @@ def sheets_conn():
         yield None
 
 
-class GSheetGSheetView(GSheetView):
+class ExampleView(GSheetView):
     pass
 
 
 @pytest.fixture
-def testing_GSheetView():
-    return GSheetGSheetView
+def gsheet_view():
+    return ExampleView
 
 
 @pytest.fixture(scope="session")
-def test_gsheet(drive_conn, sheets_conn):
+def test_gsheet(drive_conn: DriveConnection, sheets_conn: SheetsConnection):
     title = f"autodrive_test_sheet-{dt.now()}"
     if drive_conn:
         id_str = drive_conn.create_object(title, "sheet")
@@ -72,5 +72,3 @@ def test_gsheet(drive_conn, sheets_conn):
             title,
             sheets_conn=sheets_conn,
         )
-
-

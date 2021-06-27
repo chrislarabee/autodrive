@@ -8,6 +8,10 @@ class GoogleDtype(type):
     def __str__(cls) -> str:
         return cls.type_key
 
+    @classmethod
+    def parse(cls, value: str) -> str:
+        return cls.python_type(value)
+
 
 class String(metaclass=GoogleDtype):
     python_type = str
@@ -75,14 +79,16 @@ class FormattedVal(metaclass=GoogleValueType):
 GOOGLE_VAL_TYPES = (UserEnteredVal, EffectiveVal, FormattedVal)
 GOOGLE_DTYPES = (String, Formula, Number, Boolean)
 TYPE_MAP = {
-    String: String.python_type,
-    Formula: Formula.python_type,
-    Number: Number.python_type,
-    Boolean: Boolean.python_type,
     str: String,
     int: Number,
     float: Number,
     bool: Boolean,
+}
+REV_TYPE_MAP = {
+    String: String.python_type,
+    Formula: Formula.python_type,
+    Number: Number.python_type,
+    Boolean: Boolean.python_type,
 }
 
 

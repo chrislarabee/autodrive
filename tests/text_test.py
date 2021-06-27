@@ -8,7 +8,12 @@ def test_apply_format_works_with_text_format():
     )
     assert result == {
         "repeatCell": {
-            "range": {"sheetId": 0, "startRowIndex": 0, "endRowIndex": 4},
+            "range": {
+                "sheetId": 0,
+                "startRowIndex": 0,
+                "endRowIndex": 4,
+                "startColumnIndex": 0,
+            },
             "cell": {
                 "userEnteredFormat": {"textFormat": {"fontSize": 12, "bold": True}}
             },
@@ -21,7 +26,12 @@ def test_apply_format_works_with_number_formats():
     result = text.apply_format(TwoDRange(0, 0, 4, base0_idxs=True), AccountingFormat)
     assert result == {
         "repeatCell": {
-            "range": {"sheetId": 0, "startRowIndex": 0, "endRowIndex": 4},
+            "range": {
+                "sheetId": 0,
+                "startRowIndex": 0,
+                "endRowIndex": 4,
+                "startColumnIndex": 0,
+            },
             "cell": {
                 "userEnteredFormat": {
                     "numberFormat": {

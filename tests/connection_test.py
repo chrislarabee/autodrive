@@ -1,11 +1,12 @@
 from datetime import datetime as dt
 
+from autodrive.connection import DriveConnection
 from . import testing_tools
 
 
 class TestDriveConnection:
     class TestObjectCreationAndMetadataChanges:
-        def test_create_folder_and_add_sheet_to_it(self, drive_conn):
+        def test_create_folder_and_add_sheet_to_it(self, drive_conn: DriveConnection):
             folder = f"autodrive_test_folder {dt.now()}"
             f_id = drive_conn.create_object(folder, "folder")
             testing_tools.CREATED_IDS.insert(0, f_id)
@@ -19,7 +20,7 @@ class TestDriveConnection:
             f = drive_conn.find_object(sheet, "sheet")
             assert len(f) > 0
             assert f[0].get("name") == sheet
-            assert f[0].get("parents")[0] == f_id
+            assert f[0]["parents"][0] == f_id
 
         # def test_create_sheet_and_add_tab_to_it(self, drive_conn):
         #     sheet = f"autodrive_test_sheet {dt.now()}"

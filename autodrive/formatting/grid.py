@@ -51,16 +51,18 @@ def delete_rows(rng: OneDRange) -> Dict[str, Any]:
 
 
 @overload
-def freeze(tab_id: int, *, rows: int, columns: int = None) -> Dict[str, Any]:
+def freeze(tab_id: int, *, rows: int, columns: int | None = None) -> Dict[str, Any]:
     ...
 
 
 @overload
-def freeze(tab_id: int, *, columns: int, rows: int = None) -> Dict[str, Any]:
+def freeze(tab_id: int, *, columns: int, rows: int | None = None) -> Dict[str, Any]:
     ...
 
 
-def freeze(tab_id: int, *, rows: int = None, columns: int = None) -> Dict[str, Any]:
+def freeze(
+    tab_id: int, *, rows: int | None = None, columns: int | None = None
+) -> Dict[str, Any]:
     grid_prop = {}
     if not rows and not columns:
         raise ValueError("One of rows or columns must not be None.")
