@@ -24,7 +24,12 @@ def test_add_alternating_row_background():
                         "values": [{"userEnteredValue": "=MOD(ROW(), 2)"}],
                     },
                     "format": {
-                        "backgroundColor": {"red": 0.2, "green": 0.3, "blue": 0}
+                        "backgroundColor": {
+                            "red": 0.2,
+                            "green": 0.3,
+                            "blue": 0,
+                            "alpha": 1,
+                        }
                     },
                 },
             },

@@ -275,14 +275,24 @@ class TwoDRange(RangeInterface):
 
 class Color(Interface[float]):
     def __init__(
-        self, red: int | float = 0, green: int | float = 0, blue: int | float = 0
+        self,
+        red: int | float = 0,
+        green: int | float = 0,
+        blue: int | float = 0,
+        alpha: int | float = 100,
     ) -> None:
         self.red = red if isinstance(red, float) else red / 255
         self.green = green if isinstance(green, float) else green / 255
         self.blue = blue if isinstance(blue, float) else blue / 255
+        self.alpha = alpha if isinstance(alpha, float) else alpha / 100
 
     def to_dict(self) -> Dict[str, float]:
-        return {"red": self.red, "green": self.green, "blue": self.blue}
+        return {
+            "red": self.red,
+            "green": self.green,
+            "blue": self.blue,
+            "alpha": self.alpha,
+        }
 
 
 class Format(Interface[Any]):
@@ -305,16 +315,47 @@ class Format(Interface[Any]):
 
 
 class TextFormat(Format):
-    def __init__(self, *, font_size: int | None = None, bold: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        font: str | None = None,
+        color: Color | None = None,
+        font_size: int | None = None,
+        bold: bool | None = None,
+        italic: bool | None = None,
+        underline: bool | None = None,
+        strikethrough: bool | None = None,
+    ) -> None:
         super().__init__("textFormat")
+        self.font = font
+        self.color = color
         self.font_size = font_size
         self.bold = bold
+        self.italic = italic
+        self.underline = underline
+        self.strikethrough = strikethrough
 
-    def _fmt_contents(self) -> Dict[str, Any]:
-        result: Dict[str, Any] = {"bold": self.bold}
+    def _fmt_contents(self) -> Dict[str, bool | str | int | Dict[str, float]]:
+        result: Dict[str, bool | str | int | Dict[str, float]] = {}
+        if self.bold is not None:
+            result["bold"] = self.bold
+        if self.italic is not None:
+            result["italic"] = self.italic
+        if self.underline is not None:
+            result["underline"] = self.underline
+        if self.strikethrough is not None:
+            result["strikethrough"] = self.strikethrough
+        if self.font:
+            result["fontFamily"] = self.font
+        if self.color:
+            result["foregroundColor"] = self.color.to_dict()
         if self.font_size is not None:
             result["fontSize"] = self.font_size
         return result
+
+
+# TODO: Add BorderFormat
+# TODO: Add AlignmentFormat?
 
 
 class NumericFormat(Format):
