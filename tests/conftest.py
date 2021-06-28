@@ -21,7 +21,11 @@ conn_warning = (
 
 @pytest.fixture(scope="session")
 def drive_conn():
-    if os.path.exists(DEFAULT_TOKEN) or os.path.exists(DEFAULT_CREDS):
+    if (
+        DriveConnection.get_creds_from_env()
+        or os.path.exists(DEFAULT_TOKEN)
+        or os.path.exists(DEFAULT_CREDS)
+    ):
         conn = DriveConnection()
         yield conn
         # warnings.warn("Cleaning up google drive objects created for tests...")
@@ -36,7 +40,11 @@ def drive_conn():
 
 @pytest.fixture(scope="session")
 def sheets_conn():
-    if os.path.exists(DEFAULT_TOKEN) or os.path.exists(DEFAULT_CREDS):
+    if (
+        SheetsConnection.get_creds_from_env()
+        or os.path.exists(DEFAULT_TOKEN)
+        or os.path.exists(DEFAULT_CREDS)
+    ):
         conn = SheetsConnection()
         yield conn
     else:

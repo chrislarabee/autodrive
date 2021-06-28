@@ -56,7 +56,7 @@ class Connection(ABC):
         Returns: The prepped credentials object.
 
         """
-        creds = cls._creds_from_env()
+        creds = cls.get_creds_from_env()
         # The token file stores the user's access and refresh tokens, and
         # is created automatically when the authorization flow completes for the
         # first time.
@@ -103,7 +103,7 @@ class Connection(ABC):
         return build(api, version, credentials=creds)
 
     @staticmethod
-    def _creds_from_env() -> Credentials | None:
+    def get_creds_from_env() -> Credentials | None:
         token = os.getenv("AUTODRIVE_TOKEN")
         refresh_token = os.getenv("AUTODRIVE_REFR_TOKEN")
         client_id = os.getenv("AUTODRIVE_CLIENT_ID")
