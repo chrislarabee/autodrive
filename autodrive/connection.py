@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import List, Dict, Any, Literal
 import pickle
 from abc import ABC
+import os
 
 from googleapiclient.discovery import build, Resource
 from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore
@@ -35,8 +36,9 @@ class Connection(ABC):
     def auth(self) -> AuthConfig:
         return self._auth_config
 
-    @staticmethod
+    @classmethod
     def _authenticate(
+        cls,
         scopes: List[str],
         auth_config: AuthConfig,
     ) -> Credentials:
@@ -54,17 +56,17 @@ class Connection(ABC):
         Returns: The prepped credentials object.
 
         """
-        creds = None
+        creds = cls._creds_from_env()
         # The token file stores the user's access and refresh tokens, and
         # is created automatically when the authorization flow completes for the
         # first time.
-        if auth_config.token_filepath.exists():
+        if not creds and auth_config.token_filepath.exists():
             with open(auth_config.token_filepath, "rb") as token:
                 creds = pickle.load(token)
         # If there are no (valid) credentials available, prompt user to log in.
         if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
+            if creds and creds.expired and creds.refresh_token:  # type: ignore
+                creds.refresh(Request())  # type: ignore
             else:
                 if auth_config.secrets_config:
                     flow = InstalledAppFlow.from_client_config(  # type: ignore
@@ -99,6 +101,24 @@ class Connection(ABC):
             self._auth_config,
         )
         return build(api, version, credentials=creds)
+
+    @staticmethod
+    def _creds_from_env() -> Credentials | None:
+        token = os.getenv("AUTODRIVE_TOKEN")
+        refresh_token = os.getenv("AUTODRIVE_REFR_TOKEN")
+        client_id = os.getenv("AUTODRIVE_CLIENT_ID")
+        client_secret = os.getenv("AUTODRIVE_CLIENT_SECRET")
+        if token and refresh_token and client_id and client_secret:
+            return Credentials(
+                token=token,
+                refresh_token=refresh_token,
+                token_uri="https://oauth2.googleapis.com/token",
+                client_id=client_id,
+                client_secret=client_secret,
+                scopes=["https://www.googleapis.com/auth/drive"],
+            )
+        else:
+            return None
 
 
 class DriveConnection(Connection):
