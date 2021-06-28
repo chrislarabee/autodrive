@@ -1,8 +1,9 @@
 # Autodrive
 
-This repository enables connection to Google Sheets, and stores Schemas for
-the individual sheets as well as configuration of where to pull from and
-where to save to when the project is run for that sheet.
+Autodrive is designed to make it as easy as possible to interact with the Google
+Drive and Sheets APIs via python. It is especially designed to provide as much
+assisstance as possible through intellisense hints and autocompletion, as well as
+through thorough type checking and hinting.
 
 ## General Setup
 
