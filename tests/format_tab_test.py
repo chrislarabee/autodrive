@@ -1,3 +1,5 @@
+import pytest
+
 from autodrive.tab import Tab
 from autodrive.interfaces import Color, TextFormat
 from autodrive.gsheet import GSheet
@@ -5,6 +7,7 @@ from autodrive.connection import SheetsConnection
 
 
 class TestTabFormatting:
+    @pytest.mark.connection
     def test_formatting_applications(
         self, test_gsheet: GSheet, sheets_conn: SheetsConnection
     ):

@@ -40,4 +40,4 @@ jobs:
           AUTODRIVE_CLIENT_ID: ${{ secrets.AUTODRIVE_CLIENT_ID }}
           AUTODRIVE_CLIENT_SECRET: ${{ secrets.AUTODRIVE_CLIENT_SECRET }}
         run: |
-          poetry run pytest
+          poetry run pytest --connect

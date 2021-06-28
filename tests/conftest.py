@@ -80,3 +80,30 @@ def test_gsheet(drive_conn: DriveConnection, sheets_conn: SheetsConnection):
             title,
             sheets_conn=sheets_conn,
         )
+
+
+def pytest_addoption(parser):  # type: ignore
+    parser.addoption(  # type: ignore
+        "--connect",
+        action="store_true",
+        default=False,
+        help=(
+            "Check for authentication config stored in environment variables or as "
+            "files and run dependent tests."
+        ),
+    )
+
+
+def pytest_configure(config):  # type: ignore
+    config.addinivalue_line(  # type: ignore
+        "markers", "connection: mark test as requiring Connection authentication."
+    )
+
+
+def pytest_collection_modifyitems(config, items):  # type: ignore
+    if config.getoption("--connect"):  # type: ignore
+        return
+    skip_tests = pytest.mark.skip(reason="need --connect option to run")
+    for item in items:  # type: ignore
+        if "connection" in item.keywords:  # type: ignore
+            item.add_marker(skip_tests)  # type: ignore

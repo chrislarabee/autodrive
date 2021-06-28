@@ -9,6 +9,7 @@ from autodrive.interfaces import TextFormat, TwoDRange
 from autodrive.connection import SheetsConnection
 
 
+@pytest.mark.connection
 class TestCRUD:
     @pytest.fixture
     def input_data(self):

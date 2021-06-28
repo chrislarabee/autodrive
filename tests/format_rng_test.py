@@ -22,6 +22,7 @@ class TestRangeFormatting:
         t.create()
         return t
 
+    @pytest.mark.connection
     def test_formatting_applications(
         self, test_tab: Tab, sheets_conn: SheetsConnection
     ):

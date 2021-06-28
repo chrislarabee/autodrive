@@ -1,9 +1,12 @@
 from datetime import datetime as dt
 
+import pytest
+
 from autodrive.connection import DriveConnection
 from . import testing_tools
 
 
+@pytest.mark.connection
 class TestDriveConnection:
     class TestObjectCreationAndMetadataChanges:
         def test_create_folder_and_add_sheet_to_it(self, drive_conn: DriveConnection):
