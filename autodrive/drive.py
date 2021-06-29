@@ -12,13 +12,13 @@ class Folder:
         folder_id: str,
         name: str,
         *,
-        parents: List[str],
+        parents: List[str] | None = None,
         auth_config: AuthConfig | None = None,
         drive_conn: DriveConnection | None = None,
     ) -> None:
         self._id = folder_id
         self._name = name
-        self._parents = parents
+        self._parents = parents or []
         self._conn = drive_conn or DriveConnection(auth_config=auth_config)
 
     @property
@@ -56,17 +56,22 @@ class Drive:
 
     def create_folder(
         self, folder_name: str, parent: str | Folder | None = None
-    ) -> str:
+    ) -> Folder:
         parent_id = self._ensure_parent_id(parent)
-        result = self._conn.create_object(folder_name, "folder", parent_id)
-        return result
+        new_id = self._conn.create_object(folder_name, "folder", parent_id)
+        return Folder(
+            folder_id=new_id,
+            name=folder_name,
+            parents=[parent_id] if parent_id else None,
+            drive_conn=self._conn,
+        )
 
     def create_gsheet(
         self, gsheet_name: str, parent: str | Folder | None = None
-    ) -> str:
+    ) -> GSheet:
         parent_id = self._ensure_parent_id(parent)
-        result = self._conn.create_object(gsheet_name, "sheet", parent_id)
-        return result
+        new_id = self._conn.create_object(gsheet_name, "sheet", parent_id)
+        return GSheet(new_id, gsheet_name, sheets_conn=self._sheets_conn)
 
     def find_gsheet(self, gsheet_name: str) -> List[GSheet]:
         result = self._conn.find_object(gsheet_name, "sheet")
