@@ -1,9 +1,9 @@
 import pytest
 
-from autodrive.tab import Tab
-from autodrive.interfaces import Color, TextFormat
-from autodrive.gsheet import GSheet
 from autodrive.connection import SheetsConnection
+from autodrive.gsheet import GSheet
+from autodrive.interfaces import Color, TextFormat
+from autodrive.tab import Tab
 
 
 class TestTabFormatting:

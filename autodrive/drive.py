@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from .connection import DriveConnection, AuthConfig, SheetsConnection
+from .connection import AuthConfig, DriveConnection, SheetsConnection
 from .gsheet import GSheet
 
 

@@ -4,14 +4,11 @@ from datetime import datetime as dt
 
 import pytest
 
-from autodrive.connection import (
-    DriveConnection,
-    SheetsConnection,
-)
-from autodrive.gsheet import GSheetView, GSheet
+from autodrive.connection import DriveConnection, SheetsConnection
+from autodrive.gsheet import GSheet, GSheetView
 from autodrive.interfaces import DEFAULT_CREDS, DEFAULT_TOKEN
-from .testing_tools import CREATED_IDS
 
+from .testing_tools import CREATED_IDS
 
 conn_warning = (
     "No {0} or {1} found in {2}. Autodrive is not being fully tested. To execute "

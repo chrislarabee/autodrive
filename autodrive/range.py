@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-from typing import List, Any
+from typing import Any, List
 
-from .core import Component
-from .interfaces import AuthConfig, TwoDRange
 from .connection import SheetsConnection
-from .formatting import (
-    RangeCellFormatting,
-    RangeGridFormatting,
-    RangeTextFormatting,
-)
+from .core import Component
+from .formatting import RangeCellFormatting, RangeGridFormatting, RangeTextFormatting
+from .interfaces import AuthConfig, TwoDRange
 
 
 class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatting]):

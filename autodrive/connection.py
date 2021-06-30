@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-from typing import List, Dict, Any, Literal
+import os
 import pickle
 from abc import ABC
-import os
+from typing import Any, Dict, List, Literal
 
-from googleapiclient.discovery import build, Resource
-from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore
 from google.auth.transport.requests import Request  # type: ignore
 from google.oauth2.credentials import Credentials  # type: ignore
+from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore
+from googleapiclient.discovery import Resource, build
 
 from . import google_terms as terms
-from .dtypes import EffectiveVal, UserEnteredVal, FormattedVal, EffectiveFmt
+from .dtypes import EffectiveFmt, EffectiveVal, FormattedVal, UserEnteredVal
 from .interfaces import AuthConfig
 
 

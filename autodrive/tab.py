@@ -1,16 +1,12 @@
 from __future__ import annotations
 
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
-from .core import Component
-from .interfaces import AuthConfig, TwoDRange, OneDRange
-from .connection import SheetsConnection
-from .formatting import (
-    TabCellFormatting,
-    TabGridFormatting,
-    TabTextFormatting,
-)
 from . import google_terms as terms
+from .connection import SheetsConnection
+from .core import Component
+from .formatting import TabCellFormatting, TabGridFormatting, TabTextFormatting
+from .interfaces import AuthConfig, OneDRange, TwoDRange
 
 
 class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):

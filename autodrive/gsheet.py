@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import Dict, KeysView, List, Optional, Any, Tuple, ValuesView
 from functools import singledispatchmethod
+from typing import Any, Dict, KeysView, List, Optional, Tuple, ValuesView
 
+from . import google_terms as terms
 from .connection import SheetsConnection
 from .core import GSheetView
-from .interfaces import AuthConfig, TwoDRange, OneDRange
-from . import google_terms as terms
+from .interfaces import AuthConfig, OneDRange, TwoDRange
 from .tab import Tab
 
 
