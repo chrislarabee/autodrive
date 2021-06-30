@@ -5,4 +5,4 @@ venv/
 *.pickle
 *.text
 __pycache__
-sheets/[a-z]*.py
+dist

@@ -1,121 +1,52 @@
 # Autodrive
 
 Autodrive is designed to make it as easy as possible to interact with the Google
-Drive and Sheets APIs via python. It is especially designed to provide as much
+Drive and Sheets APIs via Python. It is especially designed to provide as much
 assisstance as possible through intellisense hints and autocompletion, as well as
-through thorough type checking and hinting.
+through thorough type checking and hinting. These features are currently optimized
+for VSCode, which you can download <a href="https://code.visualstudio.com/">here</a>
+if you wish. They should also work in other Python IDEs.
 
-## General Setup
+## Requirements
 
-Setup a virtual environment (if desired) and install the requirements with:
+Python 3.8+
 
-```
-pip install -r requirements.txt
-```
+## Installation
 
-Follow the steps outlined here:
-https://developers.google.com/sheets/api/quickstart/python
-to prep your instance of python to connect to the Google Sheets API.
+## Google API Credentials
 
-## Setup a Connection to a Sheet
+Follow the steps outlined in the Prerequisites section
+<a href="https://developers.google.com/drive/api/v3/quickstart/python">here</a>.
+Download and save the `credentials.json` file to the working directory you want to
+use Autodrive in.
 
-Using the `sheets/_example.py` file as a guide, create a new python file in the
-sheets directory. You can name it whatever you want, but make sure the name is
-not preceded by an \_ (e.g. mynewfile.py not \_mynewfile.py).
+## First Connection
 
-This file must declare two variables: SHEET_ID and TABS.
-
-SHEET_ID is the id string of the Google Sheet you want to connect to. It can be
-found by opening the Google Sheet in your browser and copy pasting the alpha-numeric
-string between 'https://docs.google.com/spreadsheets/d/' and '/edit#gid=...' in
-the url.
-
-TABS must be a dictionary:
-
-- It can contain any number of keys, which must exactly
-  match the name(s) of the tab(s) in your Google Sheet that you want to download
-  from. You do not have to include a key for every tab in your Google Sheet, just
-  the ones you want to download from using the API.
-- The value for each key in TABS must be a list or tuple. The instructions will
-  assume you're using a list for brevity.
-- The first (index 0) value in the list must be a Google Sheets range of column
-  letters, with _ as a wildcard character. For example, if you want to pull all
-  values from Columns B through G from a tab, enter `'B_:G'`.
-- The second value in the list must be an integer which corresponds to
-  the starting row you want to pull data from in the tab. For example, if you want
-  to skip the first two rows in your tab, you would enter 3.
-- The third value in the list must be a string, specifically a valid file path to
-  a directory where you want the data from this tab to be saved. You can create a
-  directory in the SheetsAPI repository or a directory somewhere else on your system.
-- The fourth value must be a Schema object that has an attribute for every column
-  covered by the range you specified in the first value. The name of each attribute
-  must exactly match the column name. Refer to Schema Objects, below, for further
-  details on configure a Schema object.
-
-Once you've configured SHEET_ID and TABS in your sheets module, you're ready to
-run the API's etl functionality.
-
-## Running the API
-
-To run the API, simply execute the main function of the SheetsAPI project and
-pass the name of your sheets module as the parameter:
+To test that your credentials provide the expected connection to your Google Drive
+account, simply instantiate an Autodrive `Drive` instance:
 
 ```
-python ~/SheetsAPI/main.py --sheet=mynewfile
+from autodrive import Drive
+
+drive = Drive()
 ```
 
-## Schema Objects
+If your credentials file was saved as `credentials.json`, your browser should
+automatically open and prompt you to authorize the GCP project you created to
+access your Google Drive. Click the various Allow prompts it will show you to
+complete your first connection. After you see the browser switch to a page
+indicating you can close the process, you should see a `gdrive_token.pickle` file
+added to the working directory you saved your `credentials.json` file in. Next time
+you use an Autodrive element that needs to connect to your Drive, this token will
+be used and you will not be prompted to authorize access again until it expires.
 
-This is a brief high-level overview of Schema objects, which this API uses to
-parse the data from each tab of your Google Sheet.
+## Basic Usage
 
-### Instantiating Schemas
-
-Creating a Schema object is designed to be simple. All you need to do is
-instantiate a Schema object in your sheet module for each tab you want to download
-data from. The Schema object should be passed an argument for each column in the
-data you're downloading, and the argument name must match the name of the column
-exactly.
-
-The value of the argument can be a tuple:
-
-```
-s = Schema(
-    colA=(int, 0)
-)
-```
-
-The first value will be used as the data type, and the second value will be used
-as the default value for rows with no value for that column.
-
-Valid data types for Schema arguments include: `str, int, float, bool, list`. You
-can also pass `any` for columns that will have a variety of data types in them.
-The Schema object will do its best to parse `any` data appropriately, but will
-leave it as a string if it cannot figure out how to convert that row's data into
-the proper data type.
-
-- Note that `list` has some special functionality. This will cause the Schema
-  to try to split the values in that column on commas (,) to create a python list
-  object.
-
-Instead of passing a tuple, you can pass just a data type:
+The `Drive` class provides methods for finding and creating objects in your Google
+Drive, such as Folders or Sheets.
 
 ```
-s = Schema(
-    colA=(int, 0),
-    colB=float
-)
+gsheet = drive.create_gsheet("my-autodrive-gsheet")
 ```
 
-The default value for colB, in this case, will be `None`.
-
-Finally, you can also just pass `None` as the data type, in which case the data
-type will just be `str`.
-
-```
-s = Schema(
-    colA=(int, 0),
-    colB=float,
-    colC=None
-)
-```
+## Custom Configuration
