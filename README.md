@@ -9,18 +9,22 @@ if you wish. They should also work in other Python IDEs.
 
 ## Requirements
 
+---
+
 Python 3.8+
 
 ## Installation
 
-## Google API Credentials
+---
+
+### Google API Credentials
 
 Follow the steps outlined in the Prerequisites section
 <a href="https://developers.google.com/drive/api/v3/quickstart/python">here</a>.
 Download and save the `credentials.json` file to the working directory you want to
 use Autodrive in.
 
-## First Connection
+### First Connection
 
 To test that your credentials provide the expected connection to your Google Drive
 account, simply instantiate an Autodrive `Drive` instance:
@@ -42,6 +46,8 @@ be used and you will not be prompted to authorize access again until it expires.
 
 ## Basic Usage
 
+---
+
 The `Drive` class provides methods for finding and creating objects in your Google
 Drive, such as Folders or Sheets.
 
@@ -54,6 +60,51 @@ gsheet = drive.create_gsheet("my-autodrive-gsheet")
 Because Google calls spreadsheets "Sheets", and also refers to the individual
 sub-sheets in a spreadsheet as "Sheets", Autodrive refers to the sub-sheets as "Tabs"
 for clarity.
+
+### Finding IDs
+
+If you use `Drive` to search for your Sheets and Folders, you don't need to supply the
+GSheet or Folder IDs yourself, but if you know exactly what Sheet you want, then you
+can directly instantiate a GSheet or folder by pulling the necessary info from the
+object's url.
+
+For example, if your Sheet's url looks like this:
+
+<p>
+docs.google.com/spreadsheets/d/<span style="color:green">19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8</span>/edit#gid=0
+</p>
+
+Simply copy/paste the id (in green, above) between `/d/` and `/edit#` as the
+`gsheet_id`:
+
+```
+gsheet = GSheet(gsheet_id="19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8")
+```
+
+For a tab, you can get the `tab_id` from:
+
+<p>
+docs.google.com/spreadsheets/d/19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8/edit#gid=<span style="color:green">234276686</span>
+</p>
+
+```
+tab = Tab(
+    gsheet_id="19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8",
+    tab_title="Sheet2",
+    tab_idx=0,
+    tab_id=234276686
+)
+```
+
+For a folder:
+
+<p>
+drive.google.com/drive/u/1/folders/<span style="color:green">1wLx-KMG2jO498xa5ZumB-SEpL-TwczZI</span>
+</p>
+
+```
+folder = Folder(folder_id="1wLx-KMG2jO498xa5ZumB-SEpL-TwczZI", name="Test Folder")
+```
 
 ### Autodrive GSheet Views
 
@@ -68,6 +119,8 @@ All of these Views are somewhat interchangeable as well, in that you can access 
 are meant to be different tools for differently sized jobs.
 
 ## Custom Configuration
+
+---
 
 Autodrive is designed to be fully customizable in terms of configuration. Anything that
 connects to your Google Drive or a Google Sheet can have its default connection
