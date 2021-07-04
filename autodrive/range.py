@@ -24,7 +24,7 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
 
         :param gsheet_range: The range (i.e. A5:C10) to associate with this Range.
         :type gsheet_range: TwoDRange
-        :param gsheet_id: The id string of the target Google Sheet that the Range 
+        :param gsheet_id: The id string of the target Google Sheet that the Range
             resides in; can be found in the Google Sheet url.
         :type gsheet_id: str
         :param tab_title: The name of the Tab this Range is within.
@@ -56,7 +56,7 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
     @property
     def format_grid(self) -> RangeGridFormatting:
         """
-        Contains request generation methods related to formatting this Range's grid 
+        Contains request generation methods related to formatting this Range's grid
         (width and height, etc).
 
         :return: An object with grid formatting methods.
@@ -67,8 +67,8 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
     @property
     def format_text(self) -> RangeTextFormatting:
         """
-        Contains request generation methods methods relating to formatting this 
-        Range's text (the text format of any cells, even those containing non-text 
+        Contains request generation methods methods relating to formatting this
+        Range's text (the text format of any cells, even those containing non-text
         values like integers or null values).
 
         :return: An object with text formatting methods.
@@ -79,7 +79,7 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
     @property
     def format_cell(self) -> RangeCellFormatting:
         """
-        Contains request generation methods relating to formatting this Range's 
+        Contains request generation methods relating to formatting this Range's
         cells (like adding borders and backgrounds and such).
 
         :return: An object with cell formatting methods.

@@ -86,7 +86,7 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
     @property
     def format_grid(self) -> TabGridFormatting:
         """
-        Contains request generation methods related to formatting this Tab's grid 
+        Contains request generation methods related to formatting this Tab's grid
         (number of columns, rows, width and height, etc).
 
         :return: An object with grid formatting methods.
@@ -97,8 +97,8 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
     @property
     def format_text(self) -> TabTextFormatting:
         """
-        Contains request generation methods relating to formatting this Tab's text 
-        (the text format of any cells, even those containing non-text values like 
+        Contains request generation methods relating to formatting this Tab's text
+        (the text format of any cells, even those containing non-text values like
         integers or null values).
 
         :return: An object with text formatting methods.
@@ -109,7 +109,7 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
     @property
     def format_cell(self) -> TabCellFormatting:
         """
-        Contains request generation methods relating to formatting this Tab's cells 
+        Contains request generation methods relating to formatting this Tab's cells
         (like adding borders and backgrounds and such).
 
         :return: An object with cell formatting methods.

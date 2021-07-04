@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ..core import CellFormatting, GridFormatting, TextFormatting
-from ..interfaces import Color, Format
+from ..interfaces import Color, _Format
 from . import cell, grid, text
 
 
@@ -20,6 +20,6 @@ class RangeGridFormatting(GridFormatting):
 
 
 class RangeTextFormatting(TextFormatting):
-    def apply_format(self, format: Format) -> RangeTextFormatting:
+    def apply_format(self, format: _Format) -> RangeTextFormatting:
         self.add_request(text.apply_format(self._parent.range, format))
         return self

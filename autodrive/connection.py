@@ -15,7 +15,7 @@ from .dtypes import EffectiveFmt, EffectiveVal, FormattedVal, UserEnteredVal
 from .interfaces import AuthConfig
 
 
-class Connection(ABC):
+class _Connection(ABC):
     google_obj_types = {
         "folder": "application/vnd.google-apps.folder",
         "sheet": "application/vnd.google-apps.spreadsheet",
@@ -121,7 +121,7 @@ class Connection(ABC):
             return None
 
 
-class DriveConnection(Connection):
+class DriveConnection(_Connection):
     def __init__(
         self,
         *,
@@ -143,8 +143,7 @@ class DriveConnection(Connection):
         shared_drive_id: str | None = None,
     ) -> List[Dict[str, Any]]:
         """
-        Searches for a Google Drive Object in the attached Google Drive
-        by name.
+        Searches for a Google Drive Object in the attached Google Drive by name.
 
         Args:
             obj_name: A string, the name of the object, or part of it.
@@ -154,6 +153,16 @@ class DriveConnection(Connection):
 
         Returns: A list of the matching Drive Object names and ids.
 
+
+        :param obj_name: The name of the object, or part of its name.
+        :type obj_name: str
+        :param obj_type: The type of object to restrict the search to.
+        :type obj_type: Literal["sheet", "folder"]
+        :param shared_drive_id: The id of a Shared Drive to search within, if desired,
+            defaults to None.
+        :type shared_drive_id: str, optional
+        :return: A list of object properties, if any matches are found.
+        :rtype: List[Dict[str, Any]]
         """
         query = f"name = '{obj_name}'"
         if obj_type:
@@ -251,7 +260,7 @@ class DriveConnection(Connection):
         return kwargs
 
 
-class SheetsConnection(Connection):
+class SheetsConnection(_Connection):
     def __init__(
         self,
         *,
