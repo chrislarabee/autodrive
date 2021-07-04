@@ -57,7 +57,7 @@ class GSheet(GSheetView):
         """
         List of accumulated (uncommitted) requests on this GSheet.
 
-        :return: List of update request dictionaries that have been created for this 
+        :return: List of update request dictionaries that have been created for this
             GSheet.
         :rtype: List[Dict[str, Any]]
         """
