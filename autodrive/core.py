@@ -12,8 +12,8 @@ from .dtypes import (
     EffectiveFmt,
     EffectiveVal,
     Formula,
-    GoogleDtype,
-    GoogleValueType,
+    _GoogleDtype,
+    _GoogleValueType,
     String,
     UserEnteredVal,
 )
@@ -102,7 +102,7 @@ class GSheetView(ABC):
     def _parse_row_data(
         cls,
         row_data: List[Dict[str, List[Dict[str, Any]]]],
-        value_type: GoogleValueType = EffectiveVal,
+        value_type: _GoogleValueType = EffectiveVal,
     ) -> Tuple[List[List[Any]], List[List[Dict[str, Any]]]]:
         values: List[List[Any]] = []
         formats: List[List[Dict[str, Any]]] = []
@@ -131,7 +131,7 @@ class GSheetView(ABC):
         self,
         gsheet_id: str,
         rng_str: str,
-        value_type: GoogleValueType = EffectiveVal,
+        value_type: _GoogleValueType = EffectiveVal,
     ) -> Tuple[List[List[Any]], List[List[Dict[str, Any]]]]:
         raw = self.conn.get_data(gsheet_id, [rng_str])
         row_data = raw[terms.TABS_PROP][0][terms.DATA][0][terms.ROWDATA]
@@ -153,7 +153,7 @@ class GSheetView(ABC):
 
     @staticmethod
     def _gen_cell_write_value(python_val: Any) -> Dict[str, Any]:
-        dtype: GoogleDtype
+        dtype: _GoogleDtype
         type_ = type(python_val)
         if (
             isinstance(python_val, str)
