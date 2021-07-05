@@ -29,11 +29,29 @@ class _Connection(ABC):
         api_scopes: List[str],
         auth_config: AuthConfig | None = None,
     ) -> None:
+        """
+        Base class of more specific Connection objects.
+
+        :param api_name: The name of the api to connect to.
+        :type api_name: Literal["sheets", "drive"]
+        :param api_version: The version of the api to connect to.
+        :type api_version: str
+        :param api_scopes: A list of the scope strings to connect with (will fail
+            if credentials don't grant those scopes).
+        :type api_scopes: List[str]
+        :param auth_config: Optional custom AuthConfig object, defaults to None
+        :type auth_config: AuthConfig, optional
+        """
         self._auth_config = auth_config or AuthConfig()
         self._core = self._connect(api_scopes, api_name, api_version)
 
     @property
     def auth(self) -> AuthConfig:
+        """
+        :return: The AuthConfig passed to this Connection object, or the AuthConfig
+            that was generated automatically upon this Connection's instantiation.
+        :rtype: AuthConfig
+        """
         return self._auth_config
 
     @classmethod
@@ -43,18 +61,26 @@ class _Connection(ABC):
         auth_config: AuthConfig,
     ) -> Credentials:
         """
-        Uses locally stored credentials to attempt to login to Google
-        Drive. The first time it is run it will cause a web page to
-        open up and solicit permission to access the Google Drive as
-        specified in the credentials. Then it will create a token that
-        it will use going forward.
+        Uses configuration in passed AuthConfig to attempt to login to Google Drive.
+        The first time it is run it will cause a web page to open up and solicit
+        permission to access the Google Drive as specified in the credentials.
+        Then it will create a token that it will use going forward.
 
-        Args:
-            scopes: A list of scopes dictating the limits of the
-                authenticated connection.
+        Note, you can also set environment variables as described in
+        _Connection.get_creds_from_env() and _authenticate will automatically pull
+        those in and will not create a token file.
 
-        Returns: The prepped credentials object.
-
+        :param scopes: A list of scopes dictating the limits of the authenticated
+            connection
+        :type scopes: List[str]
+        :param auth_config: An AuthConfig object, either customized or automatically
+            generated.
+        :type auth_config: AuthConfig
+        :raises FileNotFoundError: If no credentials file is found and no creds were
+            passed as environment variables or as a dictionary within AuthConfig.
+        :return: A prepped Credentials object, ready to be slotted into more
+            specific connections.
+        :rtype: Credentials
         """
         creds = cls.get_creds_from_env()
         # The token file stores the user's access and refresh tokens, and
@@ -91,10 +117,18 @@ class _Connection(ABC):
         self, scopes: List[str], api: Literal["drive", "sheets"], version: str
     ) -> Resource:
         """
-        Connects to the Google API specified using locally stored credentials.
+        Generates a connection to the specified Google api.
 
-        Returns: A connection to the Google API of choice.
-
+        :param scopes: A list of scopes dictating the limits of the authenticated
+            connection
+        :type scopes: List[str]
+        :param api: The name of the api to connect to.
+        :type api: Literal["sheets", "drive"]
+        :param version: The version of the api to connect to.
+        :type version: str
+        :return: A Google api client Resource, which is a very general object that
+            facilitates connections to the appropriate Google api.
+        :rtype: Resource
         """
         creds = self._authenticate(
             scopes,
@@ -104,6 +138,16 @@ class _Connection(ABC):
 
     @staticmethod
     def get_creds_from_env() -> Credentials | None:
+        """
+        Checks if necessary credential and token information has been specified
+        in environment variables and uses that information to generate a Credentials
+        object. Can be used to bypass needing credentials files saved locally.
+
+        :return: A prepped Credentials object, ready to be slotted into more
+            specific connections, if appropriate environment variables were found,
+            otherwise None.
+        :rtype: Credentials, optional
+        """
         token = os.getenv("AUTODRIVE_TOKEN")
         refresh_token = os.getenv("AUTODRIVE_REFR_TOKEN")
         client_id = os.getenv("AUTODRIVE_CLIENT_ID")
@@ -128,6 +172,16 @@ class DriveConnection(_Connection):
         auth_config: AuthConfig | None = None,
         api_version: str = "v3",
     ) -> None:
+        """
+        Provides a connection to the Google Drive api, and methods to send requests
+        to it.
+
+        :param auth_config: Optional custom AuthConfig object, defaults to None.
+        :type auth_config: AuthConfig, optional
+        :param api_version: The version of the Drive api to connect to, defaults to
+            "v3".
+        :type api_version: str, optional
+        """
         super().__init__(
             api_name="drive",
             api_version=api_version,
@@ -143,16 +197,7 @@ class DriveConnection(_Connection):
         shared_drive_id: str | None = None,
     ) -> List[Dict[str, Any]]:
         """
-        Searches for a Google Drive Object in the attached Google Drive by name.
-
-        Args:
-            obj_name: A string, the name of the object, or part of it.
-            obj_type: The type of object to restrict the search to.
-                Must be one of the keys in Connection.google_obj_types.
-            drive_id: The id of the Shared Drive to search within.
-
-        Returns: A list of the matching Drive Object names and ids.
-
+        Searches for a Google Drive Object via the connected api.
 
         :param obj_name: The name of the object, or part of its name.
         :type obj_name: str
@@ -200,16 +245,15 @@ class DriveConnection(_Connection):
         """
         Creates a file or folder via the Google Drive connection.
 
-        Args:
-            obj_name: A string, the desired name of the object to
-                create.
-            obj_type: A string, the type of object to create. Must be
-                one of the keys in SheetsAPI.google_obj_types.
-            parent_id: A string, the id of the folder or Shared Drive
-                to create the object in.
-
-        Returns:
-
+        :param obj_name: The desired name of the object to create.
+        :type obj_name: str
+        :param obj_type: The type of object to create.
+        :type obj_type: Literal["sheet", "folder"]
+        :param parent_id: The id of the folder or shared drive to create the object
+            within, defaults to None.
+        :type parent_id: str, optional
+        :return: The new id of the created object.
+        :rtype: str
         """
         kwargs: Dict[str, List[str]] = (
             dict(parents=[parent_id]) if parent_id else dict()
@@ -224,14 +268,10 @@ class DriveConnection(_Connection):
 
     def delete_object(self, object_id: str) -> None:
         """
-        Deletes the passed Google Object ID from the connected Google
-        Drive.
+        Deletes the passed Google object id from the connected Google Drive.
 
-        Args:
-            object_id: A Google Object ID.
-
-        Returns: None
-
+        :param object_id: A Google object id.
+        :type object_id: str
         """
         self._files.delete(  # type: ignore
             fileId=object_id, supportsAllDrives=True
@@ -240,9 +280,9 @@ class DriveConnection(_Connection):
     @staticmethod
     def _setup_drive_id_kwargs(drive_id: str | None = None) -> Dict[str, str | bool]:
         """
-        Whenever a drive_id is needed to access a shared drive, two
-        other kwargs need to be passed to the relevant function. This
-        method preps all three kwargs.
+        Whenever a drive_id is needed to access a shared drive, two other kwargs
+        need to be passed to the relevant function. This method preps all three
+        kwargs.
 
         Args:
             drive_id: The id of the shared drive to set up access to.
@@ -250,6 +290,11 @@ class DriveConnection(_Connection):
         Returns: A dictionary, either empty or containing the
             appropriate kwargs if drive_id is passed.
 
+        :param drive_id: The id of the shared drive, defaults to None.
+        :type drive_id: str, optional
+        :return: A dictionary containing the kwargs needed to access the shared
+            drive.
+        :rtype: Dict[str, str | bool]
         """
         kwargs: Dict[str, str | bool] = dict()
         if drive_id:
@@ -267,6 +312,16 @@ class SheetsConnection(_Connection):
         auth_config: AuthConfig | None = None,
         api_version: str = "v4",
     ) -> None:
+        """
+        Provides a connection to the Google Sheets api, and methods to send requests
+        to it.
+
+        :param auth_config: Optional custom AuthConfig object, defaults to None.
+        :type auth_config: AuthConfig, optional
+        :param api_version: The version of the Sheets api to connect to, defaults to
+            "v4".
+        :type api_version: str, optional
+        """
         super().__init__(
             api_name="sheets",
             api_version=api_version,
@@ -278,12 +333,32 @@ class SheetsConnection(_Connection):
     def execute_requests(
         self, spreadsheet_id: str, requests: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
+        """
+        Sends the passed list of request dictionaries to the Sheets api to be
+        applied to the spreadsheet_id via batch update.
+
+        :param spreadsheet_id: The id of the Google Sheet to update.
+        :type spreadsheet_id: str
+        :param requests: A list of dictionaries formatted as requests.
+        :type requests: List[Dict[str, Any]]
+        :return: The resulting response from the Sheets api as a dictionary.
+        :rtype: Dict[str, Any]
+        """
         result: Dict[str, Any] = self._sheets.batchUpdate(  # type: ignore
             spreadsheetId=spreadsheet_id, body={"requests": requests}
         ).execute()
         return result
 
     def get_properties(self, spreadsheet_id: str) -> Dict[str, Any]:
+        """
+        Gets the metadata properties of the indicated Google Sheet.
+
+        :param spreadsheet_id: The id of the Google Sheet to collect properties
+            from.
+        :type spreadsheet_id: str
+        :return: A dictionary of the Google Sheet's properties.
+        :rtype: Dict[str, Any]
+        """
         gsheet_props = f"{terms.FILE_PROPS}({terms.FILE_NAME})"
         grid_props = f"{terms.GRID_PROPS}({terms.COL_CT},{terms.ROW_CT})"
         tab_props = f"{terms.TAB_IDX},{terms.TAB_ID},{terms.TAB_NAME},{grid_props}"
@@ -295,6 +370,17 @@ class SheetsConnection(_Connection):
     def get_data(
         self, spreadsheet_id: str, ranges: List[str] | None = None
     ) -> Dict[str, Any]:
+        """
+        Collects data from cells in the passed spreadsheet.
+
+        :param spreadsheet_id: The id of the Google Sheet to collect data from.
+        :type spreadsheet_id: str
+        :param ranges: A list of range strings (e.g. Sheet1!A1:C3), defaults to None,
+            which prompts get_data to fetch all data from all cells.
+        :type ranges: List[str], optional
+        :return: The collected data from the spreadsheet, raw and unparsed.
+        :rtype: Dict[str, Any]
+        """
         data_values = f"{UserEnteredVal},{FormattedVal},{EffectiveVal}"
         formatting_values = f"{EffectiveFmt}"
         values = f"{terms.VALUES}({data_values},{formatting_values})"
