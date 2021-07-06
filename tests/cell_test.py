@@ -1,4 +1,4 @@
-from autodrive.formatting import cell
+from autodrive.formatting import _cell as cell
 from autodrive.interfaces import TwoDRange, Color
 
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, overload
 
-from .. import google_terms as terms
+from .. import _google_terms as terms
 from ..interfaces import OneDRange
 
 

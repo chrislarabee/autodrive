@@ -3,8 +3,12 @@ from __future__ import annotations
 from typing import Any, List
 
 from .connection import SheetsConnection
-from .core import Component
-from .formatting import RangeCellFormatting, RangeGridFormatting, RangeTextFormatting
+from ._view import Component
+from .formatting.format_rng import (
+    RangeCellFormatting,
+    RangeGridFormatting,
+    RangeTextFormatting,
+)
 from .interfaces import AuthConfig, TwoDRange
 
 

@@ -2,10 +2,14 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from . import google_terms as terms
+from . import _google_terms as terms
 from .connection import SheetsConnection
-from .core import Component
-from .formatting import TabCellFormatting, TabGridFormatting, TabTextFormatting
+from ._view import Component
+from .formatting.format_tab import (
+    TabCellFormatting,
+    TabGridFormatting,
+    TabTextFormatting,
+)
 from .interfaces import AuthConfig, OneDRange, TwoDRange
 
 

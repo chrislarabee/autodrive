@@ -21,6 +21,7 @@ rope = "^0.18.0"
 pytest-mock = "^3.5.1"
 wheel = "^0.36.2"
 mypy = "^0.812"
+Sphinx = "^4.0.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

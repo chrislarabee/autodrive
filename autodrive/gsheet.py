@@ -3,9 +3,9 @@ from __future__ import annotations
 from functools import singledispatchmethod
 from typing import Any, Dict, KeysView, List, Optional, Tuple, ValuesView
 
-from . import google_terms as terms
+from . import _google_terms as terms
 from .connection import SheetsConnection
-from .core import GSheetView
+from ._view import GSheetView
 from .interfaces import AuthConfig, OneDRange, TwoDRange
 from .tab import Tab
 

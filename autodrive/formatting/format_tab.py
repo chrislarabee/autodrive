@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from ..core import CellFormatting, GridFormatting, TextFormatting
+from .._view import CellFormatting, GridFormatting, TextFormatting
 from ..interfaces import Color, Format, OneDRange, TwoDRange
-from . import cell, grid, text
+from . import _cell as cell, _grid as grid, _text as text
 
 
 class TabCellFormatting(CellFormatting):

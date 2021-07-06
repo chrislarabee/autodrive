@@ -4,20 +4,19 @@ import string
 from abc import ABC
 from typing import Any, Dict, Generic, List, Tuple, Type, TypeVar
 
-from . import google_terms as terms
-from .connection import AuthConfig, SheetsConnection
+from . import _google_terms as terms
+from .connection import SheetsConnection
 from .dtypes import (
     GOOGLE_DTYPES,
     TYPE_MAP,
     EffectiveFmt,
     EffectiveVal,
     Formula,
-    _GoogleDtype,
-    _GoogleValueType,
     String,
     UserEnteredVal,
 )
-from .interfaces import TwoDRange
+from .interfaces import AuthConfig, TwoDRange
+from ._core import GoogleDtype, GoogleValueType
 
 T = TypeVar("T", bound="GSheetView")
 FC = TypeVar("FC", bound="CellFormatting")
@@ -172,7 +171,7 @@ class GSheetView(ABC):
     def _parse_row_data(
         cls,
         row_data: List[Dict[str, List[Dict[str, Any]]]],
-        value_type: _GoogleValueType = EffectiveVal,
+        value_type: GoogleValueType = EffectiveVal,
     ) -> Tuple[List[List[Any]], List[List[Dict[str, Any]]]]:
         """
         Parses the dictionary returned by SheetsConnection.get_data and extracts
@@ -182,7 +181,7 @@ class GSheetView(ABC):
         :type row_data: List[Dict[str, List[Dict[str, Any]]]]
         :param value_type: The value representation to extract from the raw data,
             defaults to EffectiveVal
-        :type value_type: _GoogleValueType, optional
+        :type value_type: GoogleValueType, optional
         :return: A tuple containing a list of extracted data and another list of
             extracted formatting information.
         :rtype: Tuple[List[List[Any]], List[List[Dict[str, Any]]]]
@@ -214,7 +213,7 @@ class GSheetView(ABC):
         self,
         gsheet_id: str,
         rng_str: str,
-        value_type: _GoogleValueType = EffectiveVal,
+        value_type: GoogleValueType = EffectiveVal,
     ) -> Tuple[List[List[Any]], List[List[Dict[str, Any]]]]:
         """
         Fetches data from the view's SheetsConnection for the specified Google
@@ -226,7 +225,7 @@ class GSheetView(ABC):
         :type rng_str: str
         :param value_type: The value representation to extract from the raw data,
             defaults to EffectiveVal
-        :type value_type: _GoogleValueType, optional
+        :type value_type: GoogleValueType, optional
         :return: A tuple containing a list of data values and another list of
             formatting information.
         :rtype: Tuple[List[List[Any]], List[List[Dict[str, Any]]]]
@@ -273,7 +272,7 @@ class GSheetView(ABC):
             writing data.
         :rtype: Dict[str, Any]
         """
-        dtype: _GoogleDtype
+        dtype: GoogleDtype
         type_ = type(python_val)
         if (
             isinstance(python_val, str)

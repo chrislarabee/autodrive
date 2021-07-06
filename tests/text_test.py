@@ -1,4 +1,4 @@
-from autodrive.formatting import text
+from autodrive.formatting import _text as text
 from autodrive.interfaces import TwoDRange, TextFormat, AccountingFormat
 
 

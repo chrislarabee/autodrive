@@ -1,6 +1,6 @@
 import pytest
 
-from autodrive.formatting import grid
+from autodrive.formatting import _grid as grid
 from autodrive.interfaces import OneDRange
 
 

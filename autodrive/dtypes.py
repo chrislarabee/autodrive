@@ -1,23 +1,9 @@
 from __future__ import annotations
 
-
-class _GoogleDtype(type):
-    """
-    Metaclass for the four data types used in Google Sheets.
-    """
-
-    python_type: type
-    type_key: str
-
-    def __str__(cls) -> str:
-        return cls.type_key
-
-    @classmethod
-    def parse(cls, value: str) -> str:
-        return cls.python_type(value)
+from ._core import GoogleDtype, GoogleValueType, GoogleFormatType
 
 
-class String(metaclass=_GoogleDtype):
+class String(metaclass=GoogleDtype):
     """
     String datatype, covers all non-numeric/date text that isn't a formula.
     """
@@ -38,7 +24,7 @@ class String(metaclass=_GoogleDtype):
         return cls.python_type(value)
 
 
-class Formula(metaclass=_GoogleDtype):
+class Formula(metaclass=GoogleDtype):
     """
     Formula datatype, essentially a string, but begins with =.
     """
@@ -59,7 +45,7 @@ class Formula(metaclass=_GoogleDtype):
         return cls.python_type(value)
 
 
-class Number(metaclass=_GoogleDtype):
+class Number(metaclass=GoogleDtype):
     """
     Number datatype, covers both floats and integers, though internally Number is
     treated as a float so as to not lose significant digits.
@@ -84,7 +70,7 @@ class Number(metaclass=_GoogleDtype):
             return cls.python_type(value)
 
 
-class Boolean(metaclass=_GoogleDtype):
+class Boolean(metaclass=GoogleDtype):
     """
     Boolean datatype, appears in Google Sheets as FALSE or TRUE.
     """
@@ -109,19 +95,7 @@ class Boolean(metaclass=_GoogleDtype):
             return True
 
 
-class _GoogleValueType(type):
-    """
-    Metaclass for the three different ways values are stored in Google Sheets.
-    """
-
-    value_key: str
-    has_dtype: bool = True
-
-    def __str__(cls) -> str:
-        return cls.value_key
-
-
-class UserEnteredVal(metaclass=_GoogleValueType):
+class UserEnteredVal(metaclass=GoogleValueType):
     """
     UserEnteredVal is the value as entered by the user, without any calculations
     applied to it. It is always a string, but is accompanied by metadata that
@@ -131,7 +105,7 @@ class UserEnteredVal(metaclass=_GoogleValueType):
     value_key = "userEnteredValue"
 
 
-class EffectiveVal(metaclass=_GoogleValueType):
+class EffectiveVal(metaclass=GoogleValueType):
     """
     EffectiveVal is the value as displayed in Google Sheets, and is appropriately
     typed when read from the api. So if the formula "=A1+A2" would equal 3, then
@@ -141,7 +115,7 @@ class EffectiveVal(metaclass=_GoogleValueType):
     value_key = "effectiveValue"
 
 
-class FormattedVal(metaclass=_GoogleValueType):
+class FormattedVal(metaclass=GoogleValueType):
     """
     The untyped string value of the cell as displayed in Google Sheets. Essentially
     equivalent to EffectiveVal, but without appropriate typing.
@@ -167,19 +141,7 @@ REV_TYPE_MAP = {
 }
 
 
-class _GoogleFormatType(type):
-    """
-    Metaclass for the three different ways format information is stored in
-    Google Sheets.
-    """
-
-    format_key: str
-
-    def __str__(cls) -> str:
-        return cls.format_key
-
-
-class UserEnteredFmt(metaclass=_GoogleFormatType):
+class UserEnteredFmt(metaclass=GoogleFormatType):
     """
     The formatting properties the user as applied to the cell.
     """
@@ -187,7 +149,7 @@ class UserEnteredFmt(metaclass=_GoogleFormatType):
     format_key = "userEnteredFormat"
 
 
-class EffectiveFmt(metaclass=_GoogleFormatType):
+class EffectiveFmt(metaclass=GoogleFormatType):
     """
     The final dictionary of formatting information about a cell and its values,
     includes the effects of conditional formatting and the like.
@@ -196,7 +158,7 @@ class EffectiveFmt(metaclass=_GoogleFormatType):
     format_key = "effectiveFormat"
 
 
-class DefaultFmt(metaclass=_GoogleFormatType):
+class DefaultFmt(metaclass=GoogleFormatType):
     """
     The default formatting properties of a cell, dictated by the settings of the
     tab.

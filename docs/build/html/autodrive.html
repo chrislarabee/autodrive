@@ -1,0 +1,1600 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>autodrive package &#8212; Autodrive 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="autodrive.formatting package" href="autodrive.formatting.html" />
+    <link rel="prev" title="Welcome to Autodrive’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="autodrive-package">
+<h1>autodrive package<a class="headerlink" href="#autodrive-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autodrive.formatting.html">autodrive.formatting package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autodrive.formatting.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autodrive.formatting.html#module-autodrive.formatting.format_rng">autodrive.formatting.format_rng module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autodrive.formatting.html#module-autodrive.formatting.format_tab">autodrive.formatting.format_tab module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autodrive.formatting.html#module-autodrive.formatting">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-autodrive.connection">
+<span id="autodrive-connection-module"></span><h2>autodrive.connection module<a class="headerlink" href="#module-autodrive.connection" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.connection.DriveConnection">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.connection.</span></span><span class="sig-name descname"><span class="pre">DriveConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">AuthConfig</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_version</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'v3'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.connection.DriveConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive._conn.Connection</span></code></p>
+<p>Provides a connection to the Google Drive api, and methods to send requests
+to it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>auth_config</strong> (<a class="reference internal" href="#autodrive.interfaces.AuthConfig" title="autodrive.interfaces.AuthConfig"><em>AuthConfig</em></a><em>, </em><em>optional</em>) – Optional custom AuthConfig object, defaults to None.</p></li>
+<li><p><strong>api_version</strong> (<em>str</em><em>, </em><em>optional</em>) – The version of the Drive api to connect to, defaults to
+“v3”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.connection.DriveConnection.create_object">
+<span class="sig-name descname"><span class="pre">create_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">sheet</span><span class="p"><span class="pre">,</span> </span><span class="pre">folder</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#autodrive.connection.DriveConnection.create_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a file or folder via the Google Drive connection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj_name</strong> (<em>str</em>) – The desired name of the object to create.</p></li>
+<li><p><strong>obj_type</strong> (<em>Literal</em><em>[</em><em>&quot;sheet&quot;</em><em>, </em><em>&quot;folder&quot;</em><em>]</em>) – The type of object to create.</p></li>
+<li><p><strong>parent_id</strong> (<em>str</em><em>, </em><em>optional</em>) – The id of the folder or shared drive to create the object
+within, defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The new id of the created object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.connection.DriveConnection.delete_object">
+<span class="sig-name descname"><span class="pre">delete_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#autodrive.connection.DriveConnection.delete_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the passed Google object id from the connected Google Drive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>object_id</strong> (<em>str</em>) – A Google object id.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.connection.DriveConnection.find_object">
+<span class="sig-name descname"><span class="pre">find_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">sheet</span><span class="p"><span class="pre">,</span> </span><span class="pre">folder</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_drive_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.connection.DriveConnection.find_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches for a Google Drive Object via the connected api.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj_name</strong> (<em>str</em>) – The name of the object, or part of its name.</p></li>
+<li><p><strong>obj_type</strong> (<em>Literal</em><em>[</em><em>&quot;sheet&quot;</em><em>, </em><em>&quot;folder&quot;</em><em>]</em>) – The type of object to restrict the search to.</p></li>
+<li><p><strong>shared_drive_id</strong> (<em>str</em><em>, </em><em>optional</em>) – The id of a Shared Drive to search within, if desired,
+defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of object properties, if any matches are found.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.connection.SheetsConnection">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.connection.</span></span><span class="sig-name descname"><span class="pre">SheetsConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">AuthConfig</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_version</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'v4'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.connection.SheetsConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive._conn.Connection</span></code></p>
+<p>Provides a connection to the Google Sheets api, and methods to send requests
+to it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>auth_config</strong> (<a class="reference internal" href="#autodrive.interfaces.AuthConfig" title="autodrive.interfaces.AuthConfig"><em>AuthConfig</em></a><em>, </em><em>optional</em>) – Optional custom AuthConfig object, defaults to None.</p></li>
+<li><p><strong>api_version</strong> (<em>str</em><em>, </em><em>optional</em>) – The version of the Sheets api to connect to, defaults to
+“v4”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.connection.SheetsConnection.execute_requests">
+<span class="sig-name descname"><span class="pre">execute_requests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spreadsheet_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requests</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.connection.SheetsConnection.execute_requests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends the passed list of request dictionaries to the Sheets api to be
+applied to the spreadsheet_id via batch update.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spreadsheet_id</strong> (<em>str</em>) – The id of the Google Sheet to update.</p></li>
+<li><p><strong>requests</strong> (<em>List</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – A list of dictionaries formatted as requests.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The resulting response from the Sheets api as a dictionary.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.connection.SheetsConnection.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spreadsheet_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ranges</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.connection.SheetsConnection.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collects data from cells in the passed spreadsheet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spreadsheet_id</strong> (<em>str</em>) – The id of the Google Sheet to collect data from.</p></li>
+<li><p><strong>ranges</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – A list of range strings (e.g. Sheet1!A1:C3), defaults to None,
+which prompts get_data to fetch all data from all cells.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The collected data from the spreadsheet, raw and unparsed.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.connection.SheetsConnection.get_properties">
+<span class="sig-name descname"><span class="pre">get_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spreadsheet_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.connection.SheetsConnection.get_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the metadata properties of the indicated Google Sheet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>spreadsheet_id</strong> (<em>str</em>) – The id of the Google Sheet to collect properties
+from.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary of the Google Sheet’s properties.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-autodrive.drive">
+<span id="autodrive-drive-module"></span><h2>autodrive.drive module<a class="headerlink" href="#module-autodrive.drive" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.drive.Drive">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.drive.</span></span><span class="sig-name descname"><span class="pre">Drive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">AuthConfig</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drive_conn</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">DriveConnection</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sheets_conn</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">SheetsConnection</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.drive.Drive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A one-stop shop for finding and managing Google Drive objects, including
+folders and Google Sheets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>auth_config</strong> (<a class="reference internal" href="#autodrive.interfaces.AuthConfig" title="autodrive.interfaces.AuthConfig"><em>AuthConfig</em></a><em>, </em><em>optional</em>) – Optional custom AuthConfig object, defaults to None</p></li>
+<li><p><strong>drive_conn</strong> (<a class="reference internal" href="#autodrive.connection.DriveConnection" title="autodrive.connection.DriveConnection"><em>DriveConnection</em></a><em>, </em><em>optional</em>) – Optional manually created DriveConnection, defaults to None</p></li>
+<li><p><strong>sheets_conn</strong> (<a class="reference internal" href="#autodrive.connection.SheetsConnection" title="autodrive.connection.SheetsConnection"><em>SheetsConnection</em></a><em>, </em><em>optional</em>) – Optional manually created SheetsConnection, defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.drive.Drive.create_folder">
+<span class="sig-name descname"><span class="pre">create_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <a class="reference internal" href="#autodrive.drive.Folder" title="autodrive.drive.Folder"><span class="pre">Folder</span></a> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#autodrive.drive.Folder" title="autodrive.drive.Folder"><span class="pre">Folder</span></a><a class="headerlink" href="#autodrive.drive.Drive.create_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a folder in the connected Google Drive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder_name</strong> (<em>str</em>) – The desired name of the new folder</p></li>
+<li><p><strong>parent</strong> (<em>str | Folder</em><em>, </em><em>optional</em>) – The parent folder/id to create this folder within, or the id
+of the shared drive to create within, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Folder with the details of the newly created object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#autodrive.drive.Folder" title="autodrive.drive.Folder">Folder</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.drive.Drive.create_gsheet">
+<span class="sig-name descname"><span class="pre">create_gsheet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gsheet_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <a class="reference internal" href="#autodrive.drive.Folder" title="autodrive.drive.Folder"><span class="pre">Folder</span></a> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">GSheet</span><a class="headerlink" href="#autodrive.drive.Drive.create_gsheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Google Sheet in the connected Google Drive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gsheet_name</strong> (<em>str</em>) – The desired name of the new Google Sheet.</p></li>
+<li><p><strong>parent</strong> (<em>str | Folder</em><em>, </em><em>optional</em>) – The parent folder/id to create this gsheet within, or the id
+of the shared drive to create within, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A GSheet with the details of the newly created object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#autodrive.gsheet.GSheet" title="autodrive.gsheet.GSheet">GSheet</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.drive.Drive.find_folder">
+<span class="sig-name descname"><span class="pre">find_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_drive_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#autodrive.drive.Folder" title="autodrive.drive.Folder"><span class="pre">Folder</span></a><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.drive.Drive.find_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for folders that match the passed name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder_name</strong> (<em>str</em>) – The name (or part of the name) to search for.</p></li>
+<li><p><strong>shared_drive_id</strong> (<em>str</em><em>, </em><em>optional</em>) – The shared drive id to search within, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of Folder object that matched the name parameter.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#autodrive.drive.Folder" title="autodrive.drive.Folder">Folder</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.drive.Drive.find_gsheet">
+<span class="sig-name descname"><span class="pre">find_gsheet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gsheet_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#autodrive.gsheet.GSheet" title="autodrive.gsheet.GSheet"><span class="pre">autodrive.gsheet.GSheet</span></a><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.drive.Drive.find_gsheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for Google Sheets that match the passed name. GSheets found in this
+way will need to have their properties gathered with a GSheet.fetch() call.
+To save round trips this method only collects the basic details of the Google
+Sheets it matches. These properties cannot be gathered via the Google Drive api,
+unfortunately.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>gsheet_name</strong> (<em>str</em>) – The name (or part of the name) to search for.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of GSheet objects with basic details (id, name) that matched
+the name parameter.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#autodrive.gsheet.GSheet" title="autodrive.gsheet.GSheet">GSheet</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.drive.Folder">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.drive.</span></span><span class="sig-name descname"><span class="pre">Folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parents</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">AuthConfig</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drive_conn</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">DriveConnection</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.drive.Folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Stores all the necessary properties of a Google Drive Folder and provides
+methods for interacting with its subfolders and files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder_id</strong> (<em>str</em>) – The id string of the folder.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – The name of the folder.</p></li>
+<li><p><strong>parents</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – A list of the Folder’s parents, usually just its parent folder
+or parent shared drive, if any, defaults to None, signifying that the
+folder is at the root of an unshared drive.</p></li>
+<li><p><strong>auth_config</strong> (<a class="reference internal" href="#autodrive.interfaces.AuthConfig" title="autodrive.interfaces.AuthConfig"><em>AuthConfig</em></a><em>, </em><em>optional</em>) – Optional custom AuthConfig object, defaults to None</p></li>
+<li><p><strong>drive_conn</strong> (<a class="reference internal" href="#autodrive.connection.DriveConnection" title="autodrive.connection.DriveConnection"><em>DriveConnection</em></a><em>, </em><em>optional</em>) – Optional manually created DriveConnection, defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.drive.Folder.create_folder">
+<span class="sig-name descname"><span class="pre">create_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#autodrive.drive.Folder" title="autodrive.drive.Folder"><span class="pre">autodrive.drive.Folder</span></a><a class="headerlink" href="#autodrive.drive.Folder.create_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a new Folder with this Folder as its parent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>folder_name</strong> (<em>str</em>) – The name of the Folder to create.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The newly created Folder.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#autodrive.drive.Folder" title="autodrive.drive.Folder">Folder</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.drive.Folder.id">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#autodrive.drive.Folder.id" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The id string of the Folder.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.drive.Folder.name">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#autodrive.drive.Folder.name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The name of the Folder.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.drive.Folder.parent_ids">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">parent_ids</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[str]</span></em><a class="headerlink" href="#autodrive.drive.Folder.parent_ids" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The list of the Folder’s parents, usually just its parent folder
+or parent shared drive, if any.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-autodrive.dtypes">
+<span id="autodrive-dtypes-module"></span><h2>autodrive.dtypes module<a class="headerlink" href="#module-autodrive.dtypes" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.dtypes.Boolean">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.dtypes.</span></span><span class="sig-name descname"><span class="pre">Boolean</span></span><a class="headerlink" href="#autodrive.dtypes.Boolean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Boolean datatype, appears in Google Sheets as FALSE or TRUE.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.dtypes.Boolean.parse">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="headerlink" href="#autodrive.dtypes.Boolean.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a string into a boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>str</em>) – Any string.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>False if the string is some variation of FALSE, otherwise True for
+all other strings.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.Boolean.python_type">
+<span class="sig-name descname"><span class="pre">python_type</span></span><a class="headerlink" href="#autodrive.dtypes.Boolean.python_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.Boolean.type_key">
+<span class="sig-name descname"><span class="pre">type_key</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'boolValue'</span></em><a class="headerlink" href="#autodrive.dtypes.Boolean.type_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.dtypes.DefaultFmt">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.dtypes.</span></span><span class="sig-name descname"><span class="pre">DefaultFmt</span></span><a class="headerlink" href="#autodrive.dtypes.DefaultFmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The default formatting properties of a cell, dictated by the settings of the
+tab.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.DefaultFmt.format_key">
+<span class="sig-name descname"><span class="pre">format_key</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'defaultFormat'</span></em><a class="headerlink" href="#autodrive.dtypes.DefaultFmt.format_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.dtypes.EffectiveFmt">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.dtypes.</span></span><span class="sig-name descname"><span class="pre">EffectiveFmt</span></span><a class="headerlink" href="#autodrive.dtypes.EffectiveFmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The final dictionary of formatting information about a cell and its values,
+includes the effects of conditional formatting and the like.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.EffectiveFmt.format_key">
+<span class="sig-name descname"><span class="pre">format_key</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'effectiveFormat'</span></em><a class="headerlink" href="#autodrive.dtypes.EffectiveFmt.format_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.dtypes.EffectiveVal">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.dtypes.</span></span><span class="sig-name descname"><span class="pre">EffectiveVal</span></span><a class="headerlink" href="#autodrive.dtypes.EffectiveVal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>EffectiveVal is the value as displayed in Google Sheets, and is appropriately
+typed when read from the api. So if the formula “=A1+A2” would equal 3, then
+the EffectiveVal of that cell is 3.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.EffectiveVal.has_dtype">
+<span class="sig-name descname"><span class="pre">has_dtype</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#autodrive.dtypes.EffectiveVal.has_dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.EffectiveVal.value_key">
+<span class="sig-name descname"><span class="pre">value_key</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'effectiveValue'</span></em><a class="headerlink" href="#autodrive.dtypes.EffectiveVal.value_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.dtypes.FormattedVal">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.dtypes.</span></span><span class="sig-name descname"><span class="pre">FormattedVal</span></span><a class="headerlink" href="#autodrive.dtypes.FormattedVal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The untyped string value of the cell as displayed in Google Sheets. Essentially
+equivalent to EffectiveVal, but without appropriate typing.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.FormattedVal.has_dtype">
+<span class="sig-name descname"><span class="pre">has_dtype</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#autodrive.dtypes.FormattedVal.has_dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.FormattedVal.value_key">
+<span class="sig-name descname"><span class="pre">value_key</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'formattedValue'</span></em><a class="headerlink" href="#autodrive.dtypes.FormattedVal.value_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.dtypes.Formula">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.dtypes.</span></span><span class="sig-name descname"><span class="pre">Formula</span></span><a class="headerlink" href="#autodrive.dtypes.Formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Formula datatype, essentially a string, but begins with =.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.dtypes.Formula.parse">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#autodrive.dtypes.Formula.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a string into a formula (string).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>str</em>) – Any string.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The passed value as a string.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.Formula.python_type">
+<span class="sig-name descname"><span class="pre">python_type</span></span><a class="headerlink" href="#autodrive.dtypes.Formula.python_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.Formula.type_key">
+<span class="sig-name descname"><span class="pre">type_key</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'formulaValue'</span></em><a class="headerlink" href="#autodrive.dtypes.Formula.type_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.dtypes.Number">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.dtypes.</span></span><span class="sig-name descname"><span class="pre">Number</span></span><a class="headerlink" href="#autodrive.dtypes.Number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Number datatype, covers both floats and integers, though internally Number is
+treated as a float so as to not lose significant digits.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.dtypes.Number.parse">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span> <span class="p"><span class="pre">|</span></span> <span class="pre">int</span><a class="headerlink" href="#autodrive.dtypes.Number.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a string into an integer (if it has no decimal point) or float.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>str</em>) – Any numeric string.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The passed value as an integer or float.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float | int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.Number.python_type">
+<span class="sig-name descname"><span class="pre">python_type</span></span><a class="headerlink" href="#autodrive.dtypes.Number.python_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.Number.type_key">
+<span class="sig-name descname"><span class="pre">type_key</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'numberValue'</span></em><a class="headerlink" href="#autodrive.dtypes.Number.type_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.dtypes.String">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.dtypes.</span></span><span class="sig-name descname"><span class="pre">String</span></span><a class="headerlink" href="#autodrive.dtypes.String" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>String datatype, covers all non-numeric/date text that isn’t a formula.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.dtypes.String.parse">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#autodrive.dtypes.String.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a string into a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>str</em>) – Any string.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The passed value as a string.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.String.python_type">
+<span class="sig-name descname"><span class="pre">python_type</span></span><a class="headerlink" href="#autodrive.dtypes.String.python_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.String.type_key">
+<span class="sig-name descname"><span class="pre">type_key</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'stringValue'</span></em><a class="headerlink" href="#autodrive.dtypes.String.type_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.dtypes.UserEnteredFmt">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.dtypes.</span></span><span class="sig-name descname"><span class="pre">UserEnteredFmt</span></span><a class="headerlink" href="#autodrive.dtypes.UserEnteredFmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The formatting properties the user as applied to the cell.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.UserEnteredFmt.format_key">
+<span class="sig-name descname"><span class="pre">format_key</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'userEnteredFormat'</span></em><a class="headerlink" href="#autodrive.dtypes.UserEnteredFmt.format_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.dtypes.UserEnteredVal">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.dtypes.</span></span><span class="sig-name descname"><span class="pre">UserEnteredVal</span></span><a class="headerlink" href="#autodrive.dtypes.UserEnteredVal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>UserEnteredVal is the value as entered by the user, without any calculations
+applied to it. It is always a string, but is accompanied by metadata that
+indicates what datatype the value is.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.UserEnteredVal.has_dtype">
+<span class="sig-name descname"><span class="pre">has_dtype</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#autodrive.dtypes.UserEnteredVal.has_dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autodrive.dtypes.UserEnteredVal.value_key">
+<span class="sig-name descname"><span class="pre">value_key</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><em class="property"> <span class="pre">=</span> <span class="pre">'userEnteredValue'</span></em><a class="headerlink" href="#autodrive.dtypes.UserEnteredVal.value_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-autodrive.gsheet">
+<span id="autodrive-gsheet-module"></span><h2>autodrive.gsheet module<a class="headerlink" href="#module-autodrive.gsheet" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.gsheet.GSheet">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.gsheet.</span></span><span class="sig-name descname"><span class="pre">GSheet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gsheet_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tabs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tab</span><span class="p"><span class="pre">]</span></span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">AuthConfig</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sheets_conn</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">SheetsConnection</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autoconnect</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.gsheet.GSheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive._view.GSheetView</span></code></p>
+<p>Provides a connection to a single GoogleSheet and access to its properties
+and Tabs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gsheet_id</strong> (<em>str</em>) – The id string of the target Google Sheet; can be found in
+the link to the Google Sheet.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the Google Sheet, defaults to None</p></li>
+<li><p><strong>tabs</strong> (<em>List</em><em>[</em><a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab"><em>Tab</em></a><em>]</em><em>, </em><em>optional</em>) – A list of Tabs attached to the Google Sheet. You should probably
+manage Tabs with GSheet.fetch() or by getting the GSheet directly from a
+Drive, defaults to None</p></li>
+<li><p><strong>auth_config</strong> (<a class="reference internal" href="#autodrive.interfaces.AuthConfig" title="autodrive.interfaces.AuthConfig"><em>AuthConfig</em></a><em>, </em><em>optional</em>) – Optional custom AuthConfig object, defaults to None</p></li>
+<li><p><strong>sheets_conn</strong> (<a class="reference internal" href="#autodrive.connection.SheetsConnection" title="autodrive.connection.SheetsConnection"><em>SheetsConnection</em></a><em>, </em><em>optional</em>) – Optional manually created SheetsConnection, defaults to None</p></li>
+<li><p><strong>autoconnect</strong> (<em>bool</em><em>, </em><em>optional</em>) – If you want to instantiate a GSheet without immediately
+checking your authentication credentials and connecting to the Google Sheets
+api, set this to False, defaults to True</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.gsheet.GSheet.add_tab">
+<span class="sig-name descname"><span class="pre">add_tab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab"><span class="pre">autodrive.tab.Tab</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#autodrive.gsheet.GSheet" title="autodrive.gsheet.GSheet"><span class="pre">autodrive.gsheet.GSheet</span></a><a class="headerlink" href="#autodrive.gsheet.GSheet.add_tab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a Tab to the GSheet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tab</strong> (<a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab"><em>Tab</em></a>) – The Tab instance you want to add.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the GSheet already has a Tab with that title.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>This Gsheet.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#autodrive.gsheet.GSheet" title="autodrive.gsheet.GSheet">GSheet</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.gsheet.GSheet.fetch">
+<span class="sig-name descname"><span class="pre">fetch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#autodrive.gsheet.GSheet" title="autodrive.gsheet.GSheet"><span class="pre">autodrive.gsheet.GSheet</span></a><a class="headerlink" href="#autodrive.gsheet.GSheet.fetch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the latest metadata from the API for this GSheet. Populates title and
+tab properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>This GSheet</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#autodrive.gsheet.GSheet" title="autodrive.gsheet.GSheet">GSheet</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.gsheet.GSheet.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">TwoDRange</span> <span class="p"><span class="pre">|</span></span> <span class="pre">OneDRange</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#autodrive.gsheet.GSheet" title="autodrive.gsheet.GSheet"><span class="pre">GSheet</span></a><a class="headerlink" href="#autodrive.gsheet.GSheet.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the data from the cells of the GSheet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tab</strong> (<em>str | int</em><em>, </em><em>optional</em>) – The name of the tab, or its (0-based) index (from left to write),
+defaults to None, which will collect data from the first tab in the Sheet.</p></li>
+<li><p><strong>rng</strong> (<em>TwoDRange | OneDRange</em><em>, </em><em>optional</em>) – The specific range to fetch data from, defaults to None, for all
+data in the target tab.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>KeyError</strong> – If the passed tab name is not found in this GSheet’s tabs.</p></li>
+<li><p><strong>TypeError</strong> – If anything other than the displayed types is passed for
+the tab parameter.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>This GSheet.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#autodrive.gsheet.GSheet" title="autodrive.gsheet.GSheet">GSheet</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.gsheet.GSheet.get_tab_index_by_title">
+<span class="sig-name descname"><span class="pre">get_tab_index_by_title</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab_title</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.gsheet.GSheet.get_tab_index_by_title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.gsheet.GSheet.keys">
+<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">KeysView</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.gsheet.GSheet.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the keys (tab titles) for the fetched tabs on this GSheet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The tab titles on this GSheet.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>KeysView[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.gsheet.GSheet.requests">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">requests</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[Dict[str,</span> <span class="pre">Any]]</span></em><a class="headerlink" href="#autodrive.gsheet.GSheet.requests" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of accumulated (uncommitted) requests on this GSheet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of update request dictionaries that have been created for this
+GSheet.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.gsheet.GSheet.tabs">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">tabs</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">autodrive.tab.Tab]</span></em><a class="headerlink" href="#autodrive.gsheet.GSheet.tabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of fetched Tabs on this GSheet by title.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Tab titles as keys and corresponding Tabs as values.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[str, <a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab">Tab</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.gsheet.GSheet.title">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">title</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[str]</span></em><a class="headerlink" href="#autodrive.gsheet.GSheet.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the GSheet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The name of the GSheet, or None if its name hasn’t been fetched.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.gsheet.GSheet.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">ValuesView</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab"><span class="pre">autodrive.tab.Tab</span></a><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.gsheet.GSheet.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the values (Tabs) for the fetched tabs on this GSheet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The Tabs on this GSheet.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ValuesView[<a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab">Tab</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.gsheet.GSheet.write_values">
+<span class="sig-name descname"><span class="pre">write_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_tab</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">TwoDRange</span> <span class="p"><span class="pre">|</span></span> <span class="pre">OneDRange</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#autodrive.gsheet.GSheet" title="autodrive.gsheet.GSheet"><span class="pre">GSheet</span></a><a class="headerlink" href="#autodrive.gsheet.GSheet.write_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a request to write data. GSheet.commit() to commit the requests.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>List</em><em>[</em><em>List</em><em>[</em><em>Any</em><em>]</em><em>]</em>) – The data to write. Each list in the passed data list is a row,
+with each value in that sublist being a column.</p></li>
+<li><p><strong>to_tab</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the tab to write to, defaults to None, which will
+write to whatever tab is first in the Sheet.</p></li>
+<li><p><strong>rng</strong> (<a class="reference internal" href="#autodrive.interfaces.TwoDRange" title="autodrive.interfaces.TwoDRange"><em>TwoDRange</em></a><em>, </em><em>optional</em>) – A TwoDRange, to which the data will be written, starting with the
+top-left-most cell in the range, defaults to None, which will write to the
+top-left-most cell in the passed tab, or the first tab.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>KeyError</strong> – If the passed tab name (to_tab) isn’t present in the GSheet’s
+current tabs property.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>This GSheet.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#autodrive.gsheet.GSheet" title="autodrive.gsheet.GSheet">GSheet</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-autodrive.interfaces">
+<span id="autodrive-interfaces-module"></span><h2>autodrive.interfaces module<a class="headerlink" href="#module-autodrive.interfaces" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.interfaces.AuthConfig">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.interfaces.</span></span><span class="sig-name descname"><span class="pre">AuthConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">secrets_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_filepath</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">Path</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'gdrive_token.pickle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creds_filepath</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">Path</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'credentials.json'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.interfaces.AuthConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Optional custom configuration for Autodrive’s authentication processes using
+your Google api credentials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>secrets_config</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – The dictionary of configuration used by a
+google.oath2.credentials Credentials object. Generally only useful if
+for some reason you are reading in your own token file, defaults to None.</p></li>
+<li><p><strong>token_filepath</strong> (<em>str</em><em>, </em><em>optional</em>) – The filepath to your gdrive_token pickle file. This
+doesn’t have to exist at time of authentication, and will be saved to
+this path when the authorization flow completes, defaults to DEFAULT_TOKEN,
+which is “gdrive_token.pickle” in your cwd.</p></li>
+<li><p><strong>creds_filepath</strong> (<em>str</em><em>, </em><em>optional</em>) – The filepath to your api credentials json file. This
+file <em>does</em> need to exist at time of authentication, unless you pass a
+secrets_config dictionary, defaults to DEFAULT_CREDS, which is
+“credentials.json” from your cwd.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.interfaces.AuthConfig.creds_filepath">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">creds_filepath</span></span><em class="property"><span class="pre">:</span> <span class="pre">pathlib.Path</span></em><a class="headerlink" href="#autodrive.interfaces.AuthConfig.creds_filepath" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The Path to your credentials json file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.interfaces.AuthConfig.token_filepath">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">token_filepath</span></span><em class="property"><span class="pre">:</span> <span class="pre">pathlib.Path</span></em><a class="headerlink" href="#autodrive.interfaces.AuthConfig.token_filepath" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The Path to your token pickle file.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.interfaces.Color">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.interfaces.</span></span><span class="sig-name descname"><span class="pre">Color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">red</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">green</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blue</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.interfaces.Color" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive.interfaces._Interface</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
+<p>An RGBA color value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>red</strong> (<em>int | float</em><em>, </em><em>optional</em>) – Either an integer from 0 to 255 (from which a float value will
+be calculated), or the float representation of same. defaults to 0</p></li>
+<li><p><strong>green</strong> (<em>int | float</em><em>, </em><em>optional</em>) – Either an integer from 0 to 255 (from which a float value will
+be calculated), or the float representation of same. defaults to 0</p></li>
+<li><p><strong>blue</strong> (<em>int | float</em><em>, </em><em>optional</em>) – Either an integer from 0 to 255 (from which a float value will
+be calculated), or the float representation of same. defaults to 0</p></li>
+<li><p><strong>alpha</strong> (<em>int</em><em>, </em><em>optional</em>) – Either an integer from 0 to 100 (from which a float value will
+be calculated), or the float representation of same. defaults to 100</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.interfaces.Color.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.interfaces.Color.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Outputs the Color as a dictionary of properties usable in generating
+an api request to affect the color of text or cell background.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.interfaces.Format">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.interfaces.</span></span><span class="sig-name descname"><span class="pre">Format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">format_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.interfaces.Format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive.interfaces._Interface</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+<p>Underlying class for text/number formats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>format_key</strong> (<em>str</em>) – The format key as dictated by the Google Sheets api.</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.interfaces.Format.format_key">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">format_key</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#autodrive.interfaces.Format.format_key" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The format’s Google Sheets api key, used to generate the
+userEnteredFormat value.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.interfaces.Format.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.interfaces.Format.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Outputs the Format as a dictionary of properties usable in generating
+an api request to affect the text/number format of one or more cells.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.interfaces.NumericFormat">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.interfaces.</span></span><span class="sig-name descname"><span class="pre">NumericFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.interfaces.NumericFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive.interfaces._Interface</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+<p>A Google Sheet Number Format, which the value of the cell(s) will be
+parsed into.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pattern</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of a Google Sheet Number Format, defaults to “”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.interfaces.OneDRange">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.interfaces.</span></span><span class="sig-name descname"><span class="pre">OneDRange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_idx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_idx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_title</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base0_idxs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.interfaces.OneDRange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive.interfaces._Interface</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+<p>A one-dimensional range (i.e. a range with only one axis, like a row range
+or a column range).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tab_id</strong> (<em>int</em>) – The tab id this range resides in.</p></li>
+<li><p><strong>start_idx</strong> (<em>str | int</em><em>, </em><em>optional</em>) – The first column/row in the range, assumed to not be 0-based
+if it’s an integer (row), defaults to None.</p></li>
+<li><p><strong>end_idx</strong> (<em>str | int</em><em>, </em><em>optional</em>) – The last column/row in the range, assumed to not be
+0-based if it’s an integer (row), defaults to None.</p></li>
+<li><p><strong>tab_title</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the tab this range resides in, defaults to None.</p></li>
+<li><p><strong>base0_idxs</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True if you’d like to pass 0-based indices to
+start_idx and end_idx params, above, defaults to False.</p></li>
+<li><p><strong>column</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True if this OneDRange is a column range and you supplied
+the column indexes as integers, defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.interfaces.OneDRange.end_col">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">end_col</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#autodrive.interfaces.OneDRange.end_col" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The end_idx. Used to make OneDRanges and TwoDRanges
+interchangeable.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.interfaces.OneDRange.end_row">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">end_row</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#autodrive.interfaces.OneDRange.end_row" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The end_idx. Used to make OneDRanges and TwoDRanges
+interchangeable.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.interfaces.OneDRange.start_col">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">start_col</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#autodrive.interfaces.OneDRange.start_col" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The start_idx. Used to make OneDRanges and TwoDRanges
+interchangeable.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.interfaces.OneDRange.start_row">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">start_row</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#autodrive.interfaces.OneDRange.start_row" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The start_idx. Used to make OneDRanges and TwoDRanges
+interchangeable.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.interfaces.OneDRange.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.interfaces.OneDRange.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Outputs the OneDRange as a dictionary of properties usable in
+generating an api request to affect the target range of cells.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[str, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="autodrive.interfaces.ParseRangeError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.interfaces.</span></span><span class="sig-name descname"><span class="pre">ParseRangeError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg_addon</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.interfaces.ParseRangeError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.interfaces.TextFormat">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.interfaces.</span></span><span class="sig-name descname"><span class="pre">TextFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#autodrive.interfaces.Color" title="autodrive.interfaces.Color"><span class="pre">Color</span></a> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bold</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">italic</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">underline</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strikethrough</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.interfaces.TextFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive.interfaces._Interface</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+<p>Available parameters available in updating the text formatting of a cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>font</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of a font to change to, defaults to None.</p></li>
+<li><p><strong>color</strong> (<a class="reference internal" href="#autodrive.interfaces.Color" title="autodrive.interfaces.Color"><em>Color</em></a><em>, </em><em>optional</em>) – The Color properties to apply to the text, defaults to None</p></li>
+<li><p><strong>font_size</strong> (<em>int</em><em>, </em><em>optional</em>) – The size to apply to the text, defaults to None</p></li>
+<li><p><strong>bold</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to turn bold on (True) or off (False),
+defaults to None, for unchanged.</p></li>
+<li><p><strong>italic</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to turn italic on (True) or off (False),
+defaults to None, for unchanged.</p></li>
+<li><p><strong>underline</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to turn underline on (True) or off (False),
+defaults to None, for unchanged.</p></li>
+<li><p><strong>strikethrough</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to turn strikethrough on (True) or off (False),
+defaults to None, for unchanged.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.interfaces.TwoDRange">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.interfaces.</span></span><span class="sig-name descname"><span class="pre">TwoDRange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_row</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_row</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_col</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_col</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_str</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base0_idxs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_title</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.interfaces.TwoDRange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive.interfaces._Interface</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+<p>A two-dimensional range (i.e. a range with two axes).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tab_id</strong> (<em>int</em>) – The tab id this range resides in.</p></li>
+<li><p><strong>start_row</strong> (<em>int</em><em>, </em><em>optional</em>) – The first row in the range, assumed to not be 0-based,
+defaults to None</p></li>
+<li><p><strong>end_row</strong> (<em>int</em><em>, </em><em>optional</em>) – The last row in the range, assumed to not be 0-based,
+defaults to None</p></li>
+<li><p><strong>start_col</strong> (<em>int | str</em><em>, </em><em>optional</em>) – The first column in the range, assumed to not be 0-based
+if it’s an integer, defaults to None</p></li>
+<li><p><strong>end_col</strong> (<em>int | str</em><em>, </em><em>optional</em>) – The last column in the range, assumed to not be 0-based if
+it’s an integer, defaults to None</p></li>
+<li><p><strong>range_str</strong> (<em>str</em><em>, </em><em>optional</em>) – A range string (e.g. Sheet1!A1:B3), which can be passed
+instead of specifying the start/end_row and start/end_col, defaults to
+None.</p></li>
+<li><p><strong>base0_idxs</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True if you’d like to pass 0-based indices to
+start/end_row and start/end_col, defaults to False.</p></li>
+<li><p><strong>tab_title</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the tab this range resides in, defaults to None</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.interfaces.TwoDRange.col_range">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">col_range</span></span><em class="property"><span class="pre">:</span> <span class="pre">autodrive.interfaces.OneDRange</span></em><a class="headerlink" href="#autodrive.interfaces.TwoDRange.col_range" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The TwoDRange’s column range as a OneDRange.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#autodrive.interfaces.OneDRange" title="autodrive.interfaces.OneDRange">OneDRange</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.interfaces.TwoDRange.row_range">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">row_range</span></span><em class="property"><span class="pre">:</span> <span class="pre">autodrive.interfaces.OneDRange</span></em><a class="headerlink" href="#autodrive.interfaces.TwoDRange.row_range" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The TwoDRange’s row range as a OneDRange.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#autodrive.interfaces.OneDRange" title="autodrive.interfaces.OneDRange">OneDRange</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.interfaces.TwoDRange.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.interfaces.TwoDRange.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Outputs the TwoDRange as a dictionary of properties usable in
+generating an api request to affect the target range of cells.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[str, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-autodrive.range">
+<span id="autodrive-range-module"></span><h2>autodrive.range module<a class="headerlink" href="#module-autodrive.range" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.range.Range">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.range.</span></span><span class="sig-name descname"><span class="pre">Range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gsheet_range</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">TwoDRange</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gsheet_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_title</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">AuthConfig</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sheets_conn</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">SheetsConnection</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autoconnect</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.range.Range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive._view.Component</span></code>[<a class="reference internal" href="autodrive.formatting.html#autodrive.formatting.format_rng.RangeCellFormatting" title="autodrive.formatting.format_rng.RangeCellFormatting"><code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive.formatting.format_rng.RangeCellFormatting</span></code></a>, <a class="reference internal" href="autodrive.formatting.html#autodrive.formatting.format_rng.RangeGridFormatting" title="autodrive.formatting.format_rng.RangeGridFormatting"><code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive.formatting.format_rng.RangeGridFormatting</span></code></a>, <a class="reference internal" href="autodrive.formatting.html#autodrive.formatting.format_rng.RangeTextFormatting" title="autodrive.formatting.format_rng.RangeTextFormatting"><code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive.formatting.format_rng.RangeTextFormatting</span></code></a>]</p>
+<p>Provides a connection to the data in a specific range in a Google Sheet Tab.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gsheet_range</strong> (<a class="reference internal" href="#autodrive.interfaces.TwoDRange" title="autodrive.interfaces.TwoDRange"><em>TwoDRange</em></a>) – The range (i.e. A5:C10) to associate with this Range.</p></li>
+<li><p><strong>gsheet_id</strong> (<em>str</em>) – The id string of the target Google Sheet that the Range
+resides in; can be found in the Google Sheet url.</p></li>
+<li><p><strong>tab_title</strong> (<em>str</em>) – The name of the Tab this Range is within.</p></li>
+<li><p><strong>auth_config</strong> (<a class="reference internal" href="#autodrive.interfaces.AuthConfig" title="autodrive.interfaces.AuthConfig"><em>AuthConfig</em></a><em>, </em><em>optional</em>) – Optional custom AuthConfig, defaults to None.</p></li>
+<li><p><strong>sheets_conn</strong> (<a class="reference internal" href="#autodrive.connection.SheetsConnection" title="autodrive.connection.SheetsConnection"><em>SheetsConnection</em></a><em>, </em><em>optional</em>) – Optional manually created SheetsConnection, defaults to
+None.</p></li>
+<li><p><strong>autoconnect</strong> (<em>bool</em><em>, </em><em>optional</em>) – If you want to instantiate a Range without immediately
+checking your authentication credentials and connection to the Google Sheets
+api, set this to False, defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.range.Range.format_cell">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">format_cell</span></span><em class="property"><span class="pre">:</span> <span class="pre">autodrive.formatting.format_rng.RangeCellFormatting</span></em><a class="headerlink" href="#autodrive.range.Range.format_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains request generation methods relating to formatting this Range’s
+cells (like adding borders and backgrounds and such).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An object with cell formatting methods.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="autodrive.formatting.html#autodrive.formatting.format_rng.RangeCellFormatting" title="autodrive.formatting.format_rng.RangeCellFormatting">RangeCellFormatting</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.range.Range.format_grid">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">format_grid</span></span><em class="property"><span class="pre">:</span> <span class="pre">autodrive.formatting.format_rng.RangeGridFormatting</span></em><a class="headerlink" href="#autodrive.range.Range.format_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains request generation methods related to formatting this Range’s grid
+(width and height, etc).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An object with grid formatting methods.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="autodrive.formatting.html#autodrive.formatting.format_rng.RangeGridFormatting" title="autodrive.formatting.format_rng.RangeGridFormatting">RangeGridFormatting</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.range.Range.format_text">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">format_text</span></span><em class="property"><span class="pre">:</span> <span class="pre">autodrive.formatting.format_rng.RangeTextFormatting</span></em><a class="headerlink" href="#autodrive.range.Range.format_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains request generation methods methods relating to formatting this
+Range’s text (the text format of any cells, even those containing non-text
+values like integers or null values).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An object with text formatting methods.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="autodrive.formatting.html#autodrive.formatting.format_rng.RangeTextFormatting" title="autodrive.formatting.format_rng.RangeTextFormatting">RangeTextFormatting</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.range.Range.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#autodrive.range.Range" title="autodrive.range.Range"><span class="pre">autodrive.range.Range</span></a><a class="headerlink" href="#autodrive.range.Range.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the data from the cells of this Range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>This Range.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#autodrive.range.Range" title="autodrive.range.Range">Range</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.range.Range.write_values">
+<span class="sig-name descname"><span class="pre">write_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#autodrive.range.Range" title="autodrive.range.Range"><span class="pre">autodrive.range.Range</span></a><a class="headerlink" href="#autodrive.range.Range.write_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a request to write data. Range.commit() to commit the requests.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>List</em><em>[</em><em>List</em><em>[</em><em>Any</em><em>]</em><em>]</em>) – The data to write. Each list in the passed data list is a row,
+with each value in that sublist being a column.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>This Tab.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#autodrive.range.Range" title="autodrive.range.Range">Range</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-autodrive.tab">
+<span id="autodrive-tab-module"></span><h2>autodrive.tab module<a class="headerlink" href="#module-autodrive.tab" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="autodrive.tab.Tab">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">autodrive.tab.</span></span><span class="sig-name descname"><span class="pre">Tab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gsheet_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_title</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_idx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_count</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">26</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_count</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">AuthConfig</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sheets_conn</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">SheetsConnection</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autoconnect</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autodrive.tab.Tab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive._view.Component</span></code>[<a class="reference internal" href="autodrive.formatting.html#autodrive.formatting.format_tab.TabCellFormatting" title="autodrive.formatting.format_tab.TabCellFormatting"><code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive.formatting.format_tab.TabCellFormatting</span></code></a>, <a class="reference internal" href="autodrive.formatting.html#autodrive.formatting.format_tab.TabGridFormatting" title="autodrive.formatting.format_tab.TabGridFormatting"><code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive.formatting.format_tab.TabGridFormatting</span></code></a>, <a class="reference internal" href="autodrive.formatting.html#autodrive.formatting.format_tab.TabTextFormatting" title="autodrive.formatting.format_tab.TabTextFormatting"><code class="xref py py-class docutils literal notranslate"><span class="pre">autodrive.formatting.format_tab.TabTextFormatting</span></code></a>]</p>
+<p>Provides a connection to a single Google Sheet Tab, its properties, and its
+data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gsheet_id</strong> (<em>str</em>) – The id string of the target Google Sheet that the Tab resides
+in; can be found in the Google Sheet url.</p></li>
+<li><p><strong>tab_title</strong> (<em>str</em>) – The name of the Tab.</p></li>
+<li><p><strong>tab_idx</strong> (<em>int</em>) – The index (0-based) of the Tab in the Google Sheet.</p></li>
+<li><p><strong>tab_id</strong> (<em>int</em>) – The id of the Tab, can be found in the Google Sheet url (after
+gid=).</p></li>
+<li><p><strong>column_count</strong> (<em>int</em><em>, </em><em>optional</em>) – The starting number of columns in the Tab, defaults to 26.</p></li>
+<li><p><strong>row_count</strong> (<em>int</em><em>, </em><em>optional</em>) – The starting number of rows in the Tab, defaults to 1000.</p></li>
+<li><p><strong>auth_config</strong> (<a class="reference internal" href="#autodrive.interfaces.AuthConfig" title="autodrive.interfaces.AuthConfig"><em>AuthConfig</em></a><em>, </em><em>optional</em>) – Optional custom AuthConfig, defaults to None.</p></li>
+<li><p><strong>sheets_conn</strong> (<a class="reference internal" href="#autodrive.connection.SheetsConnection" title="autodrive.connection.SheetsConnection"><em>SheetsConnection</em></a><em>, </em><em>optional</em>) – Optional manually created SheetsConnection, defaults to
+None.</p></li>
+<li><p><strong>autoconnect</strong> (<em>bool</em><em>, </em><em>optional</em>) – If you want to instantiate a Tab without immediately
+checking your authentication credentials and connection to the Google Sheets
+api, set this to False, defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.column_count">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">column_count</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#autodrive.tab.Tab.column_count" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of columns in this Tab.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab"><span class="pre">autodrive.tab.Tab</span></a><a class="headerlink" href="#autodrive.tab.Tab.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method for generating a new tab request based on this Tab and
+immediately committing it, thus adding it to the parent Google Sheet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>This Tab.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab">Tab</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.format_cell">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">format_cell</span></span><em class="property"><span class="pre">:</span> <span class="pre">autodrive.formatting.format_tab.TabCellFormatting</span></em><a class="headerlink" href="#autodrive.tab.Tab.format_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains request generation methods relating to formatting this Tab’s cells
+(like adding borders and backgrounds and such).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An object with cell formatting methods.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="autodrive.formatting.html#autodrive.formatting.format_tab.TabCellFormatting" title="autodrive.formatting.format_tab.TabCellFormatting">TabCellFormatting</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.format_grid">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">format_grid</span></span><em class="property"><span class="pre">:</span> <span class="pre">autodrive.formatting.format_tab.TabGridFormatting</span></em><a class="headerlink" href="#autodrive.tab.Tab.format_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains request generation methods related to formatting this Tab’s grid
+(number of columns, rows, width and height, etc).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An object with grid formatting methods.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="autodrive.formatting.html#autodrive.formatting.format_tab.TabGridFormatting" title="autodrive.formatting.format_tab.TabGridFormatting">TabGridFormatting</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.format_text">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">format_text</span></span><em class="property"><span class="pre">:</span> <span class="pre">autodrive.formatting.format_tab.TabTextFormatting</span></em><a class="headerlink" href="#autodrive.tab.Tab.format_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains request generation methods relating to formatting this Tab’s text
+(the text format of any cells, even those containing non-text values like
+integers or null values).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An object with text formatting methods.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="autodrive.formatting.html#autodrive.formatting.format_tab.TabTextFormatting" title="autodrive.formatting.format_tab.TabTextFormatting">TabTextFormatting</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.from_properties">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gsheet_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">AuthConfig</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sheets_conn</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">SheetsConnection</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autoconnect</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab"><span class="pre">Tab</span></a><a class="headerlink" href="#autodrive.tab.Tab.from_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a Tab assigned to the passed gsheet_id with the passed tab properties
+dictionary from a SheetsConnection.get_properties call.</p>
+<p>Unless you have a special use-case, it is probably more trouble than it’s worth
+to try to instantiate a Tab with this method, as it is designed for use by
+other Autodrive objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gsheet_id</strong> (<em>str</em>) – The id of the parent GSheet.</p></li>
+<li><p><strong>properties</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – A properties dictionary, which must contain index, SheetId,
+title, and gridProperties keys. The gridProperties must be a dictionary
+containing columnCount and rowCount keys.</p></li>
+<li><p><strong>auth_config</strong> (<a class="reference internal" href="#autodrive.interfaces.AuthConfig" title="autodrive.interfaces.AuthConfig"><em>AuthConfig</em></a><em>, </em><em>optional</em>) – Optional custom AuthConfig, defaults to None.</p></li>
+<li><p><strong>sheets_conn</strong> (<a class="reference internal" href="#autodrive.connection.SheetsConnection" title="autodrive.connection.SheetsConnection"><em>SheetsConnection</em></a><em>, </em><em>optional</em>) – Optional manually created SheetsConnection, defaults to
+None.</p></li>
+<li><p><strong>autoconnect</strong> (<em>bool</em><em>, </em><em>optional</em>) – If you want to instantiate a Tab without immediately
+checking your authentication credentials and connection to the Google
+Sheets api, set this to False, defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Tab with the values from the passed properties dictionary.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab">Tab</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.gen_add_tab_request">
+<span class="sig-name descname"><span class="pre">gen_add_tab_request</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.tab.Tab.gen_add_tab_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a new tab request dictionary for this Tab. Useful when you have
+manually instantiated a Tab object instead of fetching it and want to add
+it to the parent GSheet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A dictionary ready to be passed as a request via a request commit.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">TwoDRange</span> <span class="p"><span class="pre">|</span></span> <span class="pre">OneDRange</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab"><span class="pre">Tab</span></a><a class="headerlink" href="#autodrive.tab.Tab.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the data from the cells of this Tab.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rng</strong> (<em>TwoDRange | OneDRange</em><em>, </em><em>optional</em>) – An optional range value, to specify a subset of the Tab’s values
+to get, defaults to None, which fetches all values in the Tab.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>This Tab.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab">Tab</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.index">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">index</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#autodrive.tab.Tab.index" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The (0-based) index location of this Tab among the other Tabs on the
+parent GSheet.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.new_tab_request">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">new_tab_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tab_title</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab_idx</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_rows</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_cols</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">26</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#autodrive.tab.Tab.new_tab_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a dictionary request to create a new tab in a Google Sheet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tab_title</strong> (<em>str</em>) – The name of the tab.</p></li>
+<li><p><strong>tab_id</strong> (<em>int</em><em>, </em><em>optional</em>) – The desired id of the tab, which cannot already exist in the
+Google Sheet, defaults to None, which will allow the Google Sheet to
+generate the tab_id.</p></li>
+<li><p><strong>tab_idx</strong> (<em>int</em><em>, </em><em>optional</em>) – The (0-based) index to create the tab at, defaults to None,
+meaning the tab will be created as the last tab in the Google Sheet..</p></li>
+<li><p><strong>num_rows</strong> (<em>int</em><em>, </em><em>optional</em>) – The starting number of rows in the new tab, defaults to 1000.</p></li>
+<li><p><strong>num_cols</strong> (<em>int</em><em>, </em><em>optional</em>) – The starting number of columns in the new tab, defaults to 26.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary ready to be passed as a request via a request commit.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.row_count">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">row_count</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#autodrive.tab.Tab.row_count" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of rows in this Tab.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.tab_id">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">tab_id</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#autodrive.tab.Tab.tab_id" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>This Tab’s id. Matches the gid of the parent GSheet’s url.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.title">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">title</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#autodrive.tab.Tab.title" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The name of this Tab.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.two_d_range">
+<span class="sig-name descname"><span class="pre">two_d_range</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#autodrive.interfaces.TwoDRange" title="autodrive.interfaces.TwoDRange"><span class="pre">autodrive.interfaces.TwoDRange</span></a><a class="headerlink" href="#autodrive.tab.Tab.two_d_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a TwoDRange object corresponding to the full range of the Tab.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A TwoDRange from A1:the end of the Tab.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#autodrive.interfaces.TwoDRange" title="autodrive.interfaces.TwoDRange">TwoDRange</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autodrive.tab.Tab.write_values">
+<span class="sig-name descname"><span class="pre">write_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">TwoDRange</span> <span class="p"><span class="pre">|</span></span> <span class="pre">OneDRange</span> <span class="p"><span class="pre">|</span></span> <span class="pre">None</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab"><span class="pre">Tab</span></a><a class="headerlink" href="#autodrive.tab.Tab.write_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a request to write data. Tab.commit() to commit the requests.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>List</em><em>[</em><em>List</em><em>[</em><em>Any</em><em>]</em><em>]</em>) – The data to write. Each list in the passed data list is a row,
+with each value in that sublist being a column.</p></li>
+<li><p><strong>rng</strong> (<em>TwoDRange | OneDRange</em><em>, </em><em>optional</em>) – A specific range to write to, starting with the top-left-most cell
+in the range, defaults to None, which will write to the top-left-most cell
+of the Tab.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>This Tab.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#autodrive.tab.Tab" title="autodrive.tab.Tab">Tab</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-autodrive">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-autodrive" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Autodrive’s documentation!</a></li>
+      <li>Next: <a href="autodrive.formatting.html" title="next chapter">autodrive.formatting package</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Chris Larabee.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/autodrive.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

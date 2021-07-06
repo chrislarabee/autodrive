@@ -2,7 +2,7 @@ from typing import Type, List, Dict, Any
 import string
 
 from autodrive.dtypes import FormattedVal, UserEnteredVal, EffectiveVal
-from autodrive.core import GSheetView
+from autodrive._view import GSheetView
 from autodrive.interfaces import TwoDRange
 from autodrive.range import Range
 from .conftest import ExampleView

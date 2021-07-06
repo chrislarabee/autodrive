@@ -5,7 +5,7 @@ import string
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Mapping, Optional, Tuple, TypeVar
 
-from . import google_terms as terms
+from . import _google_terms as terms
 
 DEFAULT_TOKEN = "gdrive_token.pickle"
 DEFAULT_CREDS = "credentials.json"

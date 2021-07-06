@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from ..core import CellFormatting, GridFormatting, TextFormatting
+from .._view import CellFormatting, GridFormatting, TextFormatting
 from ..interfaces import Color, Format
-from . import cell, grid, text
+from . import _cell as cell, _grid as grid, _text as text
 
 
 class RangeCellFormatting(CellFormatting):
@@ -43,7 +43,7 @@ class RangeTextFormatting(TextFormatting):
         Queues a request to set the text/number format of the Range's cells.
 
         :param format: A format instance, such as TextFormat or NumberFormat.
-        :type format: _Format
+        :type format: Format
         :return: This formatting object, so further requests can be queued if
             desired.
         :rtype: RangeTextFormatting
