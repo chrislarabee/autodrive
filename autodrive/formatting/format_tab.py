@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ..core import CellFormatting, GridFormatting, TextFormatting
-from ..interfaces import Color, _Format, OneDRange, TwoDRange
+from ..interfaces import Color, Format, OneDRange, TwoDRange
 from . import cell, grid, text
 
 
@@ -88,7 +88,7 @@ class TabGridFormatting(GridFormatting):
 
 class TabTextFormatting(TextFormatting):
     def apply_format(
-        self, format: _Format, rng: TwoDRange | None = None
+        self, format: Format, rng: TwoDRange | None = None
     ) -> TabTextFormatting:
         """
         Queues a request to set the text/number format of the Range's cells.

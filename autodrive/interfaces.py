@@ -527,7 +527,7 @@ class Color(_Interface[float]):
         }
 
 
-class _Format(_Interface[Any]):
+class Format(_Interface[Any]):
     def __init__(self, format_key: str) -> None:
         """
         Underlying class for text/number formats.
@@ -562,7 +562,7 @@ class _Format(_Interface[Any]):
         return {"userEnteredFormat": {self._format_key: result}}
 
 
-class TextFormat(_Format):
+class TextFormat(Format):
     def __init__(
         self,
         *,
@@ -632,7 +632,7 @@ class TextFormat(_Format):
 # TODO: Add AlignmentFormat?
 
 
-class NumericFormat(_Format):
+class NumericFormat(Format):
     def __init__(self, pattern: str = "") -> None:
         """
         A Google Sheet Number Format, which the value of the cell(s) will be

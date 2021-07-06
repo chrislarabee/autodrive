@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ..core import CellFormatting, GridFormatting, TextFormatting
-from ..interfaces import Color, _Format
+from ..interfaces import Color, Format
 from . import cell, grid, text
 
 
@@ -38,7 +38,7 @@ class RangeGridFormatting(GridFormatting):
 
 
 class RangeTextFormatting(TextFormatting):
-    def apply_format(self, format: _Format) -> RangeTextFormatting:
+    def apply_format(self, format: Format) -> RangeTextFormatting:
         """
         Queues a request to set the text/number format of the Range's cells.
 
