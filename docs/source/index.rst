@@ -6,8 +6,13 @@ Welcome to Autodrive's documentation!
    :caption: Contents:
 
    autodrive
-   modules
 
+.. toctree::
+    :maxdepth: 2
+    :glob:
+    :caption: API Reference:
+
+    source/*
 
 Indices and tables
 ==================
