@@ -4,6 +4,7 @@ venv/
 *.json
 *.pickle
 *.text
+*.txt
 __pycache__
 dist
 docs/build

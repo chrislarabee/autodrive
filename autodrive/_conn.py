@@ -6,6 +6,7 @@ from abc import ABC
 from typing import List, Literal
 
 from google.auth.transport.requests import Request  # type: ignore
+from google.auth.exceptions import RefreshError  # type: ignore
 from google.oauth2.credentials import Credentials  # type: ignore
 from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore
 from googleapiclient.discovery import Resource, build
@@ -87,25 +88,27 @@ class Connection(ABC):
         if not creds and auth_config.token_filepath.exists():
             with open(auth_config.token_filepath, "rb") as token:
                 creds = pickle.load(token)
+        if creds and creds.expired and creds.refresh_token:  # type: ignore
+            try:
+                creds.refresh(Request())  # type: ignore
+            except RefreshError:
+                creds = None
         # If there are no (valid) credentials available, prompt user to log in.
         if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:  # type: ignore
-                creds.refresh(Request())  # type: ignore
+            if auth_config.secrets_config:
+                flow = InstalledAppFlow.from_client_config(  # type: ignore
+                    auth_config.secrets_config, scopes
+                )
+            elif auth_config.creds_filepath.exists():
+                flow = InstalledAppFlow.from_client_secrets_file(  # type: ignore
+                    str(auth_config.creds_filepath), scopes
+                )
             else:
-                if auth_config.secrets_config:
-                    flow = InstalledAppFlow.from_client_config(  # type: ignore
-                        auth_config.secrets_config, scopes
-                    )
-                elif auth_config.creds_filepath.exists():
-                    flow = InstalledAppFlow.from_client_secrets_file(  # type: ignore
-                        str(auth_config.creds_filepath), scopes
-                    )
-                else:
-                    raise FileNotFoundError(
-                        f"Credentials file {auth_config.creds_filepath} could not be "
-                        "found."
-                    )
-                creds = flow.run_local_server(port=0)  # type: ignore
+                raise FileNotFoundError(
+                    f"Credentials file {auth_config.creds_filepath} could not be "
+                    "found."
+                )
+            creds = flow.run_local_server(port=0)  # type: ignore
             # Save the credentials for the next run
             with open(auth_config.token_filepath, "wb") as token:
                 pickle.dump(creds, token)
