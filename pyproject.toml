@@ -24,6 +24,7 @@ mypy = "^0.812"
 Sphinx = "^4.0.2"
 pyment = "^0.3.3"
 sphinx-rtd-theme = "^0.5.2"
+sphinx-autoapi = "^1.8.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

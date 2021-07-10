@@ -5,14 +5,8 @@ Welcome to Autodrive's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   autodrive
+   autoapi/index
 
-.. toctree::
-    :maxdepth: 2
-    :glob:
-    :caption: API Reference:
-
-    source/*
 
 Indices and tables
 ==================
