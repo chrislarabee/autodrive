@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "autodrive"
 version = "0.1.0"
-description = "A simple python library with tools for reading, writing, and formatting Google Sheets via the Google API."
+description = "Simple but robust tool for interacting with the Google Drive and Sheets apis via python."
 authors = ["Chris Larabee"]
 license = "GNU"
 
@@ -11,7 +11,6 @@ google-api-python-client = "^2.0.2"
 google-auth-httplib2 = "^0.1.0"
 google-auth-oauthlib = "^0.4.3"
 jsonlines = "^2.0.0"
-pandas = "^1.2.3"
 google-api-python-client-stubs = "^1.2.0"
 
 [tool.poetry.dev-dependencies]
