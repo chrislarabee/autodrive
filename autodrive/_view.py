@@ -42,14 +42,21 @@ class Formatting:
     """
 
     def __init__(self, parent: Component[Any, Any, Any]):
+        """
+
+        Args:
+            parent (Component[Any, Any, Any]): A Component object.
+
+        """
         self._parent = parent
 
     def add_request(self, request: Dict[str, Any]) -> None:
         """
         Adds the passed request to the Formatting object's parent component.
 
-        :param request: An api-ready request.
-        :type request: Dict[str, Any]
+        Args:
+          request (Dict[str, Any]): An api-ready request.
+
         """
         self._parent.requests.append(request)
 
@@ -59,11 +66,13 @@ class Formatting:
         Formatting object have a TwoDRange attached to them, if one isn't manually
         supplied.
 
-        :param rng: A manually generated TwoDRange, defaults to None
-        :type rng: TwoDRange, optional
-        :return: The passed TwoDRange, or a range generated from the Formatting
-            object's parent Component.
-        :rtype: TwoDRange
+        Args:
+          rng (TwoDRange, optional): A manually generated TwoDRange, defaults to None.
+
+        Returns:
+          TwoDRange: The passed TwoDRange, or a range generated from the Formatting
+          object's parent Component.
+
         """
         return rng if rng else self._parent.range
 
@@ -106,6 +115,19 @@ class GSheetView(ABC):
         sheets_conn: SheetsConnection | None = None,
         autoconnect: bool = True,
     ) -> None:
+        """
+
+        Args:
+            gsheet_id (str): The id string of the target Google Sheet that the View
+                is attached to.
+            auth_config (AuthConfig, optional): Optional custom AuthConfig, defaults
+                to None.
+            sheets_conn (SheetsConnection, optional): Optional manually created
+                SheetsConnection, defaults to None.
+            autoconnect (bool, optional): If you want to instantiate a View without
+                immediately checking your authentication credentials and connection
+                to the Google Sheets api, set this to False, defaults to True.
+        """
         super().__init__()
         if not sheets_conn and autoconnect:
             sheets_conn = SheetsConnection(auth_config=auth_config)
@@ -117,17 +139,21 @@ class GSheetView(ABC):
     @property
     def requests(self) -> List[Dict[str, Any]]:
         """
-        :return: The list of current (uncommitted) requests.
-        :rtype: List[Dict[str, Any]]
+        Returns:
+            List[Dict[str, Any]]: The list of current (uncommitted) requests.
+
         """
         return self._requests
 
     @property
     def conn(self) -> SheetsConnection:
         """
-        :raises NoConnectionError: If the view's connection is null.
-        :return: The view's SheetsConnection.
-        :rtype: SheetsConnection
+        Returns:
+            SheetsConnection: The view's SheetsConnection.
+
+        Raises:
+            NoConnectionError: If the view's connection is null.
+
         """
         if not self._conn:
             raise NoConnectionError(type(self))
@@ -136,9 +162,12 @@ class GSheetView(ABC):
     @property
     def auth(self) -> AuthConfig:
         """
-        :raises NoConnectionError: If the view's auth config is null.
-        :return: The view's AuthConfig.
-        :rtype: AuthConfig
+        Returns:
+            AuthConfig: The view's AuthConfig.
+
+        Raises:
+            NoConnectionError: If the view's auth config is null.
+
         """
         if not self._auth:
             raise NoConnectionError(type(self))
@@ -147,8 +176,9 @@ class GSheetView(ABC):
     @property
     def gsheet_id(self) -> str:
         """
-        :return: The id of the Google Sheet this view is connected to.
-        :rtype: str
+        Returns:
+            str: The id of the Google Sheet this view is connected to.
+
         """
         return self._gsheet_id
 
@@ -157,9 +187,12 @@ class GSheetView(ABC):
         Commits the amassed requests on this view, sending them to the Sheets api
         as a batch update request.
 
-        :raises NoConnectionError: If the view's SheetsConnection is null.
-        :return: The response from the api.
-        :rtype: Dict[str, Any]
+        Returns:
+            Dict[str, Any]: The response from the api.
+
+        Raises:
+            NoConnectionError: If the view's SheetsConnection is null.
+
         """
         if not self._conn:
             raise NoConnectionError(type(self))
@@ -177,14 +210,16 @@ class GSheetView(ABC):
         Parses the dictionary returned by SheetsConnection.get_data and extracts
         only the relevant data.
 
-        :param row_data: The raw data to parse.
-        :type row_data: List[Dict[str, List[Dict[str, Any]]]]
-        :param value_type: The value representation to extract from the raw data,
-            defaults to EffectiveVal
-        :type value_type: GoogleValueType, optional
-        :return: A tuple containing a list of extracted data and another list of
-            extracted formatting information.
-        :rtype: Tuple[List[List[Any]], List[List[Dict[str, Any]]]]
+        Args:
+            row_data (List[Dict[str, List[Dict[str, Any]]]]): The raw data to parse.
+            value_type (GoogleValueType, optional): The value representation to
+                extract from the raw data, defaults to EffectiveVal
+
+        Returns:
+            Tuple[List[List[Any]], List[List[Dict[str, Any]]]]: A tuple containing
+            a list of extracted data and another list of extracted formatting
+            information.
+
         """
         values: List[List[Any]] = []
         formats: List[List[Dict[str, Any]]] = []
@@ -219,16 +254,16 @@ class GSheetView(ABC):
         Fetches data from the view's SheetsConnection for the specified Google
         Sheet and parses it.
 
-        :param gsheet_id: The Google Sheet to fetch data from.
-        :type gsheet_id: str
-        :param rng_str: The range within the Google Sheet to fetch data from.
-        :type rng_str: str
-        :param value_type: The value representation to extract from the raw data,
-            defaults to EffectiveVal
-        :type value_type: GoogleValueType, optional
-        :return: A tuple containing a list of data values and another list of
-            formatting information.
-        :rtype: Tuple[List[List[Any]], List[List[Dict[str, Any]]]]
+        Args:
+            gsheet_id (str): The Google Sheet to fetch data from.
+            rng_str (str: str): The range within the Google Sheet to fetch data from.
+            value_type (GoogleValueType, optional): The value representation to
+                extract from the raw data, defaults to EffectiveVal
+
+        Returns:
+            Tuple[List[List[Any]], List[List[Dict[str, Any]]]]: A tuple containing
+            a list of data values and another list of formatting information.
+
         """
         raw = self.conn.get_data(gsheet_id, [rng_str])
         row_data = raw[terms.TABS_PROP][0][terms.DATA][0][terms.ROWDATA]
@@ -238,12 +273,13 @@ class GSheetView(ABC):
         """
         Generates an update cells request for writing values to the target range.
 
-        :param data: The data to write.
-        :type data: List[List[Any]]
-        :param rng_dict: The range properties to write to.
-        :type rng_dict: Dict[str, int]
-        :return: This Formatting object.
-        :rtype: T
+        Args:
+          data (List[List[Any]]): The data to write.
+          rng_dict (Dict[str, int]): The range properties to write to.
+
+        Returns:
+          T: This Formatting object.
+
         """
         write_values = [
             [self._gen_cell_write_value(val) for val in row] for row in data
@@ -264,13 +300,15 @@ class GSheetView(ABC):
         Converts a python value to its corresponding Google Dtype and wraps it in
         the key-value payload expected by the Sheets api.
 
-        :param python_val: Any value. Only numeric values, booleans, and "formulas"
-            (strings that start with =) will be converted. All other python data
-            will be converted to its string representation.
-        :type python_val: Any
-        :return: A dictionary containing the details the Sheet's api expects when
-            writing data.
-        :rtype: Dict[str, Any]
+        Args:
+            python_val (Any): Any value. Only numeric values, booleans, and
+                "formulas" (strings that start with =) will be converted. All
+                other python data will be converted to its string representation.
+
+        Returns:
+            Dict[str, Any]: A dictionary containing the details the Sheet's api
+            expects when writing data.
+
         """
         dtype: GoogleDtype
         type_ = type(python_val)
@@ -291,11 +329,13 @@ class GSheetView(ABC):
         Generates a list of characters from the Latin alphabet a la gsheet/excel
         headers.
 
-        :param num: The desired length of the list.
-        :type num: int
-        :return: A list containing as many letters and letter combos as desired.
-            Can be used to generate sets up to 676 in length.
-        :rtype: List[str]
+        Args:
+            num (int): The desired length of the list.
+
+        Returns:
+            List[str]: A list containing as many letters and letter combos as
+            desired. Can be used to generate sets up to 676 in length.
+
         """
         a = string.ascii_uppercase
         result: List[str] = list()
@@ -341,91 +381,103 @@ class Component(GSheetView, Generic[FC, FG, FT]):
     @property
     def tab_id(self) -> int:
         """
-        :return: The id of the linked tab.
-        :rtype: int
+        Returns:
+            int: The id of the linked tab.
+
         """
         return self._rng.tab_id
 
     @property
     def range_str(self) -> str:
         """
-        :return: The string representation of the range specified by this Component.
-        :rtype: str
+        str: The string representation of the range specified by this Component.
+
         """
         return str(self._rng)
 
     @property
     def range(self) -> TwoDRange:
         """
-        :return: The TwoDRange representation of the range specified by this
+        Returns:
+            TwoDRange: The TwoDRange representation of the range specified by this
             Component.
-        :rtype: TwoDRange
+
         """
         return self._rng
 
     @property
     def format_grid(self) -> FG:
         """
-        :return: The GridFormatting subclass associated with this Component type.
-        :rtype: FG
+        Returns:
+            FG: The GridFormatting subclass associated with this Component type.
+
         """
         return self._format_grid
 
     @property
     def format_text(self) -> FT:
         """
-        :return: The TextFormatting subclass associated with this Component type.
-        :rtype: FT
+        Returns:
+            FT: The TextFormatting subclass associated with this Component type.
+
         """
         return self._format_text
 
     @property
     def format_cell(self) -> FC:
         """
-        :return: The CellFormatting subclass associated with this Component type.
-        :rtype: FC
+        Returns:
+            FC: The CellFormatting subclass associated with this Component type.
+
         """
         return self._format_cell
 
     @property
     def values(self) -> List[List[Any]]:
         """
-        :return: The fetched data values in this Component's cells.
-        :rtype: List[List[Any]]
+        Returns:
+            List[List[Any]]: The fetched data values in this Component's cells.
+
         """
         return self._values
 
     @values.setter
     def values(self, new_values: List[List[Any]]) -> None:
         """
-        :param new_values: The values to overwrite this Component's current values
-            with.
-        :type new_values: List[List[Any]]
+        Args:
+            new_values (List[List[Any]]): The values to overwrite this Component's
+                current values with.
+
         """
         self._values = new_values
 
     @property
     def formats(self) -> List[List[Dict[str, Any]]]:
         """
-        :return: The fetched formatting properties of this Component's cells.
-        :rtype: List[List[Dict[str, Any]]]
+        Returns:
+            List[List[Dict[str, Any]]]: The fetched formatting properties of this
+            Component's cells.
+
         """
         return self._formats
 
     @formats.setter
     def formats(self, new_formats: List[List[Dict[str, Any]]]) -> None:
         """
-        :param new_formats: The formats to overwrite this Component's current formats
-            with.
-        :type new_formats: List[List[Dict[str, Any]]]
+        Args:
+            new_formats (List[List[Dict[str, Any]]]): The formats to overwrite this
+                Component's current formats with.
+
         """
         self._formats = new_formats
 
     @property
     def data_shape(self) -> Tuple[int, int]:
         """
-        :return: The row length and column width of this Component's data.
-        :rtype: Tuple[int, int]
+        Returns:
+            Tuple[int, int]: The row length and column width of this Component's
+            data.
+
         """
         width = len(self._values[0]) if self._values else 0
         return len(self._values), width

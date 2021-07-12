@@ -15,6 +15,10 @@ from .interfaces import AuthConfig
 
 
 class Connection(ABC):
+    """
+    Base class of more specific Connection objects.
+    """
+
     google_obj_types = {
         "folder": "application/vnd.google-apps.folder",
         "sheet": "application/vnd.google-apps.spreadsheet",
@@ -29,17 +33,15 @@ class Connection(ABC):
         auth_config: AuthConfig | None = None,
     ) -> None:
         """
-        Base class of more specific Connection objects.
 
-        :param api_name: The name of the api to connect to.
-        :type api_name: Literal["sheets", "drive"]
-        :param api_version: The version of the api to connect to.
-        :type api_version: str
-        :param api_scopes: A list of the scope strings to connect with (will fail
-            if credentials don't grant those scopes).
-        :type api_scopes: List[str]
-        :param auth_config: Optional custom AuthConfig object, defaults to None
-        :type auth_config: AuthConfig, optional
+        Args:
+          api_name (Literal["sheets", "drive"]): The name of the api to connect to.
+          api_version (str): The version of the api to connect to.
+          api_scopes (List[str]): A list of the scope strings to connect with
+            (will fail if credentials don't grant those scopes).
+          auth_config (AuthConfig, optional): Optional custom AuthConfig object,
+            defaults to None
+
         """
         self._auth_config = auth_config or AuthConfig()
         self._view = self._connect(api_scopes, api_name, api_version)
@@ -47,9 +49,11 @@ class Connection(ABC):
     @property
     def auth(self) -> AuthConfig:
         """
-        :return: The AuthConfig passed to this Connection object, or the AuthConfig
-            that was generated automatically upon this Connection's instantiation.
-        :rtype: AuthConfig
+        Returns:
+          AuthConfig: The AuthConfig passed to this Connection object, or the
+          AuthConfig that was generated automatically upon this Connection's
+          instantiation.
+
         """
         return self._auth_config
 
@@ -60,26 +64,30 @@ class Connection(ABC):
         auth_config: AuthConfig,
     ) -> Credentials:
         """
-        Uses configuration in passed AuthConfig to attempt to login to Google Drive.
-        The first time it is run it will cause a web page to open up and solicit
-        permission to access the Google Drive as specified in the credentials.
-        Then it will create a token that it will use going forward.
+        Uses configuration in passed AuthConfig to attempt to login to Google
+        Drive. The first time it is run it will cause a web page to open up and
+        solicit permission to access the Google Drive as specified in the
+        credentials. Then it will create a token that it will use going
+        forward.
 
         Note, you can also set environment variables as described in
-        _Connection.get_creds_from_env() and _authenticate will automatically pull
-        those in and will not create a token file.
+        Connection.get_creds_from_env () and _authenticate will automatically
+        pull those in and will not create a token file.
 
-        :param scopes: A list of scopes dictating the limits of the authenticated
-            connection
-        :type scopes: List[str]
-        :param auth_config: An AuthConfig object, either customized or automatically
-            generated.
-        :type auth_config: AuthConfig
-        :raises FileNotFoundError: If no credentials file is found and no creds were
-            passed as environment variables or as a dictionary within AuthConfig.
-        :return: A prepped Credentials object, ready to be slotted into more
-            specific connections.
-        :rtype: Credentials
+        Args:
+          scopes (List[str]): A list of scopes dictating the limits of the
+            authenticated connection.
+          auth_config (AuthConfig): An AuthConfig object, either customized or
+            automatically generated.
+
+        Returns:
+          Credentials: A prepped Credentials object, ready to be slotted into more
+          specific connections.
+
+        Raises:
+          FileNotFoundError: If no credentials file is found and no creds were
+          passed as environment variables or as a dictionary within AuthConfig.
+
         """
         creds = cls.get_creds_from_env()
         # The token file stores the user's access and refresh tokens, and
@@ -120,16 +128,17 @@ class Connection(ABC):
         """
         Generates a connection to the specified Google api.
 
-        :param scopes: A list of scopes dictating the limits of the authenticated
-            connection
-        :type scopes: List[str]
-        :param api: The name of the api to connect to.
-        :type api: Literal["sheets", "drive"]
-        :param version: The version of the api to connect to.
-        :type version: str
-        :return: A Google api client Resource, which is a very general object that
-            facilitates connections to the appropriate Google api.
-        :rtype: Resource
+        Args:
+          scopes (List[str]): A list of scopes dictating the limits of the
+            authenticated connection
+          api (Literal["sheets", "drive"]): The name of the api to connect to.
+          version (str): The version of the api to connect to.
+
+        Returns:
+          Resource: A Google api client Resource, which is a very general (and
+          poorly type annotated/highly dynamic) object that facilitates connections
+          to the appropriate Google api.
+
         """
         creds = self._authenticate(
             scopes,
@@ -144,10 +153,11 @@ class Connection(ABC):
         in environment variables and uses that information to generate a Credentials
         object. Can be used to bypass needing credentials files saved locally.
 
-        :return: A prepped Credentials object, ready to be slotted into more
-            specific connections, if appropriate environment variables were found,
-            otherwise None.
-        :rtype: Credentials, optional
+        Returns:
+          Credentials, optional: A prepped Credentials object, ready to be slotted
+          into more specific connections, if appropriate environment variables were
+          found, otherwise None.
+
         """
         token = os.getenv("AUTODRIVE_TOKEN")
         refresh_token = os.getenv("AUTODRIVE_REFR_TOKEN")

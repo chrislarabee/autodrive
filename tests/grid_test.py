@@ -75,6 +75,8 @@ def test_freeze():
             "fields": "gridProperties(frozenRowCount, frozenColumnCount)",
         }
     }
-    with pytest.raises(ValueError, match="One of rows or columns must not be None"):
+    with pytest.raises(  # type: ignore
+        ValueError, match="One of rows or columns must not be None"
+    ):
         # Set to ignore because this is properly flagged as an error.
         result = grid.freeze(0)  # type: ignore

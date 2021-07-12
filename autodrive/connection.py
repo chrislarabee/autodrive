@@ -9,6 +9,11 @@ from .interfaces import AuthConfig
 
 
 class DriveConnection(Connection):
+    """
+    Provides a connection to the Google Drive api, and methods to send requests
+    to it.
+    """
+
     def __init__(
         self,
         *,
@@ -16,14 +21,13 @@ class DriveConnection(Connection):
         api_version: str = "v3",
     ) -> None:
         """
-        Provides a connection to the Google Drive api, and methods to send requests
-        to it.
 
-        :param auth_config: Optional custom AuthConfig object, defaults to None.
-        :type auth_config: AuthConfig, optional
-        :param api_version: The version of the Drive api to connect to, defaults to
-            "v3".
-        :type api_version: str, optional
+        Args:
+            auth_config (AuthConfig, optional): Optional custom AuthConfig object,
+                defaults to None.
+            api_version (str, optional): The version of the Drive api to connect to,
+                defaults to "v3".
+
         """
         super().__init__(
             api_name="drive",
@@ -42,15 +46,17 @@ class DriveConnection(Connection):
         """
         Searches for a Google Drive Object via the connected api.
 
-        :param obj_name: The name of the object, or part of its name.
-        :type obj_name: str
-        :param obj_type: The type of object to restrict the search to.
-        :type obj_type: Literal["sheet", "folder"]
-        :param shared_drive_id: The id of a Shared Drive to search within, if desired,
-            defaults to None.
-        :type shared_drive_id: str, optional
-        :return: A list of object properties, if any matches are found.
-        :rtype: List[Dict[str, Any]]
+        Args:
+            obj_name (str): The name of the object, or part of its name.
+            obj_type (Literal["sheet", "folder"]): The type of object to restrict
+                the search to.
+            shared_drive_id (str, optional): The id of a Shared Drive to search
+                within, if desired, defaults to None.
+
+        Returns:
+            List[Dict[str, Any]]: A list of object properties, if any matches are
+            found.
+
         """
         query = f"name = '{obj_name}'"
         if obj_type:
@@ -62,7 +68,7 @@ class DriveConnection(Connection):
             response = self._files.list(  # type: ignore
                 q=query,
                 spaces="drive",
-                fields=f"nextPageToken, files({terms.ID},{terms.NAME},{terms.PARENTS})",
+                fields=f"nextPageToken, files ({terms.ID},{terms.NAME},{terms.PARENTS})",
                 pageToken=page_token,
                 **kwargs,
             ).execute()
@@ -88,15 +94,15 @@ class DriveConnection(Connection):
         """
         Creates a file or folder via the Google Drive connection.
 
-        :param obj_name: The desired name of the object to create.
-        :type obj_name: str
-        :param obj_type: The type of object to create.
-        :type obj_type: Literal["sheet", "folder"]
-        :param parent_id: The id of the folder or shared drive to create the object
-            within, defaults to None.
-        :type parent_id: str, optional
-        :return: The new id of the created object.
-        :rtype: str
+        Args:
+            obj_name (str): The desired name of the object to create.
+            obj_type (Literal["sheet", "folder"]): The type of object to create.
+            parent_id (str, optional): The id of the folder or shared drive to
+                create the object within, defaults to None.
+
+        Returns:
+            str: The new id of the created object.
+
         """
         kwargs: Dict[str, List[str]] = (
             dict(parents=[parent_id]) if parent_id else dict()
@@ -113,8 +119,9 @@ class DriveConnection(Connection):
         """
         Deletes the passed Google object id from the connected Google Drive.
 
-        :param object_id: A Google object id.
-        :type object_id: str
+        Args:
+            object_id (str): A Google object id.
+
         """
         self._files.delete(  # type: ignore
             fileId=object_id, supportsAllDrives=True
@@ -128,16 +135,12 @@ class DriveConnection(Connection):
         kwargs.
 
         Args:
-            drive_id: The id of the shared drive to set up access to.
+            drive_id (str, optional): The id of the shared drive, defaults to None.
 
-        Returns: A dictionary, either empty or containing the
-            appropriate kwargs if drive_id is passed.
+        Returns:
+            Dict[str, str | bool]: A dictionary containing the kwargs needed to
+            access the shared drive.
 
-        :param drive_id: The id of the shared drive, defaults to None.
-        :type drive_id: str, optional
-        :return: A dictionary containing the kwargs needed to access the shared
-            drive.
-        :rtype: Dict[str, str | bool]
         """
         kwargs: Dict[str, str | bool] = dict()
         if drive_id:
@@ -149,6 +152,11 @@ class DriveConnection(Connection):
 
 
 class SheetsConnection(Connection):
+    """
+    Provides a connection to the Google Sheets api, and methods to send requests
+    to it.
+    """
+
     def __init__(
         self,
         *,
@@ -156,14 +164,12 @@ class SheetsConnection(Connection):
         api_version: str = "v4",
     ) -> None:
         """
-        Provides a connection to the Google Sheets api, and methods to send requests
-        to it.
+        Args:
+            auth_config (AuthConfig, optional): Optional custom AuthConfig object,
+                defaults to None.
+            api_version (str, optional): The version of the Sheets api to connect
+                to, defaults to "v4".
 
-        :param auth_config: Optional custom AuthConfig object, defaults to None.
-        :type auth_config: AuthConfig, optional
-        :param api_version: The version of the Sheets api to connect to, defaults to
-            "v4".
-        :type api_version: str, optional
         """
         super().__init__(
             api_name="sheets",
@@ -180,12 +186,15 @@ class SheetsConnection(Connection):
         Sends the passed list of request dictionaries to the Sheets api to be
         applied to the spreadsheet_id via batch update.
 
-        :param spreadsheet_id: The id of the Google Sheet to update.
-        :type spreadsheet_id: str
-        :param requests: A list of dictionaries formatted as requests.
-        :type requests: List[Dict[str, Any]]
-        :return: The resulting response from the Sheets api as a dictionary.
-        :rtype: Dict[str, Any]
+        Args:
+            spreadsheet_id (str): The id of the Google Sheet to update.
+            requests (List[Dict[str, Any]]): A list of dictionaries formatted as
+                requests.
+
+        Returns:
+            Dict[str, Any]: The resulting response from the Sheets api as a
+            dictionary.
+
         """
         result: Dict[str, Any] = self._sheets.batchUpdate(  # type: ignore
             spreadsheetId=spreadsheet_id, body={"requests": requests}
@@ -196,11 +205,13 @@ class SheetsConnection(Connection):
         """
         Gets the metadata properties of the indicated Google Sheet.
 
-        :param spreadsheet_id: The id of the Google Sheet to collect properties
-            from.
-        :type spreadsheet_id: str
-        :return: A dictionary of the Google Sheet's properties.
-        :rtype: Dict[str, Any]
+        Args:
+            spreadsheet_id (str): The id of the Google Sheet to collect properties
+                from.
+
+        Returns:
+            Dict[str, Any]: A dictionary of the Google Sheet's properties.
+
         """
         gsheet_props = f"{terms.FILE_PROPS}({terms.FILE_NAME})"
         grid_props = f"{terms.GRID_PROPS}({terms.COL_CT},{terms.ROW_CT})"
@@ -216,13 +227,16 @@ class SheetsConnection(Connection):
         """
         Collects data from cells in the passed spreadsheet.
 
-        :param spreadsheet_id: The id of the Google Sheet to collect data from.
-        :type spreadsheet_id: str
-        :param ranges: A list of range strings (e.g. Sheet1!A1:C3), defaults to None,
-            which prompts get_data to fetch all data from all cells.
-        :type ranges: List[str], optional
-        :return: The collected data from the spreadsheet, raw and unparsed.
-        :rtype: Dict[str, Any]
+        Args:
+            spreadsheet_id (str): The id of the Google Sheet to collect data from.
+            ranges (List[str], optional): A list of range strings
+                (e.g. Sheet1!A1:C3), defaults to None, which prompts get_data to
+                fetch all data from all cells.
+
+        Returns:
+            Dict[str, Any]: The collected data from the spreadsheet, raw and
+            unparsed.
+
         """
         data_values = f"{UserEnteredVal},{FormattedVal},{EffectiveVal}"
         formatting_values = f"{EffectiveFmt}"

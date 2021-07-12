@@ -16,10 +16,12 @@ class String(metaclass=GoogleDtype):
         """
         Converts a string into a string.
 
-        :param value: Any string.
-        :type value: str
-        :return: The passed value as a string.
-        :rtype: str
+        Args:
+            value (str): Any string.
+
+        Returns:
+            str: The passed value as a string.
+
         """
         return cls.python_type(value)
 
@@ -37,10 +39,12 @@ class Formula(metaclass=GoogleDtype):
         """
         Converts a string into a formula (string).
 
-        :param value: Any string.
-        :type value: str
-        :return: The passed value as a string.
-        :rtype: str
+        Args:
+            value (str): Any string.
+
+        Returns:
+            str: The passed value as a string.
+
         """
         return cls.python_type(value)
 
@@ -59,10 +63,12 @@ class Number(metaclass=GoogleDtype):
         """
         Converts a string into an integer (if it has no decimal point) or float.
 
-        :param value: Any numeric string.
-        :type value: str
-        :return: The passed value as an integer or float.
-        :rtype: float | int
+        Args:
+            value (str): Any numeric string.
+
+        Returns:
+            float | int: The passed value as an integer or float.
+
         """
         if value.isnumeric():
             return int(value)
@@ -83,11 +89,13 @@ class Boolean(metaclass=GoogleDtype):
         """
         Converts a string into a boolean.
 
-        :param value: Any string.
-        :type value: str
-        :return: False if the string is some variation of FALSE, otherwise True for
+        Args:
+            value (str): Any string.
+
+        Returns:
+            bool: False if the string is some variation of FALSE, otherwise True for
             all other strings.
-        :rtype: bool
+
         """
         if value.lower() == "false":
             return False

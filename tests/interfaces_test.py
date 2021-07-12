@@ -13,7 +13,9 @@ class TestRangeInterface:
         assert _RangeInterface._parse_range_str("A1:C50") == (None, "A1", "C50")
         assert _RangeInterface._parse_range_str("A1:A") == (None, "A1", "A")
         assert _RangeInterface._parse_range_str("A1") == (None, "A1", None)
-        with pytest.raises(ParseRangeError, match="parb is not a valid range."):
+        with pytest.raises(  # type: ignore
+            ParseRangeError, match="parb is not a valid range."
+        ):
             _RangeInterface._parse_range_str("parb")
 
     def test_that_it_can_parse_cell_strings(self):

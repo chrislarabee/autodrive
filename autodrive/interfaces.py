@@ -21,6 +21,11 @@ class ParseRangeError(Exception):
 
 
 class AuthConfig:
+    """
+    Optional custom configuration for Autodrive's authentication processes using
+    your Google api credentials.
+    """
+
     def __init__(
         self,
         secrets_config: Dict[str, Any] | None = None,
@@ -28,23 +33,21 @@ class AuthConfig:
         creds_filepath: str | Path = DEFAULT_CREDS,
     ) -> None:
         """
-        Optional custom configuration for Autodrive's authentication processes using
-        your Google api credentials.
+        Args:
+            secrets_config(Dict[str, Any], optional): The dictionary of
+                configuration used by a google.oath2.credentials Credentials
+                object. Generally only useful if for some reason you are reading
+                in your own token file, defaults to None.
+            token_filepath(str, optional): The filepath to your gdrive_token
+                pickle file. This doesn't have to exist at time of authentication,
+                and will be saved to this path when the authorization flow completes,
+                defaults to DEFAULT_TOKEN, which is "gdrive_token.pickle" in your
+                cwd.
+            creds_filepath(str, optional): The filepath to your api credentials
+                json file. This file *does* need to exist at time of authentication,
+                unless you pass a secrets_config dictionary, defaults to
+                DEFAULT_CREDS, which is "credentials.json" from your cwd.
 
-        :param secrets_config: The dictionary of configuration used by a
-            google.oath2.credentials Credentials object. Generally only useful if
-            for some reason you are reading in your own token file, defaults to None.
-        :type secrets_config: Dict[str, Any], optional
-        :param token_filepath: The filepath to your gdrive_token pickle file. This
-            doesn't have to exist at time of authentication, and will be saved to
-            this path when the authorization flow completes, defaults to DEFAULT_TOKEN,
-            which is "gdrive_token.pickle" in your cwd.
-        :type token_filepath: str, optional
-        :param creds_filepath: The filepath to your api credentials json file. This
-            file *does* need to exist at time of authentication, unless you pass a
-            secrets_config dictionary, defaults to DEFAULT_CREDS, which is
-            "credentials.json" from your cwd.
-        :type creds_filepath: str, optional
         """
         self.secrets_config = secrets_config
         self._token_filepath = Path(token_filepath)
@@ -53,16 +56,18 @@ class AuthConfig:
     @property
     def token_filepath(self) -> Path:
         """
-        :return: The Path to your token pickle file.
-        :rtype: Path
+        Returns:
+            Path: The Path to your token pickle file.
+
         """
         return self._token_filepath
 
     @property
     def creds_filepath(self) -> Path:
         """
-        :return: The Path to your credentials json file.
-        :rtype: Path
+        Returns:
+            Path: The Path to your credentials json file.
+
         """
         return self._creds_filepath
 
@@ -109,20 +114,19 @@ class _RangeInterface(_Interface[int]):
         Reconstructs a standardized range string (Sheet1!A1:B3) from the passed
         properties.
 
-        :param start_row: 0-based row index for the first row in the range, defaults
-            to 0.
-        :type start_row: Optional[int], optional
-        :param end_row: 0-based row index for the row after the range, defaults to
-            None.
-        :type end_row: Optional[int], optional
-        :param start_col: 0-based column index for the first column in the range,
-            defaults to 0.
-        :type start_col: Optional[int], optional
-        :param end_col: 0-based column index for the column after the range, defaults
-            to 0.
-        :type end_col: Optional[int], optional
-        :return: A string in the format (tab_name!start_cell:end_cell)
-        :rtype: str
+        Args:
+            start_row(Optional[int], optional): 0-based row index for the first
+                row in the range, defaults to 0.
+            end_row(Optional[int], optional): 0-based row index for the row after
+                the range, defaults to None.
+            start_col(Optional[int], optional): 0-based column index for the first
+                column in the range, defaults to 0.
+            end_col(Optional[int], optional): 0-based column index for the column
+                after the range, defaults to 0.
+
+        Returns:
+            str: A string in the format (tab_name!start_cell:end_cell)
+
         """
         start_letter = ""
         end_letter = ""
@@ -138,13 +142,17 @@ class _RangeInterface(_Interface[int]):
         Parses a range string (Sheet1:A1:B3) into its component groups ("Sheet1",
         "A1", "B3").
 
-        :param rng: The range string, which must at least be one cell coordinate (A1),
-            which will be returned as the start cell.
-        :type rng: str
-        :raises ParseRangeError: If the range is invalid.
-        :return: The sheet title (if present), a start cell, and an end cell (if
-            present).
-        :rtype: Tuple[Optional[str], str, Optional[str]]
+        Args:
+            rng(str): The range string, which must at least be one cell coordinate
+                (A1), which will be returned as the start cell.
+
+        Returns:
+            Tuple[Optional[str], str, Optional[str]]: The sheet title (if present),
+                a start cell, and an end cell (if present).
+
+        Raises:
+            ParseRangeError: If the range is invalid.
+
         """
         result = re.match(r"(?:(.*)!)?([A-Z]+\d+?)(?::([A-Z]*\d*))?", rng)
         if result:
@@ -158,11 +166,16 @@ class _RangeInterface(_Interface[int]):
         """
         Parses an individual cell string (A1) into its component strings ("A", "1")
 
-        :param cell_str: The cell string, which must at least have a column letter.
-        :type cell_str: str
-        :raises ParseRangeError: If the range is invalid.
-        :return: The column letter and the row number.
-        :rtype: Tuple[str, Optional[str]]
+        Args:
+            cell_str(str: str): The cell string, which must at least have a
+                column letter.
+
+        Returns:
+            Tuple[str, Optional[str]]: The column letter and the row number.
+
+        Raises:
+            ParseRangeError: If the range is invalid.
+
         """
         result = re.match(r"([A-Z]+)(\d+)?", cell_str)
         if result:
@@ -177,10 +190,13 @@ class _RangeInterface(_Interface[int]):
         Parses the passed cell string (A1) and returns its numeric (0-based) indices
         (0, 0)
 
-        :param cell_str: The cell string.
-        :type cell_str: str
-        :return: The column index and the row index (if present).
-        :rtype: Tuple[int, Optional[int]]
+        Args:
+            cell_str(str: str): The cell string.
+
+        Returns:
+            Tuple[int, Optional[int]]: The column index and the row index (if
+            present).
+
         """
         col, row = cls._parse_cell_str(cell_str)
         col_idx = cls._convert_alpha_col_to_idx(col)
@@ -193,10 +209,12 @@ class _RangeInterface(_Interface[int]):
         Converts a string column identifier (A, B, C, ...Z, AA, AAA, etc) into a
         (0 based) numeric index.
 
-        :param alpha_col: A letter or set of letters.
-        :type alpha_col: str
-        :return: The numeric representation of the alpha_col's index.
-        :rtype: int
+        Args:
+            alpha_col(str): A letter or set of letters.
+
+        Returns:
+            int: The numeric representation of the alpha_col's index.
+
         """
         values: List[int] = []
         for i, a in enumerate(alpha_col, start=1):  # type: ignore
@@ -210,10 +228,12 @@ class _RangeInterface(_Interface[int]):
         """
         Converts a (0-based) index into a string column identifier.
 
-        :param idx: A (0-based) index value.
-        :type idx: int
-        :return: The string representation of the idx's position.
-        :rtype: str
+        Args:
+            idx(int): A (0-based) index value.
+
+        Returns:
+            str: The string representation of the idx's position.
+
         """
         chars: List[str] = []
         col_num = idx + 1
@@ -236,17 +256,17 @@ class _RangeInterface(_Interface[int]):
         the end user to supply strings or integers as desired to the Ranges, and
         also allows them to use 0-based indices or not.
 
+        Args:
+            idx(str | int, optional): An index (optionally 0-based) or a string
+                column representation, defaults to None.
+            base0_idxs(bool, optional): Set to True if passing 0-based indices,
+                otherwise will assume it needs to adjust them. defaults to False.
+            mod(int, optional): The value by which to adjust non-0-based indices,
+                defaults to 1.
 
-        :param idx: An index (optionally 0-based) or a string column representation,
-            defaults to None.
-        :type idx: str | int, optional
-        :param base0_idxs: Set to True if passing 0-based indices, otherwise will
-            assume it needs to adjust them. defaults to False
-        :type base0_idxs: bool, optional
-        :param mod: The value by which to adjust non-0-based indices, defaults to 1.
-        :type mod: int, optional
-        :return: A 0-based numeric representation of the passed index.
-        :rtype: Optional[int]
+        Returns:
+            Optional[int]: A 0-based numeric representation of the passed index.
+
         """
         adj = 0 if base0_idxs else mod
         result = None
@@ -258,6 +278,11 @@ class _RangeInterface(_Interface[int]):
 
 
 class OneDRange(_RangeInterface):
+    """
+    A one-dimensional range (i.e. a range with only one axis, like a row range
+    or a column range).
+    """
+
     def __init__(
         self,
         tab_id: int,
@@ -269,25 +294,22 @@ class OneDRange(_RangeInterface):
         column: bool = False,
     ) -> None:
         """
-        A one-dimensional range (i.e. a range with only one axis, like a row range
-        or a column range).
 
-        :param tab_id: The tab id this range resides in.
-        :type tab_id: int
-        :param start_idx: The first column/row in the range, assumed to not be 0-based
-            if it's an integer (row), defaults to None.
-        :type start_idx: str | int, optional
-        :param end_idx: The last column/row in the range, assumed to not be
-            0-based if it's an integer (row), defaults to None.
-        :type end_idx: str | int, optional
-        :param tab_title: The name of the tab this range resides in, defaults to None.
-        :type tab_title: str, optional
-        :param base0_idxs: Set to True if you'd like to pass 0-based indices to
-            start_idx and end_idx params, above, defaults to False.
-        :type base0_idxs: bool, optional
-        :param column: Set to True if this OneDRange is a column range and you supplied
-            the column indexes as integers, defaults to False.
-        :type column: bool, optional
+        Args:
+            tab_id(int): The tab id this range resides in.
+            start_idx(str | int, optional): The first column/row in the range,
+                assumed to not be 0-based if it's an integer (row), defaults to
+                None.
+            end_idx(str | int, optional): The last column/row in the range,
+                assumed to not be 0-based if it's an integer (row), defaults to
+                None.
+            tab_title(str, optional): The name of the tab this range resides in,
+                defaults to None.
+            base0_idxs(bool, optional): Set to True if you'd like to pass 0-based
+                indices to start_idx and end_idx params, above, defaults to False.
+            column(bool, optional): Set to True if this OneDRange is a column range
+                and you supplied the column indexes as integers, defaults to False.
+
         """
         super().__init__(tab_id, tab_title)
         self.start_idx = self._parse_idx(start_idx, base0_idxs, -1)
@@ -300,9 +322,10 @@ class OneDRange(_RangeInterface):
 
     def to_dict(self) -> Dict[str, int]:
         """
-        :return: Outputs the OneDRange as a dictionary of properties usable in
-            generating an api request to affect the target range of cells.
-        :rtype: Dict[str, int]
+        Returns:
+            Dict[str, int]: Outputs the OneDRange as a dictionary of properties
+            usable in generating an api request to affect the target range of cells.
+
         """
         result = {terms.TAB_ID: self.tab_id}
         # All of these must be is not None because any of them can be 0:
@@ -327,41 +350,49 @@ class OneDRange(_RangeInterface):
     @property
     def start_row(self) -> int:
         """
-        :return: The start_idx. Used to make OneDRanges and TwoDRanges
+        Returns:
+            int: The start_idx. Used to make OneDRanges and TwoDRanges
             interchangeable.
-        :rtype: int
+
         """
         return self.start_idx or 0
 
     @property
     def end_row(self) -> int:
         """
-        :return: The end_idx. Used to make OneDRanges and TwoDRanges
+        Returns:
+            int: The end_idx. Used to make OneDRanges and TwoDRanges
             interchangeable.
-        :rtype: int
+
         """
         return self.end_idx + 1 if self.end_idx else 0
 
     @property
     def start_col(self) -> int:
         """
-        :return: The start_idx. Used to make OneDRanges and TwoDRanges
+        Returns:
+            int: The start_idx. Used to make OneDRanges and TwoDRanges
             interchangeable.
-        :rtype: int
+
         """
         return self.start_idx or 0
 
     @property
     def end_col(self) -> int:
         """
-        :return: The end_idx. Used to make OneDRanges and TwoDRanges
+        Returns:
+            int: The end_idx. Used to make OneDRanges and TwoDRanges
             interchangeable.
-        :rtype: int
+
         """
         return self.end_idx + 1 if self.end_idx else 0
 
 
 class TwoDRange(_RangeInterface):
+    """
+    A two-dimensional range (i.e. a range with two axes).
+    """
+
     def __init__(
         self,
         tab_id: int,
@@ -375,31 +406,25 @@ class TwoDRange(_RangeInterface):
         tab_title: str | None = None,
     ) -> None:
         """
-        A two-dimensional range (i.e. a range with two axes).
 
-        :param tab_id: The tab id this range resides in.
-        :type tab_id: int
-        :param start_row: The first row in the range, assumed to not be 0-based,
-            defaults to None
-        :type start_row: int, optional
-        :param end_row: The last row in the range, assumed to not be 0-based,
-            defaults to None
-        :type end_row: int, optional
-        :param start_col: The first column in the range, assumed to not be 0-based
-            if it's an integer, defaults to None
-        :type start_col: int | str, optional
-        :param end_col: The last column in the range, assumed to not be 0-based if
-            it's an integer, defaults to None
-        :type end_col: int | str, optional
-        :param range_str: A range string (e.g. Sheet1!A1:B3), which can be passed
-            instead of specifying the start/end_row and start/end_col, defaults to
-            None.
-        :type range_str: str, optional
-        :param base0_idxs: Set to True if you'd like to pass 0-based indices to
-            start/end_row and start/end_col, defaults to False.
-        :type base0_idxs: bool, optional
-        :param tab_title: The name of the tab this range resides in, defaults to None
-        :type tab_title: str, optional
+        Args:
+            tab_id(int): The tab id this range resides in.
+            start_row(int, optional): The first row in the range, assumed to not
+                be 0-based, defaults to None.
+            end_row(int, optional): The last row in the range, assumed to not be
+                0-based, defaults to None.
+            start_col(int | str, optional): The first column in the range, assumed
+                to not be 0-based if it's an integer, defaults to None.
+            end_col(int | str, optional): The last column in the range, assumed to
+                not be 0-based if it's an integer, defaults to None.
+            range_str(str: str, optional): A range string (e.g. Sheet1!A1:B3),
+                which can be passed instead of specifying the start/end_row and
+                start/end_col, defaults to None.
+            base0_idxs(bool, optional): Set to True if you'd like to pass 0-based
+                indices to start/end_row and start/end_col, defaults to False.
+            tab_title(str, optional): The name of the tab this range resides in,
+                defaults to None.
+
         """
         super().__init__(tab_id, tab_title)
         if range_str:
@@ -426,8 +451,9 @@ class TwoDRange(_RangeInterface):
     @property
     def row_range(self) -> OneDRange:
         """
-        :return: The TwoDRange's row range as a OneDRange.
-        :rtype: OneDRange
+        Returns:
+            OneDRange: The TwoDRange's row range as a OneDRange.
+
         """
         return OneDRange(
             self.tab_id,
@@ -440,8 +466,9 @@ class TwoDRange(_RangeInterface):
     @property
     def col_range(self) -> OneDRange:
         """
-        :return: The TwoDRange's column range as a OneDRange.
-        :rtype: OneDRange
+        Returns:
+            OneDRange: The TwoDRange's column range as a OneDRange.
+
         """
         return OneDRange(
             self.tab_id,
@@ -460,9 +487,10 @@ class TwoDRange(_RangeInterface):
 
     def to_dict(self) -> Dict[str, int]:
         """
-        :return: Outputs the TwoDRange as a dictionary of properties usable in
-            generating an api request to affect the target range of cells.
-        :rtype: Dict[str, int]
+        Returns:
+            Dict[str, int]: Outputs the TwoDRange as a dictionary of properties
+            usable in generating an api request to affect the target range of cells.
+
         """
         result = {terms.TAB_ID: self.tab_id}
         # All of these must be is not None because any of them can be 0:
@@ -481,6 +509,10 @@ NT = TypeVar("NT", int, float)
 
 
 class Color(_Interface[float]):
+    """
+    An RGBA color value.
+    """
+
     def __init__(
         self,
         red: int | float = 0,
@@ -489,20 +521,21 @@ class Color(_Interface[float]):
         alpha: int | float = 100,
     ) -> None:
         """
-        An RGBA color value.
 
-        :param red: Either an integer from 0 to 255 (from which a float value will
-            be calculated), or the float representation of same. defaults to 0
-        :type red: int | float, optional
-        :param green: Either an integer from 0 to 255 (from which a float value will
-            be calculated), or the float representation of same. defaults to 0
-        :type green: int | float, optional
-        :param blue: Either an integer from 0 to 255 (from which a float value will
-            be calculated), or the float representation of same. defaults to 0
-        :type blue: int | float, optional
-        :param alpha: Either an integer from 0 to 100 (from which a float value will
-            be calculated), or the float representation of same. defaults to 100
-        :type alpha: int, optional
+        Args:
+            red(int | float, optional): Either an integer from 0 to 255 (from
+                which a float value will be calculated), or the float representation
+                of same. defaults to 0.
+            green(int | float, optional): Either an integer from 0 to 255 (from
+                which a float value will be calculated), or the float representation
+                of same. defaults to 0.
+            blue(int | float, optional): Either an integer from 0 to 255 (from
+                which a float value will be calculated), or the float representation
+                of same. defaults to 0.
+            alpha(int, optional): Either an integer from 0 to 100 (from which a
+                float value will be calculated), or the float representation of
+                same. defaults to 100.
+
         """
         self.red = red if isinstance(red, float) else red / 255
         self.green = green if isinstance(green, float) else green / 255
@@ -515,9 +548,11 @@ class Color(_Interface[float]):
 
     def to_dict(self) -> Dict[str, float]:
         """
-        :return: Outputs the Color as a dictionary of properties usable in generating
-            an api request to affect the color of text or cell background.
-        :rtype: Dict[str, float]
+        Returns:
+            Dict[str, float]: Outputs the Color as a dictionary of properties
+            usable in generating an api request to affect the color of text or
+            cell background.
+
         """
         return {
             "red": self.red,
@@ -528,21 +563,25 @@ class Color(_Interface[float]):
 
 
 class Format(_Interface[Any]):
+    """
+    Underlying class for text/number formats.
+    """
+
     def __init__(self, format_key: str) -> None:
         """
-        Underlying class for text/number formats.
+        Args:
+            format_key(str): The format key as dictated by the Google Sheets api.
 
-        :param format_key: The format key as dictated by the Google Sheets api.
-        :type format_key: str
         """
         self._format_key = format_key
 
     @property
     def format_key(self) -> str:
         """
-        :return: The format's Google Sheets api key, used to generate the
+        Returns:
+            str: The format's Google Sheets api key, used to generate the
             userEnteredFormat value.
-        :rtype: str
+
         """
         return self._format_key
 
@@ -554,15 +593,21 @@ class Format(_Interface[Any]):
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        :return: Outputs the Format as a dictionary of properties usable in generating
-            an api request to affect the text/number format of one or more cells.
-        :rtype: Dict[str, Any]
+        Returns:
+            Dict[str, Any]: Outputs the Format as a dictionary of properties
+            usable in generating an api request to affect the text/number format
+            of one or more cells.
+
         """
         result = self._fmt_contents()
         return {"userEnteredFormat": {self._format_key: result}}
 
 
 class TextFormat(Format):
+    """
+    Provides parameters available in updating the text formatting of a cell.
+    """
+
     def __init__(
         self,
         *,
@@ -575,26 +620,21 @@ class TextFormat(Format):
         strikethrough: bool | None = None,
     ) -> None:
         """
-        Available parameters available in updating the text formatting of a cell.
+        Args:
+            font(str, optional): The name of a font to change to, defaults to None.
+            color(Color, optional): The Color properties to apply to the text,
+                defaults to None.
+            font_size(int, optional): The size to apply to the text, defaults to
+                None.
+            bold(bool, optional): Whether to turn bold on (True) or off (False),
+                defaults to None, for unchanged.
+            italic(bool, optional): Whether to turn italic on (True) or off (False),
+                defaults to None, for unchanged.
+            underline(bool, optional): Whether to turn underline on (True) or off
+                (False), defaults to None, for unchanged.
+            strikethrough(bool, optional): Whether to turn strikethrough on (True)
+                or off (False), defaults to None, for unchanged.
 
-        :param font: The name of a font to change to, defaults to None.
-        :type font: str, optional
-        :param color: The Color properties to apply to the text, defaults to None
-        :type color: Color, optional
-        :param font_size: The size to apply to the text, defaults to None
-        :type font_size: int, optional
-        :param bold: Whether to turn bold on (True) or off (False),
-            defaults to None, for unchanged.
-        :type bold: bool, optional
-        :param italic: Whether to turn italic on (True) or off (False),
-            defaults to None, for unchanged.
-        :type italic: bool, optional
-        :param underline: Whether to turn underline on (True) or off (False),
-            defaults to None, for unchanged.
-        :type underline: bool, optional
-        :param strikethrough: Whether to turn strikethrough on (True) or off (False),
-            defaults to None, for unchanged.
-        :type strikethrough: bool, optional
         """
         super().__init__("textFormat")
         self.font = font
@@ -607,8 +647,10 @@ class TextFormat(Format):
 
     def _fmt_contents(self) -> Dict[str, bool | str | int | Dict[str, float]]:
         """
-        :return: The TextFormat as a request-ready dictionary.
-        :rtype: Dict[str, bool | str | int | Dict[str, float]]
+        Returns:
+            Dict[str, bool | str | int | Dict[str, float]]: The TextFormat as a
+            request-ready dictionary.
+
         """
         result: Dict[str, bool | str | int | Dict[str, float]] = {}
         if self.bold is not None:
@@ -633,13 +675,17 @@ class TextFormat(Format):
 
 
 class NumericFormat(Format):
+    """
+    A Google Sheet Number Format, which the value of the cell(s) will be parsed
+    into.
+    """
+
     def __init__(self, pattern: str = "") -> None:
         """
-        A Google Sheet Number Format, which the value of the cell(s) will be
-        parsed into.
+        Args:
+            pattern(str, optional): The name of a Google Sheet Number Format,
+                defaults to "".
 
-        :param pattern: The name of a Google Sheet Number Format, defaults to "".
-        :type pattern: str, optional
         """
         super().__init__("numberFormat")
         self.type = "NUMBER"
@@ -647,8 +693,9 @@ class NumericFormat(Format):
 
     def _fmt_contents(self) -> Dict[str, str]:
         """
-        :return: The NumericFormat as a request-ready dictionary.
-        :rtype: Dict[str, str]
+        Returns:
+            Dict[str, str]: The NumericFormat as a request-ready dictionary.
+
         """
         return {"type": self.type, "pattern": self.pattern}
 

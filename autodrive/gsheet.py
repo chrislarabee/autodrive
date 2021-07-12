@@ -11,6 +11,11 @@ from .tab import Tab
 
 
 class GSheet(GSheetView):
+    """
+    Provides a connection to a single Google Sheet and access to its properties
+    and Tabs.
+    """
+
     def __init__(
         self,
         gsheet_id: str,
@@ -22,26 +27,23 @@ class GSheet(GSheetView):
         autoconnect: bool = True,
     ) -> None:
         """
-        Provides a connection to a single GoogleSheet and access to its properties
-        and Tabs.
+        Args:
+            gsheet_id (str): The id string of the target Google Sheet; can be found
+                in the link to the Google Sheet.
+            title (str, optional): The name of the Google Sheet, defaults to None.
+            tabs (List[Tab], optional): A list of Tabs attached to the Google Sheet.
+                You should probably manage Tabs with GSheet.fetch () or by getting
+                the GSheet directly from a Drive, rather than using this parameter,
+                defaults to None.
+            auth_config (AuthConfig, optional): Optional custom AuthConfig object,
+                defaults to None.
+            sheets_conn (SheetsConnection, optional): Optional manually created
+                SheetsConnection, defaults to None.
+            autoconnect (bool, optional): If you want to instantiate a GSheet
+                without immediately checking your authentication credentials and
+                connecting to the Google Sheets api, set this to False, defaults to
+                True.
 
-        :param gsheet_id: The id string of the target Google Sheet; can be found in
-            the link to the Google Sheet.
-        :type gsheet_id: str
-        :param title: The name of the Google Sheet, defaults to None
-        :type title: str, optional
-        :param tabs: A list of Tabs attached to the Google Sheet. You should probably
-            manage Tabs with GSheet.fetch() or by getting the GSheet directly from a
-            Drive, defaults to None
-        :type tabs: List[Tab], optional
-        :param auth_config: Optional custom AuthConfig object, defaults to None
-        :type auth_config: AuthConfig, optional
-        :param sheets_conn: Optional manually created SheetsConnection, defaults to None
-        :type sheets_conn: SheetsConnection, optional
-        :param autoconnect: If you want to instantiate a GSheet without immediately
-            checking your authentication credentials and connecting to the Google Sheets
-            api, set this to False, defaults to True
-        :type autoconnect: bool, optional
         """
         super().__init__(
             gsheet_id=gsheet_id,
@@ -57,9 +59,10 @@ class GSheet(GSheetView):
         """
         List of accumulated (uncommitted) requests on this GSheet.
 
-        :return: List of update request dictionaries that have been created for this
-            GSheet.
-        :rtype: List[Dict[str, Any]]
+        Returns:
+            List[Dict[str, Any]]: List of update request dictionaries that have
+            been created for this GSheet.
+
         """
         return self._requests
 
@@ -68,8 +71,9 @@ class GSheet(GSheetView):
         """
         Dictionary of fetched Tabs on this GSheet by title.
 
-        :return: Tab titles as keys and corresponding Tabs as values.
-        :rtype: Dict[str, Tab]
+        Returns:
+            Dict[str, Tab]: Tab titles as keys and corresponding Tabs as values.
+
         """
         return {tab.title: tab for tab in self._tabs}
 
@@ -78,8 +82,10 @@ class GSheet(GSheetView):
         """
         The name of the GSheet.
 
-        :return: The name of the GSheet, or None if its name hasn't been fetched.
-        :rtype: Optional[str]
+        Returns:
+            Optional[str]: The name of the GSheet, or None if its name hasn't been
+            fetched.
+
         """
         return self._title
 
@@ -88,8 +94,9 @@ class GSheet(GSheetView):
         Gets the latest metadata from the API for this GSheet. Populates title and
         tab properties.
 
-        :return: This GSheet
-        :rtype: GSheet
+        Returns:
+          GSheet: This GSheet
+
         """
         properties = self.conn.get_properties(self._gsheet_id)
         name, sheets = self._parse_properties(properties)
@@ -114,11 +121,15 @@ class GSheet(GSheetView):
         """
         Adds a Tab to the GSheet.
 
-        :param tab: The Tab instance you want to add.
-        :type tab: Tab
-        :raises ValueError: If the GSheet already has a Tab with that title.
-        :return: This Gsheet.
-        :rtype: GSheet
+        Args:
+            tab (Tab): The Tab instance you want to add.
+
+        Returns:
+            GSheet: This Gsheet.
+
+        Raises:
+            ValueError: If the GSheet already has a Tab with that title.
+
         """
         if tab.title in self.tabs.keys():
             raise ValueError(f"GSheet already has tab with title {tab.title}")
@@ -150,22 +161,25 @@ class GSheet(GSheetView):
         rng: TwoDRange | OneDRange | None = None,
     ) -> GSheet:
         """
-        Adds a request to write data. GSheet.commit() to commit the requests.
+        Adds a request to write data. GSheet.commit () to commit the requests.
 
-        :param data: The data to write. Each list in the passed data list is a row,
-            with each value in that sublist being a column.
-        :type data: List[List[Any]]
-        :param to_tab: The name of the tab to write to, defaults to None, which will
-            write to whatever tab is first in the Sheet.
-        :type to_tab: str, optional
-        :param rng: A TwoDRange, to which the data will be written, starting with the
-            top-left-most cell in the range, defaults to None, which will write to the
-            top-left-most cell in the passed tab, or the first tab.
-        :type rng: TwoDRange, optional
-        :raises KeyError: If the passed tab name (to_tab) isn't present in the GSheet's
+        Args:
+            data (List[List[Any]]): The data to write. Each list in the passed
+                data list is a row, with each value in that sublist being a column.
+            to_tab (str, optional): The name of the tab to write to, defaults to
+                None, which will write to whatever tab is first in the Sheet.
+            rng (TwoDRange, optional): A TwoDRange, to which the data will be
+                written, starting with the top-left-most cell in the range,
+                defaults to None, which will write to the top-left-most cell in
+                the passed tab, or the first tab.
+
+        Returns:
+            GSheet: This GSheet.
+
+        Raises:
+            KeyError: If the passed tab name (to_tab) isn't present in the GSheet's
             current tabs property.
-        :return: This GSheet.
-        :rtype: GSheet
+
         """
         tab = self.tabs.get(to_tab) if to_tab else self._tabs[0]
         if not tab:
@@ -181,17 +195,23 @@ class GSheet(GSheetView):
         """
         Gets the data from the cells of the GSheet.
 
-        :param tab: The name of the tab, or its (0-based) index (from left to write),
-            defaults to None, which will collect data from the first tab in the Sheet.
-        :type tab: str | int, optional
-        :param rng: The specific range to fetch data from, defaults to None, for all
-            data in the target tab.
-        :type rng: TwoDRange | OneDRange, optional
-        :raises KeyError: If the passed tab name is not found in this GSheet's tabs.
-        :raises TypeError: If anything other than the displayed types is passed for
+        Args:
+            tab (str | int, optional): The name of the tab, or its (0-based) index
+                (from left to right), defaults to None, which will collect data from
+                the first tab in the Sheet.
+            rng (TwoDRange | OneDRange, optional): The specific range to fetch data
+                from, defaults to None, for all data in the target tab.
+            tab: str | int | None:  (Default value = None)
+            rng: TwoDRange | OneDRange | None:  (Default value = None)
+
+        Returns:
+            GSheet: This GSheet.
+
+        Raises:
+            KeyError: If the passed tab name is not found in this GSheet's tabs.
+            TypeError: If anything other than the displayed types is passed for
             the tab parameter.
-        :return: This GSheet.
-        :rtype: GSheet
+
         """
         if isinstance(tab, str):
             tab_ = self.tabs.get(tab)
@@ -201,7 +221,7 @@ class GSheet(GSheetView):
             tab_ = self._tabs[tab or 0]
         else:
             raise TypeError(
-                f"tab must be a string, integer, or None. type = {type(tab)}"
+                f"tab must be a string, integer, or None. type = {type (tab)}"
             )
         if not rng:
             rng = tab_.two_d_range()
@@ -226,8 +246,9 @@ class GSheet(GSheetView):
         """
         Gets the keys (tab titles) for the fetched tabs on this GSheet.
 
-        :return: The tab titles on this GSheet.
-        :rtype: KeysView[str]
+        Returns:
+            KeysView[str]: The tab titles on this GSheet.
+
         """
         return self.tabs.keys()
 
@@ -235,8 +256,9 @@ class GSheet(GSheetView):
         """
         Gets the values (Tabs) for the fetched tabs on this GSheet.
 
-        :return: The Tabs on this GSheet.
-        :rtype: ValuesView[Tab]
+        Returns:
+            ValuesView[Tab]: The Tabs on this GSheet.
+
         """
         return self.tabs.values()
 

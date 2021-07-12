@@ -13,6 +13,10 @@ from .interfaces import AuthConfig, TwoDRange
 
 
 class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatting]):
+    """
+    Provides a connection to the data in a specific range in a Google Sheet Tab.
+    """
+
     def __init__(
         self,
         gsheet_range: TwoDRange,
@@ -24,24 +28,21 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
         autoconnect: bool = True,
     ) -> None:
         """
-        Provides a connection to the data in a specific range in a Google Sheet Tab.
 
-        :param gsheet_range: The range (i.e. A5:C10) to associate with this Range.
-        :type gsheet_range: TwoDRange
-        :param gsheet_id: The id string of the target Google Sheet that the Range
-            resides in; can be found in the Google Sheet url.
-        :type gsheet_id: str
-        :param tab_title: The name of the Tab this Range is within.
-        :type tab_title: str
-        :param auth_config: Optional custom AuthConfig, defaults to None.
-        :type auth_config: AuthConfig, optional
-        :param sheets_conn: Optional manually created SheetsConnection, defaults to
-            None.
-        :type sheets_conn: SheetsConnection, optional
-        :param autoconnect: If you want to instantiate a Range without immediately
-            checking your authentication credentials and connection to the Google Sheets
-            api, set this to False, defaults to True.
-        :type autoconnect: bool, optional
+        Args:
+            gsheet_range (TwoDRange): The range (i.e. A5:C10) to associate with
+                this Range.
+            gsheet_id (str): The id string of the target Google Sheet that the
+                Range resides in; can be found in the Google Sheet url.
+            tab_title (str): The name of the Tab this Range is within.
+            auth_config (AuthConfig, optional): Optional custom AuthConfig,
+                defaults to None.
+            sheets_conn (SheetsConnection, optional): Optional manually created
+                SheetsConnection, defaults to None.
+            autoconnect (bool, optional): If you want to instantiate a Range
+                without immediately checking your authentication credentials and
+                connection to the Google Sheets api, set this to False, defaults
+                to True.
         """
         self._tab_title = tab_title
         gsheet_range.tab_title = tab_title
@@ -60,34 +61,27 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
     @property
     def format_grid(self) -> RangeGridFormatting:
         """
-        Contains request generation methods related to formatting this Range's grid
-        (width and height, etc).
+        Returns:
+          RangeGridFormatting: An object with grid formatting methods.
 
-        :return: An object with grid formatting methods.
-        :rtype: RangeGridFormatting
         """
         return self._format_grid
 
     @property
     def format_text(self) -> RangeTextFormatting:
         """
-        Contains request generation methods methods relating to formatting this
-        Range's text (the text format of any cells, even those containing non-text
-        values like integers or null values).
+        Returns:
+          RangeTextFormatting: An object with text formatting methods.
 
-        :return: An object with text formatting methods.
-        :rtype: RangeTextFormatting
         """
         return self._format_text
 
     @property
     def format_cell(self) -> RangeCellFormatting:
         """
-        Contains request generation methods relating to formatting this Range's
-        cells (like adding borders and backgrounds and such).
+        Returns:
+          RangeCellFormatting: An object with cell formatting methods.
 
-        :return: An object with cell formatting methods.
-        :rtype: RangeCellFormatting
         """
         return self._format_cell
 
@@ -95,21 +89,24 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
         """
         Gets the data from the cells of this Range.
 
-        :return: This Range.
-        :rtype: Range
+        Returns:
+          Range: This Range.
+
         """
         self._values, self._formats = self._get_data(self._gsheet_id, str(self._rng))
         return self
 
     def write_values(self, data: List[List[Any]]) -> Range:
         """
-        Adds a request to write data. Range.commit() to commit the requests.
+        Adds a request to write data. Range.commit () to commit the requests.
 
-        :param data: The data to write. Each list in the passed data list is a row,
-            with each value in that sublist being a column.
-        :type data: List[List[Any]]
-        :return: This Tab.
-        :rtype: Range
+        Args:
+          data (List[List[Any]]): The data to write. Each list in the passed data
+            list is a row, with each value in that sublist being a column.
+
+        Returns:
+          Range: This Tab.
+
         """
         self._write_values(data, self._rng.to_dict())
         return self
