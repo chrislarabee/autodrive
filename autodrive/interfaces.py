@@ -7,15 +7,24 @@ from typing import Any, Dict, Iterator, List, Mapping, Optional, Tuple, TypeVar
 
 from . import _google_terms as terms
 
-DEFAULT_TOKEN = "gdrive_token.pickle"
-DEFAULT_CREDS = "credentials.json"
+_DEFAULT_TOKEN = "gdrive_token.pickle"
+_DEFAULT_CREDS = "credentials.json"
 
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
 class ParseRangeError(Exception):
+    """
+    Error raised when an invalid range string is passed to a TwoDRange.
+    """
     def __init__(self, rng: str, msg_addon: str | None = None, *args: object) -> None:
+        """
+        Args:
+            rng (str): The original range string.
+            msg_addon (str, optional): An addendum to the error message. Defaults to 
+                None.
+        """
         msg = f"{rng} is not a valid range.{' ' + msg_addon if msg_addon else ''}"
         super().__init__(msg, *args)
 
@@ -29,8 +38,8 @@ class AuthConfig:
     def __init__(
         self,
         secrets_config: Dict[str, Any] | None = None,
-        token_filepath: str | Path = DEFAULT_TOKEN,
-        creds_filepath: str | Path = DEFAULT_CREDS,
+        token_filepath: str | Path = _DEFAULT_TOKEN,
+        creds_filepath: str | Path = _DEFAULT_CREDS,
     ) -> None:
         """
         Args:
@@ -41,12 +50,12 @@ class AuthConfig:
             token_filepath(str, optional): The filepath to your gdrive_token
                 pickle file. This doesn't have to exist at time of authentication,
                 and will be saved to this path when the authorization flow completes,
-                defaults to DEFAULT_TOKEN, which is "gdrive_token.pickle" in your
+                defaults to _DEFAULT_TOKEN, which is "gdrive_token.pickle" in your
                 cwd.
             creds_filepath(str, optional): The filepath to your api credentials
                 json file. This file *does* need to exist at time of authentication,
                 unless you pass a secrets_config dictionary, defaults to
-                DEFAULT_CREDS, which is "credentials.json" from your cwd.
+                _DEFAULT_CREDS, which is "credentials.json" from your cwd.
 
         """
         self.secrets_config = secrets_config
@@ -72,18 +81,18 @@ class AuthConfig:
         return self._creds_filepath
 
 
-class _Interface(Mapping[str, T]):
+class _Interface(Mapping[str, _T]):
     """
     Base class for all Interfaces.
     """
 
-    def to_dict(self) -> Dict[str, T]:
+    def to_dict(self) -> Dict[str, _T]:
         return {}
 
     def __iter__(self) -> Iterator[str]:
         return iter(self.to_dict())
 
-    def __getitem__(self, k: str) -> T:
+    def __getitem__(self, k: str) -> _T:
         return self.to_dict()[k]
 
     def __len__(self) -> int:
@@ -505,7 +514,7 @@ class TwoDRange(_RangeInterface):
         return result
 
 
-NT = TypeVar("NT", int, float)
+_NT = TypeVar("_NT", int, float)
 
 
 class Color(_Interface[float]):
@@ -543,7 +552,7 @@ class Color(_Interface[float]):
         self.alpha = alpha if isinstance(alpha, float) else alpha / 100
 
     @staticmethod
-    def _ensure_valid_input(input: NT) -> NT:
+    def _ensure_valid_input(input: _NT) -> _NT:
         return input
 
     def to_dict(self) -> Dict[str, float]:
@@ -683,8 +692,8 @@ class NumericFormat(Format):
     def __init__(self, pattern: str = "") -> None:
         """
         Args:
-            pattern(str, optional): The name of a Google Sheet Number Format,
-                defaults to "".
+            pattern(str, optional): A pattern valid as a Google Sheet Number 
+                Format, defaults to "".
 
         """
         super().__init__("numberFormat")
@@ -701,4 +710,7 @@ class NumericFormat(Format):
 
 
 StdNumericFormat = NumericFormat()
+"""Corresponds to the Number 1,000.12 format."""
+
 AccountingFormat = NumericFormat('_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)')
+"""Corresponds to the Accounting $ (1,000.12) format."""

@@ -5,6 +5,12 @@ Welcome to Autodrive's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   basic_use
+   interface
+   batching
+   cust_config
+   format
+
    autoapi/index
 
 

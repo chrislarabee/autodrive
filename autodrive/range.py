@@ -62,7 +62,7 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
     def format_grid(self) -> RangeGridFormatting:
         """
         Returns:
-          RangeGridFormatting: An object with grid formatting methods.
+            RangeGridFormatting: An object with grid formatting methods.
 
         """
         return self._format_grid
@@ -71,7 +71,7 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
     def format_text(self) -> RangeTextFormatting:
         """
         Returns:
-          RangeTextFormatting: An object with text formatting methods.
+            RangeTextFormatting: An object with text formatting methods.
 
         """
         return self._format_text
@@ -80,7 +80,7 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
     def format_cell(self) -> RangeCellFormatting:
         """
         Returns:
-          RangeCellFormatting: An object with cell formatting methods.
+            RangeCellFormatting: An object with cell formatting methods.
 
         """
         return self._format_cell
@@ -88,6 +88,11 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
     def get_data(self) -> Range:
         """
         Gets the data from the cells of this Range.
+
+        .. note::
+
+            This method will cause a request to be posted to the relevant Google
+            API immediately.
 
         Returns:
           Range: This Range.

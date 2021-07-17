@@ -12,6 +12,10 @@ class DriveConnection(Connection):
     """
     Provides a connection to the Google Drive api, and methods to send requests
     to it.
+
+    This class is documented primarily for reference, if you want to connect to
+    Google Drive, it's easier to just use a :class:`Drive <autodrive.drive.Drive>`
+    instance.
     """
 
     def __init__(
@@ -155,6 +159,9 @@ class SheetsConnection(Connection):
     """
     Provides a connection to the Google Sheets api, and methods to send requests
     to it.
+
+    This class is documented primarily for reference, if you want to connect to
+    Google Sheets, it's easier to just use a View.
     """
 
     def __init__(

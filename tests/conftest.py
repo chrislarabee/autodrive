@@ -6,7 +6,7 @@ import pytest
 
 from autodrive.connection import DriveConnection, SheetsConnection
 from autodrive.gsheet import GSheet, GSheetView
-from autodrive.interfaces import DEFAULT_CREDS, DEFAULT_TOKEN
+from autodrive.interfaces import _DEFAULT_CREDS, _DEFAULT_TOKEN
 
 from .testing_tools import CREATED_IDS
 
@@ -20,8 +20,8 @@ conn_warning = (
 def drive_conn():
     if (
         DriveConnection.get_creds_from_env()
-        or os.path.exists(DEFAULT_TOKEN)
-        or os.path.exists(DEFAULT_CREDS)
+        or os.path.exists(_DEFAULT_TOKEN)
+        or os.path.exists(_DEFAULT_CREDS)
     ):
         conn = DriveConnection()
         yield conn
@@ -31,7 +31,7 @@ def drive_conn():
             conn.delete_object(i)
         # warnings.warn(f"Successfully cleaned up {len(ids)} objects.")
     else:
-        warnings.warn(conn_warning.format(DEFAULT_CREDS, DEFAULT_TOKEN, os.getcwd()))
+        warnings.warn(conn_warning.format(_DEFAULT_CREDS, _DEFAULT_TOKEN, os.getcwd()))
         yield None
 
 
@@ -39,13 +39,13 @@ def drive_conn():
 def sheets_conn():
     if (
         SheetsConnection.get_creds_from_env()
-        or os.path.exists(DEFAULT_TOKEN)
-        or os.path.exists(DEFAULT_CREDS)
+        or os.path.exists(_DEFAULT_TOKEN)
+        or os.path.exists(_DEFAULT_CREDS)
     ):
         conn = SheetsConnection()
         yield conn
     else:
-        warnings.warn(conn_warning.format(DEFAULT_CREDS, DEFAULT_TOKEN, os.getcwd()))
+        warnings.warn(conn_warning.format(_DEFAULT_CREDS, _DEFAULT_TOKEN, os.getcwd()))
         yield None
 
 

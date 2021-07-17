@@ -94,6 +94,11 @@ class GSheet(GSheetView):
         Gets the latest metadata from the API for this GSheet. Populates title and
         tab properties.
 
+        .. note::
+
+            This method will cause a request to be posted to the relevant Google
+            API immediately.
+
         Returns:
           GSheet: This GSheet
 
@@ -178,7 +183,7 @@ class GSheet(GSheetView):
 
         Raises:
             KeyError: If the passed tab name (to_tab) isn't present in the GSheet's
-            current tabs property.
+                current tabs property.
 
         """
         tab = self.tabs.get(to_tab) if to_tab else self._tabs[0]
@@ -195,6 +200,11 @@ class GSheet(GSheetView):
         """
         Gets the data from the cells of the GSheet.
 
+        .. note::
+
+            This method will cause a request to be posted to the relevant Google
+            API immediately.
+
         Args:
             tab (str | int, optional): The name of the tab, or its (0-based) index
                 (from left to right), defaults to None, which will collect data from
@@ -210,7 +220,7 @@ class GSheet(GSheetView):
         Raises:
             KeyError: If the passed tab name is not found in this GSheet's tabs.
             TypeError: If anything other than the displayed types is passed for
-            the tab parameter.
+                the tab parameter.
 
         """
         if isinstance(tab, str):
@@ -221,7 +231,7 @@ class GSheet(GSheetView):
             tab_ = self._tabs[tab or 0]
         else:
             raise TypeError(
-                f"tab must be a string, integer, or None. type = {type (tab)}"
+                f"tab must be a string, integer, or None. type = {type(tab)}"
             )
         if not rng:
             rng = tab_.two_d_range()

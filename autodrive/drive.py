@@ -70,6 +70,11 @@ class Folder:
         """
         Generates a new Folder with this Folder as its parent.
 
+        .. note::
+
+            This method will cause a request to be posted to the relevant Google
+            API immediately.
+
         Args:
             folder_name (str): The name of the Folder to create.
 
@@ -100,6 +105,11 @@ class Drive:
         sheets_conn: SheetsConnection | None = None,
     ) -> None:
         """
+        .. note::
+
+            All the methods on this class will cause a request to be posted to the
+            relevant Google API immediately.
+
         Args:
             auth_config (AuthConfig, optional): Optional custom AuthConfig object,
                 defaults to None.

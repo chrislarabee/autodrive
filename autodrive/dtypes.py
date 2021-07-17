@@ -134,19 +134,26 @@ class FormattedVal(metaclass=GoogleValueType):
 
 
 GOOGLE_VAL_TYPES = (UserEnteredVal, EffectiveVal, FormattedVal)
+"""A tuple of UserEnteredVal, EffectiveVal, and FormattedVal google value types."""
+
 GOOGLE_DTYPES = (String, Formula, Number, Boolean)
+"""A tuple of String, Formula, Number, and Boolean google data types."""
+
 TYPE_MAP = {
     str: String,
     int: Number,
     float: Number,
     bool: Boolean,
 }
+"""Dictionary mapping python data types to corresponding google data types."""
+
 REV_TYPE_MAP = {
     String: String.python_type,
     Formula: Formula.python_type,
     Number: Number.python_type,
     Boolean: Boolean.python_type,
 }
+"""Dictionary mapping google data types to corresponding python types."""
 
 
 class UserEnteredFmt(metaclass=GoogleFormatType):

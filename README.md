@@ -44,7 +44,7 @@ added to the working directory you saved your `credentials.json` file in. Next t
 you use an Autodrive element that needs to connect to your Drive, this token will
 be used and you will not be prompted to authorize access again until it expires.
 
-## Basic Usage
+## Quickstart
 
 ---
 
@@ -54,12 +54,6 @@ Drive, such as Folders or Sheets.
 ```
 gsheet = drive.create_gsheet("my-autodrive-gsheet")
 ```
-
-### Tabs
-
-Because Google calls spreadsheets "Sheets", and also refers to the individual
-sub-sheets in a spreadsheet as "Sheets", Autodrive refers to the sub-sheets as "Tabs"
-for clarity.
 
 ### Finding IDs
 
@@ -78,8 +72,14 @@ Simply copy/paste the id (in green, above) between `/d/` and `/edit#` as the
 `gsheet_id`:
 
 ```
+from autodrive import GSheet
+
 gsheet = GSheet(gsheet_id="19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8")
 ```
+
+> **Tabs:** Because Google calls spreadsheets "Sheets", and their api also refers
+> to the individual sub-sheets in a spreadsheet as "Sheets", Autodrive instead
+> refers to them as "Tabs" for clarity.
 
 For a tab, you can get the `tab_id` from:
 
@@ -88,6 +88,8 @@ docs.google.com/spreadsheets/d/19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8/edit
 </p>
 
 ```
+from autodrive import Tab
+
 tab = Tab(
     gsheet_id="19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8",
     tab_title="Sheet2",
@@ -103,70 +105,29 @@ drive.google.com/drive/u/1/folders/<span style="color:green">1wLx-KMG2jO498xa5Zu
 </p>
 
 ```
+from autodrive import Folder
+
 folder = Folder(folder_id="1wLx-KMG2jO498xa5ZumB-SEpL-TwczZI", name="Test Folder")
 ```
 
-### Autodrive GSheet Views
+### Reading and Writing
 
-Autodrive provides three different views of a Google Sheet, the `GSheet`, which
-contains properties of the sheet itself and all its `Tabs`. `Tabs` provide convenient
-access to methods allowing you to manipulate values and formats of individual tabs.
-Finally, `Range` represents a specific row-column range in a `Tab` (i.e. A1:C3), and
-provides methods for altering the values and/or formats of that range alone.
-
-All of these Views are somewhat interchangeable as well, in that you can access the
-`Tabs` on a `GSheet` and manipulate parts of a `Tab` without creating a `Range`. They
-are meant to be different tools for differently sized jobs.
-
-## Custom Configuration
-
----
-
-Autodrive is designed to be fully customizable in terms of configuration. Anything that
-connects to your Google Drive or a Google Sheet can have its default connection
-behavior overridden. For most use-cases, simply having your credentials saved as a
-`credentials.json` file on your working directory will meet your needs, but for special
-cases, you can customize this functionality simply by instantiating your own
-`AuthConfig`.
-
-For example, you can customize the path to your credentials file and where the
-resulting token will get saved:
+You can easily download and write data from a Google Sheet using the `GSheet`,
+`Tab`, or `Range` views.
 
 ```
-from autodrive import AuthConfig
+# Fetches all the data in all cells of the tab:
+tab.get_data()
 
-config = AuthConfig(
-    token_filepath="custom_token.pickle",
-    creds_filepath="/path/to/somewhere/else/creds.json"
+# Writes 8 cells (2 rows of 4 columns, starting in cell A1) to the tab:
+tab.write_values(
+    [
+        [1, 2, 3, 4],
+        [5, 6, 7, 8],
+    ]
 )
 ```
 
-And you can bypass this behavior entirely and inject your credentialling
-information with environment variables:
-
-```
-# You can get these from your .pickle token after connecting for the first time:
-AUTODRIVE_TOKEN="your_token_here"
-AUTODRIVE_REFR_TOKEN="your_refresh_token_here"
-# You can find these in GCP or in your credentials.json file:
-AUTODRIVE_CLIENT_ID="your_client_id_value"
-AUTODRIVE_CLIENT_SECRET="your_client_secret"
-```
-
-It is probably not advisable, but in some cases you could also pass your
-credentials directly to `AuthConfig`, or load the token & creds files yourself and
-pass them to AuthConfig if you need to:
-
-```
-config = AuthConfig(
-    secrets_config={
-        "client_id": "your_client_id_value",
-        "client_secret": "your_client_secret",
-        "token": "your_token_here",
-        "refresh_token": "your_refresh_token_here"
-    }
-)
-```
-
-Note that I do not endorse putting your credentials in source code! This is for
-very special cases or dev environments only!
+`GSheet` and `Range` have very similar methods, and all of them allow you to read
+and write data to only a specific range in the Google Sheet. See the Documentation
+for more.

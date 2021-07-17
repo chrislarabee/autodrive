@@ -32,6 +32,7 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    # "sphinx.ext.autosectionlabel",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -169,4 +170,4 @@ texinfo_documents = [
 autoapi_dirs = ["../../autodrive"]
 autodoc_typehints = "description"
 autoapi_python_class_content = "both"
-autoapi_options = ["members", "undoc-members"]
+autoapi_options = ["members", "undoc-members", "show-module-summary"]

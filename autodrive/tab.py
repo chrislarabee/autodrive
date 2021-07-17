@@ -11,6 +11,7 @@ from .formatting.format_tab import (
     TabTextFormatting,
 )
 from .interfaces import AuthConfig, OneDRange, TwoDRange
+from .range import Range
 
 
 class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
@@ -219,6 +220,11 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
         """
         Gets the data from the cells of this Tab.
 
+        .. note::
+
+            This method will cause a request to be posted to the relevant Google
+            API immediately.
+
         Args:
             rng (TwoDRange | OneDRange, optional): An optional range value, to
                 specify a subset of the Tab's values to get, defaults to None,
@@ -316,6 +322,11 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
         Convenience method for generating a new tab request based on this Tab and
         immediately committing it, thus adding it to the parent Google Sheet.
 
+        .. note::
+
+            This method will cause a request to be posted to the relevant Google
+            API immediately.
+
         Returns:
             Tab: This Tab.
 
@@ -326,3 +337,15 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
         self._requests.append(req)
         self.commit()
         return self
+
+    def gen_range(self, rng: TwoDRange) -> Range:
+        """
+        Convenience method for generating a new Range object in this Tab.
+
+        Args:
+            rng (TwoDRange): The desired TwoDRange of the new Range object.
+
+        Returns:
+            Range: The newly generated Range.
+        """
+        return Range(rng, self._gsheet_id, self._title, sheets_conn=self._conn)
