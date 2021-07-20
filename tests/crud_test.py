@@ -5,7 +5,7 @@ import pytest
 from autodrive.gsheet import GSheet
 from autodrive.range import Range
 from autodrive.tab import Tab
-from autodrive.interfaces import TextFormat, TwoDRange
+from autodrive.interfaces import TextFormat, FullRange
 from autodrive.connection import SheetsConnection
 
 
@@ -31,8 +31,9 @@ class TestCRUD:
         input_data: List[List[int]],
     ):
         rng = Range(
-            TwoDRange(0, range_str="A4:C5"),
+            FullRange("A4:C5"),
             tab_title="Sheet1",
+            tab_id=0,
             gsheet_id=test_gsheet.gsheet_id,
             sheets_conn=sheets_conn,
         )

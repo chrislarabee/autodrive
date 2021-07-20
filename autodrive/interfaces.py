@@ -16,16 +16,33 @@ _T = TypeVar("_T")
 
 class ParseRangeError(Exception):
     """
-    Error raised when an invalid range string is passed to a TwoDRange.
+    Error raised when an invalid range string is passed to a FullRange.
     """
+
     def __init__(self, rng: str, msg_addon: str | None = None, *args: object) -> None:
         """
         Args:
             rng (str): The original range string.
-            msg_addon (str, optional): An addendum to the error message. Defaults to 
+            msg_addon (str, optional): An addendum to the error message. Defaults to
                 None.
         """
         msg = f"{rng} is not a valid range.{' ' + msg_addon if msg_addon else ''}"
+        super().__init__(msg, *args)
+
+
+class RequestConversionError(Exception):
+    """
+    Error raised when a RangeInterface's to_dict method is called before the
+    RangeInterface's tab_id attribute has been validated.
+    """
+
+    def __init__(self, *args: object) -> None:
+        """ """
+        msg = (
+            "This RangeInterface cannot be converted to a request-ready format "
+            "until its tab_id attribute has been set either directly or with its "
+            "validate () method."
+        )
         super().__init__(msg, *args)
 
 
@@ -43,19 +60,20 @@ class AuthConfig:
     ) -> None:
         """
         Args:
-            secrets_config(Dict[str, Any], optional): The dictionary of
+            secrets_config (Dict[str, Any], optional): The dictionary of
                 configuration used by a google.oath2.credentials Credentials
                 object. Generally only useful if for some reason you are reading
                 in your own token file, defaults to None.
-            token_filepath(str, optional): The filepath to your gdrive_token
+            token_filepath (str | Path, optional): The filepath to your gdrive_token
                 pickle file. This doesn't have to exist at time of authentication,
                 and will be saved to this path when the authorization flow completes,
                 defaults to _DEFAULT_TOKEN, which is "gdrive_token.pickle" in your
                 cwd.
-            creds_filepath(str, optional): The filepath to your api credentials
-                json file. This file *does* need to exist at time of authentication,
-                unless you pass a secrets_config dictionary, defaults to
-                _DEFAULT_CREDS, which is "credentials.json" from your cwd.
+            creds_filepath (str | Path, optional): The filepath to your api
+                credentials json file. This file *does* need to exist at time of
+                authentication, unless you pass a secrets_config dictionary,
+                defaults to _DEFAULT_CREDS, which is "credentials.json" from your
+                cwd.
 
         """
         self.secrets_config = secrets_config
@@ -101,37 +119,52 @@ class _Interface(Mapping[str, _T]):
 
 class _RangeInterface(_Interface[int]):
     """
-    Underlying class for OneD and TwoD Range Interfaces.
+    Underlying class for HAlf and Full Range Interfaces.
     """
 
-    def __init__(self, tab_id: int, tab_title: str | None = None) -> None:
+    def __init__(self, tab_id: int | None = None, tab_title: str | None = None) -> None:
         self.tab_id = tab_id
         self.tab_title = tab_title
 
     def to_dict(self) -> Dict[str, int]:
+        # A null tab_id is technically valid at runtime, until a dictionary needs to
+        # be generated from a _RangeInterface, at which point it becomes invalid.
+        if self.tab_id is None:
+            raise RequestConversionError
         return {terms.TAB_ID: self.tab_id}
+
+    def validate(self, tab_id: int) -> None:
+        """
+
+        Args:
+            tab_id (int): Ensures the RangeInterface is valid for use in a request
+                dictionary by applying the passed tab_id to itself, if one hasn't
+                already been manually applied.
+        """
+        if self.tab_id is None:
+            self.tab_id = tab_id
 
     @classmethod
     def _construct_range_str(
         cls,
-        start_row: Optional[int] = 0,
+        start_row: int = 0,
+        start_col: int = 0,
         end_row: Optional[int] = None,
-        start_col: Optional[int] = 0,
-        end_col: Optional[int] = 0,
+        end_col: Optional[int] = None,
     ) -> str:
         """
         Reconstructs a standardized range string (Sheet1!A1:B3) from the passed
         properties.
 
         Args:
-            start_row(Optional[int], optional): 0-based row index for the first
+            start_row (int, optional): 0-based row index for the first
                 row in the range, defaults to 0.
-            end_row(Optional[int], optional): 0-based row index for the row after
-                the range, defaults to None.
-            start_col(Optional[int], optional): 0-based column index for the first
+            start_col (int, optional): 0-based column index for the first
                 column in the range, defaults to 0.
-            end_col(Optional[int], optional): 0-based column index for the column
-                after the range, defaults to 0.
+            end_row (int, optional): 0-based row index for the row after
+                the range, defaults to None.
+            end_col (int, optional): 0-based column index for the column
+                after the range, defaults to None.
 
         Returns:
             str: A string in the format (tab_name!start_cell:end_cell)
@@ -139,11 +172,16 @@ class _RangeInterface(_Interface[int]):
         """
         start_letter = ""
         end_letter = ""
-        start_letter = cls._convert_col_idx_to_alpha(start_col or 0)
-        end_letter = cls._convert_col_idx_to_alpha(end_col - 1 if end_col else 0)
-        start_int = (start_row or 0) + 1
-        end_int = end_row if end_row is not None else None
-        return f"{start_letter}{start_int}:{end_letter}{end_int or ''}"
+        end_row_int = end_row + 1 if end_row else end_row
+        end_col_int = end_col if end_col is not None else start_col
+        start_letter = cls._convert_col_idx_to_alpha(start_col)
+        end_letter = cls._convert_col_idx_to_alpha(end_col_int)
+        start_int = start_row + 1
+        if end_col or end_row:
+            end_part = f":{end_letter}{end_row_int or ''}"
+        else:
+            end_part = ""
+        return f"{start_letter}{start_int}{end_part}"
 
     @staticmethod
     def _parse_range_str(rng: str) -> Tuple[Optional[str], str, Optional[str]]:
@@ -152,8 +190,8 @@ class _RangeInterface(_Interface[int]):
         "A1", "B3").
 
         Args:
-            rng(str): The range string, which must at least be one cell coordinate
-                (A1), which will be returned as the start cell.
+            rng (str): The range string, which must at least be one cell coordinate
+                (e.g. A1), which will be returned as the start cell.
 
         Returns:
             Tuple[Optional[str], str, Optional[str]]: The sheet title (if present),
@@ -163,7 +201,7 @@ class _RangeInterface(_Interface[int]):
             ParseRangeError: If the range is invalid.
 
         """
-        result = re.match(r"(?:(.*)!)?([A-Z]+\d+?)(?::([A-Z]*\d*))?", rng)
+        result = re.match(r"(?:(.*)!)?([A-Z]+\d+)(?::([A-Z]*\d*))?", rng)
         if result:
             grps = result.groups()
             return grps  # type: ignore
@@ -176,7 +214,7 @@ class _RangeInterface(_Interface[int]):
         Parses an individual cell string (A1) into its component strings ("A", "1")
 
         Args:
-            cell_str(str: str): The cell string, which must at least have a
+            cell_str (str: str): The cell string, which must at least have a
                 column letter.
 
         Returns:
@@ -196,11 +234,11 @@ class _RangeInterface(_Interface[int]):
     @classmethod
     def _convert_cell_str_to_coord(cls, cell_str: str) -> Tuple[int, Optional[int]]:
         """
-        Parses the passed cell string (A1) and returns its numeric (0-based) indices
-        (0, 0)
+        Parses the passed cell string (e.g. A1) and returns its numeric (0-based)
+        indices (e.g. 0, 0)
 
         Args:
-            cell_str(str: str): The cell string.
+            cell_str (str): The cell string.
 
         Returns:
             Tuple[int, Optional[int]]: The column index and the row index (if
@@ -219,7 +257,7 @@ class _RangeInterface(_Interface[int]):
         (0 based) numeric index.
 
         Args:
-            alpha_col(str): A letter or set of letters.
+            alpha_col (str): A letter or set of letters.
 
         Returns:
             int: The numeric representation of the alpha_col's index.
@@ -238,7 +276,7 @@ class _RangeInterface(_Interface[int]):
         Converts a (0-based) index into a string column identifier.
 
         Args:
-            idx(int): A (0-based) index value.
+            idx (int): A (0-based) index value.
 
         Returns:
             str: The string representation of the idx's position.
@@ -257,47 +295,48 @@ class _RangeInterface(_Interface[int]):
         return "".join(chars)
 
     @classmethod
-    def _parse_idx(
-        cls, idx: str | int | None = None, base0_idxs: bool = False, mod: int = 1
-    ) -> Optional[int]:
+    def _parse_idx(cls, idx: str | int, base0_idxs: bool = False) -> int:
         """
-        Extracted logic for standardizing OneD and TwoD start/end indices. Allows
+        Extracted logic for standardizing Half and Full start/end indices. Allows
         the end user to supply strings or integers as desired to the Ranges, and
         also allows them to use 0-based indices or not.
 
         Args:
-            idx(str | int, optional): An index (optionally 0-based) or a string
-                column representation, defaults to None.
-            base0_idxs(bool, optional): Set to True if passing 0-based indices,
+            idx (str | int): An index (optionally 0-based) or a string
+                column representation.
+            base0_idxs (bool, optional): Set to True if passing 0-based indices,
                 otherwise will assume it needs to adjust them. defaults to False.
-            mod(int, optional): The value by which to adjust non-0-based indices,
+            mod (int, optional): The value by which to adjust non-0-based indices,
                 defaults to 1.
 
         Returns:
             Optional[int]: A 0-based numeric representation of the passed index.
 
         """
-        adj = 0 if base0_idxs else mod
-        result = None
+        adj = 0 if base0_idxs else -1
         if isinstance(idx, str):
             result = cls._convert_alpha_col_to_idx(idx)
-        elif idx is not None:
+        else:
             result = idx + adj
         return result
 
 
-class OneDRange(_RangeInterface):
+class HalfRange(_RangeInterface):
     """
-    A one-dimensional range (i.e. a range with only one axis, like a row range
-    or a column range).
+    A partial range used in requests to the Google Sheets API when the axis of the
+    range is obvious from context (such as when inserting rows or columns).
+
+    Note that HalfRange parses your inputs into Google Sheets API row/column
+    indices, which are 0-based, so if you call :attr:`start_idx` or :attr:`end_idx`
+    expect them to be 1 lower than the value you passed.
     """
 
     def __init__(
         self,
-        tab_id: int,
         start_idx: str | int | None = None,
         end_idx: str | int | None = None,
         *,
+        tab_id: int | None = None,
         tab_title: str | None = None,
         base0_idxs: bool = False,
         column: bool = False,
@@ -305,43 +344,55 @@ class OneDRange(_RangeInterface):
         """
 
         Args:
-            tab_id(int): The tab id this range resides in.
-            start_idx(str | int, optional): The first column/row in the range,
+            start_idx (str | int, optional): The first column/row in the range,
                 assumed to not be 0-based if it's an integer (row), defaults to
                 None.
-            end_idx(str | int, optional): The last column/row in the range,
+            end_idx (str | int, optional): The last column/row in the range,
                 assumed to not be 0-based if it's an integer (row), defaults to
                 None.
-            tab_title(str, optional): The name of the tab this range resides in,
+            tab_id (int, optional): The tab id this range resides in. Can be added
+                on instantiation or later, but MUST be added before attempting to
+                use this HalfRange in a request.
+            tab_title (str, optional): The name of the tab this range resides in,
                 defaults to None.
-            base0_idxs(bool, optional): Set to True if you'd like to pass 0-based
+            base0_idxs (bool, optional): Set to True if you'd like to pass 0-based
                 indices to start_idx and end_idx params, above, defaults to False.
-            column(bool, optional): Set to True if this OneDRange is a column range
+            column (bool, optional): Set to True if this HalfRange is a column range
                 and you supplied the column indexes as integers, defaults to False.
 
         """
         super().__init__(tab_id, tab_title)
-        self.start_idx = self._parse_idx(start_idx, base0_idxs, -1)
-        self.end_idx = self._parse_idx(end_idx, base0_idxs)
+        if start_idx is not None:
+            self.start_idx = self._parse_idx(start_idx, base0_idxs)
+        elif end_idx is not None:
+            self.start_idx = 0
+        if end_idx is not None:
+            self.end_idx = self._parse_idx(end_idx, base0_idxs) if end_idx else None
+        elif self.start_idx is not None:
+            self.end_idx = self.start_idx
         self.column = column
-        if isinstance(start_idx, str):
+        if isinstance(start_idx, str) or isinstance(end_idx, str):
             self.column = True
-        if self.column and self.end_idx and not base0_idxs:
-            self.end_idx += 1
 
     def to_dict(self) -> Dict[str, int]:
         """
+        The Google Sheets api ranges are end-value exclusive, so this method will
+        produce a dictionary with an endIndex value 1 higher than the FullRange's
+        attribute.
+
         Returns:
-            Dict[str, int]: Outputs the OneDRange as a dictionary of properties
+            Dict[str, int]: Outputs the HalfRange as a dictionary of properties
             usable in generating an api request to affect the target range of cells.
 
         """
+        if self.tab_id is None:
+            raise RequestConversionError
         result = {terms.TAB_ID: self.tab_id}
         # All of these must be is not None because any of them can be 0:
         if self.start_idx is not None:
             result["startIndex"] = self.start_idx
         if self.end_idx is not None:
-            result["endIndex"] = self.end_idx
+            result["endIndex"] = self.end_idx + 1
         return result
 
     def __str__(self) -> str:
@@ -351,166 +402,192 @@ class OneDRange(_RangeInterface):
             )
         else:
             raise AttributeError(
-                f"{self}.column indicator is False. Cannot convert row OneDRanges to "
+                f"{self}.column indicator is False. Cannot convert row HalfRanges to "
                 "strings."
             )
         return f"{self.tab_title or ''}{'!' if self.tab_title else ''}{rng}"
 
-    @property
-    def start_row(self) -> int:
-        """
-        Returns:
-            int: The start_idx. Used to make OneDRanges and TwoDRanges
-            interchangeable.
+    # @property
+    # def start_row(self) -> int:
+    #     """
+    #     Returns:
+    #         int: The start_idx. Used to make HalfRanges and FullRanges
+    #         interchangeable.
 
-        """
-        return self.start_idx or 0
+    #     """
+    #     return self.start_idx or 0
 
-    @property
-    def end_row(self) -> int:
-        """
-        Returns:
-            int: The end_idx. Used to make OneDRanges and TwoDRanges
-            interchangeable.
+    # @property
+    # def end_row(self) -> int:
+    #     """
+    #     Returns:
+    #         int: The end_idx. Used to make HalfRanges and FullRanges
+    #         interchangeable.
 
-        """
-        return self.end_idx + 1 if self.end_idx else 0
+    #     """
+    #     return self.end_idx + 1 if self.end_idx else 0
 
-    @property
-    def start_col(self) -> int:
-        """
-        Returns:
-            int: The start_idx. Used to make OneDRanges and TwoDRanges
-            interchangeable.
+    # @property
+    # def start_col(self) -> int:
+    #     """
+    #     Returns:
+    #         int: The start_idx. Used to make HalfRanges and FullRanges
+    #         interchangeable.
 
-        """
-        return self.start_idx or 0
+    #     """
+    #     return self.start_idx or 0
 
-    @property
-    def end_col(self) -> int:
-        """
-        Returns:
-            int: The end_idx. Used to make OneDRanges and TwoDRanges
-            interchangeable.
+    # @property
+    # def end_col(self) -> int:
+    #     """
+    #     Returns:
+    #         int: The end_idx. Used to make HalfRanges and FullRanges
+    #         interchangeable.
 
-        """
-        return self.end_idx + 1 if self.end_idx else 0
+    #     """
+    #     return self.end_idx + 1 if self.end_idx else 0
 
 
-class TwoDRange(_RangeInterface):
+class FullRange(_RangeInterface):
     """
-    A two-dimensional range (i.e. a range with two axes).
+    A complete Google Sheets range (indicating start and end row and column as
+    well as at least an end column, if not an end row).
+
+    Note that FullRange parses your inputs into Google Sheets API row/column
+    indices, which are 0-based, so if you call :attr:`start_row`, :attr:`end_row`,
+    :attr:`start_col`, or :attr:`end_col`, expect them to be 1 lower than the
+    value you passed.
     """
 
     def __init__(
         self,
-        tab_id: int,
+        range_str: str | None = None,
+        *,
         start_row: int | None = None,
         end_row: int | None = None,
         start_col: int | str | None = None,
         end_col: int | str | None = None,
-        *,
-        range_str: str | None = None,
+        tab_id: int | None = None,
         base0_idxs: bool = False,
         tab_title: str | None = None,
     ) -> None:
         """
 
         Args:
-            tab_id(int): The tab id this range resides in.
-            start_row(int, optional): The first row in the range, assumed to not
+            range_str (str, optional): A range string (e.g. Sheet1!A1:B3, A1:B3, A1).
+            start_row (int, optional): The first row in the range, assumed to not
                 be 0-based, defaults to None.
-            end_row(int, optional): The last row in the range, assumed to not be
+            end_row (int, optional): The last row in the range, assumed to not be
                 0-based, defaults to None.
-            start_col(int | str, optional): The first column in the range, assumed
+            start_col (int | str, optional): The first column in the range, assumed
                 to not be 0-based if it's an integer, defaults to None.
-            end_col(int | str, optional): The last column in the range, assumed to
+            end_col (int | str, optional): The last column in the range, assumed to
                 not be 0-based if it's an integer, defaults to None.
-            range_str(str: str, optional): A range string (e.g. Sheet1!A1:B3),
-                which can be passed instead of specifying the start/end_row and
-                start/end_col, defaults to None.
-            base0_idxs(bool, optional): Set to True if you'd like to pass 0-based
+            tab_id (int, optional): The tab id this range resides in. Can be added
+                on instantiation or later, but MUST be added before attempting to
+                use this HalfRange in a request.
+            base0_idxs (bool, optional): Set to True if you'd like to pass 0-based
                 indices to start/end_row and start/end_col, defaults to False.
-            tab_title(str, optional): The name of the tab this range resides in,
+            tab_title (str, optional): The name of the tab this range resides in,
                 defaults to None.
 
         """
         super().__init__(tab_id, tab_title)
+        self._single_cell = False
         if range_str:
             title, start, end = self._parse_range_str(range_str)
             if title and not self.tab_title:
                 self.tab_title = title
+            cstart, rstart = self._convert_cell_str_to_coord(start)
+            if rstart is None:
+                raise ParseRangeError(range_str)
             if end:
                 cend, rend = self._convert_cell_str_to_coord(end)
-                cstart, rstart = self._convert_cell_str_to_coord(start)
             else:
-                cend, rend = self._convert_cell_str_to_coord(start)
-                cstart = 0
-                rstart = 0
+                cend = cstart + 1
+                rend = rstart + 1
+                self._single_cell = True
             self.start_row = rstart
-            self.end_row = rend + 1 if rend else None
+            self.end_row = rend
             self.start_col = cstart
-            self.end_col = cend + 1 if cend else None
+            self.end_col = cend
         else:
-            self.start_row = self._parse_idx(start_row, base0_idxs, -1)
-            self.end_row = self._parse_idx(end_row, base0_idxs)
-            self.start_col = self._parse_idx(start_col, base0_idxs, -1) or 0
-            self.end_col = self._parse_idx(end_col, base0_idxs)
+            self.start_row = self._parse_idx(start_row, base0_idxs) if start_row else 0
+            self.start_col = self._parse_idx(start_col, base0_idxs) if start_col else 0
+            if end_row is None:
+                self.end_row = self.start_row
+            else:
+                self.end_row = self._parse_idx(end_row, base0_idxs)
+            if end_col is None:
+                self.end_col = self.start_col
+            else:
+                self.end_col = self._parse_idx(end_col, base0_idxs)
+            if end_row is None and end_col is None:
+                self._single_cell = True
 
     @property
-    def row_range(self) -> OneDRange:
+    def row_range(self) -> HalfRange:
         """
         Returns:
-            OneDRange: The TwoDRange's row range as a OneDRange.
+            HalfRange: The FullRange's row range as a HalfRange.
 
         """
-        return OneDRange(
-            self.tab_id,
+        return HalfRange(
             self.start_row,
             self.end_row,
             tab_title=self.tab_title,
+            tab_id=self.tab_id,
             base0_idxs=True,
         )
 
     @property
-    def col_range(self) -> OneDRange:
+    def col_range(self) -> HalfRange:
         """
         Returns:
-            OneDRange: The TwoDRange's column range as a OneDRange.
+            HalfRange: The FullRange's column range as a HalfRange.
 
         """
-        return OneDRange(
-            self.tab_id,
+        return HalfRange(
             self.start_col,
             self.end_col,
             tab_title=self.tab_title,
+            tab_id=self.tab_id,
             base0_idxs=True,
             column=True,
         )
 
     def __str__(self) -> str:
-        rng = self._construct_range_str(
-            self.start_row, self.end_row, self.start_col, self.end_col
-        )
+        if self._single_cell:
+            rng = self._construct_range_str(self.start_row, self.start_col)
+        else:
+            rng = self._construct_range_str(
+                self.start_row, self.start_col, self.end_row, self.end_col
+            )
         return f"{self.tab_title or ''}{'!' if self.tab_title else ''}{rng}"
 
     def to_dict(self) -> Dict[str, int]:
         """
+        The Google Sheets api ranges are end-value exclusive, so this method will
+        produce a dictionary with endRowIndex and endColumnIndex values 1 higher
+        than the FullRange's attribute.
+
         Returns:
-            Dict[str, int]: Outputs the TwoDRange as a dictionary of properties
+            Dict[str, int]: Outputs the FullRange as a dictionary of properties
             usable in generating an api request to affect the target range of cells.
 
         """
+        if self.tab_id is None:
+            raise RequestConversionError
         result = {terms.TAB_ID: self.tab_id}
         # All of these must be is not None because any of them can be 0:
         if self.start_row is not None:
             result["startRowIndex"] = self.start_row
         if self.end_row is not None:
-            result["endRowIndex"] = self.end_row
+            result["endRowIndex"] = self.end_row + 1
         if self.start_col is not None:
             result["startColumnIndex"] = self.start_col
         if self.end_col is not None:
-            result["endColumnIndex"] = self.end_col
+            result["endColumnIndex"] = self.end_col + 1
         return result
 
 
@@ -532,16 +609,16 @@ class Color(_Interface[float]):
         """
 
         Args:
-            red(int | float, optional): Either an integer from 0 to 255 (from
+            red (int | float, optional): Either an integer from 0 to 255 (from
                 which a float value will be calculated), or the float representation
                 of same. defaults to 0.
-            green(int | float, optional): Either an integer from 0 to 255 (from
+            green (int | float, optional): Either an integer from 0 to 255 (from
                 which a float value will be calculated), or the float representation
                 of same. defaults to 0.
-            blue(int | float, optional): Either an integer from 0 to 255 (from
+            blue (int | float, optional): Either an integer from 0 to 255 (from
                 which a float value will be calculated), or the float representation
                 of same. defaults to 0.
-            alpha(int, optional): Either an integer from 0 to 100 (from which a
+            alpha (int, optional): Either an integer from 0 to 100 (from which a
                 float value will be calculated), or the float representation of
                 same. defaults to 100.
 
@@ -579,7 +656,7 @@ class Format(_Interface[Any]):
     def __init__(self, format_key: str) -> None:
         """
         Args:
-            format_key(str): The format key as dictated by the Google Sheets api.
+            format_key (str): The format key as dictated by the Google Sheets api.
 
         """
         self._format_key = format_key
@@ -630,18 +707,18 @@ class TextFormat(Format):
     ) -> None:
         """
         Args:
-            font(str, optional): The name of a font to change to, defaults to None.
-            color(Color, optional): The Color properties to apply to the text,
+            font (str, optional): The name of a font to change to, defaults to None.
+            color (Color, optional): The Color properties to apply to the text,
                 defaults to None.
-            font_size(int, optional): The size to apply to the text, defaults to
+            font_size (int, optional): The size to apply to the text, defaults to
                 None.
-            bold(bool, optional): Whether to turn bold on (True) or off (False),
+            bold (bool, optional): Whether to turn bold on (True) or off (False),
                 defaults to None, for unchanged.
-            italic(bool, optional): Whether to turn italic on (True) or off (False),
+            italic (bool, optional): Whether to turn italic on (True) or off (False),
                 defaults to None, for unchanged.
-            underline(bool, optional): Whether to turn underline on (True) or off
+            underline (bool, optional): Whether to turn underline on (True) or off
                 (False), defaults to None, for unchanged.
-            strikethrough(bool, optional): Whether to turn strikethrough on (True)
+            strikethrough (bool, optional): Whether to turn strikethrough on (True)
                 or off (False), defaults to None, for unchanged.
 
         """
@@ -685,15 +762,15 @@ class TextFormat(Format):
 
 class NumericFormat(Format):
     """
-    A Google Sheet Number Format, which the value of the cell(s) will be parsed
+    A Google Sheet Number Format, which the value of the cell (s) will be parsed
     into.
     """
 
     def __init__(self, pattern: str = "") -> None:
         """
         Args:
-            pattern(str, optional): A pattern valid as a Google Sheet Number 
-                Format, defaults to "".
+            pattern (str, optional): A pattern valid as a Google Sheet Number
+                Format, defaults to "", for automatic number format.
 
         """
         super().__init__("numberFormat")
@@ -709,8 +786,38 @@ class NumericFormat(Format):
         return {"type": self.type, "pattern": self.pattern}
 
 
-StdNumericFormat = NumericFormat()
-"""Corresponds to the Number 1,000.12 format."""
+AutomaticFormat = NumericFormat()
+"""Corresponds to the Automatic ``1000.12`` format."""
+
+NumberFormat = NumericFormat("#,##0.00")
+"""Corresponds to the Number ``1,000.12`` format."""
 
 AccountingFormat = NumericFormat('_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)')
-"""Corresponds to the Accounting $ (1,000.12) format."""
+"""Corresponds to the Accounting ``$ (1,000.12)`` format."""
+
+PercentFormat = NumericFormat("0.00%")
+"""Corresponds to the Percent ``10.12%`` format."""
+
+ScientificFormat = NumericFormat("0.00E+00")
+"""Corresponds to the Scientific ``1.01E+03`` format."""
+
+FinancialFormat = NumericFormat("#,##0.00;(#,##0.00)")
+"""Corresponds to the Financial ``(1,000.12)`` format."""
+
+CurrencyFormat = NumericFormat('"$"#,##0.00')
+"""Corresponds to the Currency ``$1,000.12`` format."""
+
+CurRoundFormat = NumericFormat('"$"#,##0')
+"""Corresponds to the Currency (rounded) ``$1,000`` format."""
+
+DateFormat = NumericFormat("M/d/yyyy")
+"""Corresponds to the Date ``9/26/2008`` format."""
+
+TimeFormat = NumericFormat("h:mm:ss am/pm")
+"""Corresponds to the Time ``3:59:00 PM`` format."""
+
+DatetimeFormat = NumericFormat("M/d/yyyy H:mm:ss")
+"""Corresponds to the Date time ``9/26/2008 15:59:00`` format."""
+
+DurationFormat = NumericFormat("[h]:mm:ss")
+"""Corresponds to the Duration ``24:01:00`` format."""

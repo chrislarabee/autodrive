@@ -53,7 +53,7 @@ to the same cells of the Google Sheet:
 
 .. code-block:: python
 
-    from autodrive import GSheet, Tab, Range, TwoDRange
+    from autodrive import GSheet, Tab, Range, FullRange
 
     gsheet = GSheet(gsheet_id="19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8")
     # Calling write_values on gsheet will write the data to the first tab:
@@ -79,7 +79,7 @@ to the same cells of the Google Sheet:
     )
 
     rng = Range(
-        gsheet_range=TwoDRange("A1:Z1000"),
+        gsheet_range=FullRange("A1:Z1000"),
         gsheet_id="19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8",
         tab_title="Sheet1",
     )
@@ -100,4 +100,4 @@ off it for greater convenience, you can easily do so:
 
     tab = gsheet.tabs["Sheet1"]
 
-    rng = tab.gen_range(TwoDRange("G1:G"))
+    rng = tab.gen_range(FullRange("G1:G"))

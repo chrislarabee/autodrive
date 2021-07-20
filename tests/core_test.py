@@ -3,7 +3,7 @@ import string
 
 from autodrive.dtypes import FormattedVal, UserEnteredVal, EffectiveVal
 from autodrive._view import GSheetView
-from autodrive.interfaces import TwoDRange
+from autodrive.interfaces import FullRange
 from autodrive.range import Range
 from .conftest import ExampleView
 
@@ -70,8 +70,9 @@ class TestGSheetView:
     ):
         comp = gsheet_view(gsheet_id="test")
         rng = Range(
-            TwoDRange(0, range_str="Sheet1!A1:C3"),
+            FullRange("Sheet1!A1:C3"),
             tab_title="",
+            tab_id=0,
             gsheet_id="test",
             autoconnect=False,
         )

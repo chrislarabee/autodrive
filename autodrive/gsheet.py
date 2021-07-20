@@ -6,8 +6,9 @@ from typing import Any, Dict, KeysView, List, Optional, Tuple, ValuesView
 from . import _google_terms as terms
 from .connection import SheetsConnection
 from ._view import GSheetView
-from .interfaces import AuthConfig, OneDRange, TwoDRange
+from .interfaces import AuthConfig, FullRange
 from .tab import Tab
+from .range import Range
 
 
 class GSheet(GSheetView):
@@ -142,6 +143,28 @@ class GSheet(GSheetView):
         self._requests.append(tab.gen_add_tab_request())
         return self
 
+    def gen_range(self, rng: FullRange, tab: str | int | None = None) -> Range:
+        """
+        Convenience method for generating a new Range object from a Tab in this
+        GSheet.
+
+        Args:
+            rng (FullRange): The desired FullRange of the new Range object.
+            tab (str | int, optional): The name of the Tab to generate from, or
+                its index. Defaults to None, which will generate a range from the
+                first Tab.
+
+        Returns:
+            Range: The newly generated Range object.
+        """
+        if isinstance(tab, str):
+            from_tab = self.tabs[tab]
+        elif isinstance(tab, int):
+            from_tab = self._tabs[tab]
+        else:
+            from_tab = self._tabs[0]
+        return from_tab.gen_range(rng)
+
     # @add_tab.register
     # def add_tab_by_name(
     #     self,
@@ -163,7 +186,7 @@ class GSheet(GSheetView):
         self,
         data: List[List[Any]],
         to_tab: str | None = None,
-        rng: TwoDRange | OneDRange | None = None,
+        rng: FullRange | None = None,
     ) -> GSheet:
         """
         Adds a request to write data. GSheet.commit () to commit the requests.
@@ -173,10 +196,10 @@ class GSheet(GSheetView):
                 data list is a row, with each value in that sublist being a column.
             to_tab (str, optional): The name of the tab to write to, defaults to
                 None, which will write to whatever tab is first in the Sheet.
-            rng (TwoDRange, optional): A TwoDRange, to which the data will be
-                written, starting with the top-left-most cell in the range,
-                defaults to None, which will write to the top-left-most cell in
-                the passed tab, or the first tab.
+            rng (FullRange, optional): The range to which the data will be written,
+                starting with the top-left-most cell in the range, defaults to None,
+                which will write to the top-left-most cell in the passed tab, or
+                the first tab.
 
         Returns:
             GSheet: This GSheet.
@@ -190,12 +213,12 @@ class GSheet(GSheetView):
         if not tab:
             raise KeyError(f"{to_tab} not found in {self._title} tabs.")
         if not rng:
-            rng = tab.two_d_range()
+            rng = tab.full_range()
         self._write_values(data, rng.to_dict())
         return self
 
     def get_data(
-        self, tab: str | int | None = None, rng: TwoDRange | OneDRange | None = None
+        self, tab: str | int | None = None, rng: FullRange | None = None
     ) -> GSheet:
         """
         Gets the data from the cells of the GSheet.
@@ -209,10 +232,8 @@ class GSheet(GSheetView):
             tab (str | int, optional): The name of the tab, or its (0-based) index
                 (from left to right), defaults to None, which will collect data from
                 the first tab in the Sheet.
-            rng (TwoDRange | OneDRange, optional): The specific range to fetch data
+            rng (FullRange, optional): The specific range to fetch data
                 from, defaults to None, for all data in the target tab.
-            tab: str | int | None:  (Default value = None)
-            rng: TwoDRange | OneDRange | None:  (Default value = None)
 
         Returns:
             GSheet: This GSheet.
@@ -234,7 +255,7 @@ class GSheet(GSheetView):
                 f"tab must be a string, integer, or None. type = {type(tab)}"
             )
         if not rng:
-            rng = tab_.two_d_range()
+            rng = tab_.full_range()
         values, formats = self._get_data(self._gsheet_id, str(rng))
         tab_.values = values
         tab_.formats = formats

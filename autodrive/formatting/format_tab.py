@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from .._view import CellFormatting, GridFormatting, TextFormatting
-from ..interfaces import Color, Format, OneDRange, TwoDRange
+from ..interfaces import Color, Format, HalfRange, FullRange
 from . import _cell as cell, _grid as grid, _text as text
 
 
@@ -12,7 +12,7 @@ class TabCellFormatting(CellFormatting):
     """
 
     def add_alternating_row_background(
-        self, colors: Color, rng: TwoDRange | None = None
+        self, colors: Color, rng: FullRange | None = None
     ) -> TabCellFormatting:
         """
         Queues a request to add an alternating row background of the indicated
@@ -20,7 +20,7 @@ class TabCellFormatting(CellFormatting):
 
         Args:
           colors (Color): The desired Color to apply to every other row.
-          rng (TwoDRange, optional): A TwoDRange within the tab to apply the
+          rng (FullRange, optional): A FullRange within the tab to apply the
             alternating row colors to.
 
         Returns:
@@ -29,6 +29,7 @@ class TabCellFormatting(CellFormatting):
 
         """
         rng = rng if rng else self._parent.range
+        rng.validate(self._parent.tab_id)
         self.add_request(cell.add_alternating_row_background(rng, colors))
         return self
 
@@ -39,13 +40,13 @@ class TabGridFormatting(GridFormatting):
     (number of columns, rows, width and height, etc).
     """
 
-    def auto_column_width(self, rng: OneDRange | None = None) -> TabGridFormatting:
+    def auto_column_width(self, rng: HalfRange | None = None) -> TabGridFormatting:
         """
         Queues a request to set the column width of the Tab's columns equal to the
         width of the values in the cells.
 
         Args:
-          rng (OneDRange, optional): The range of columns to be affected, defaults to
+          rng (HalfRange, optional): The range of columns to be affected, defaults to
             None for all columns in the Tab.
 
         Returns:
@@ -54,6 +55,7 @@ class TabGridFormatting(GridFormatting):
 
         """
         rng = rng if rng else self._parent.range.col_range
+        rng.validate(self._parent.tab_id)
         self.add_request(grid.auto_column_width(rng))
         return self
 
@@ -88,18 +90,19 @@ class TabGridFormatting(GridFormatting):
         self.add_request(grid.insert_rows(self._parent.tab_id, num_rows, at_row - 1))
         return self
 
-    def delete_rows(self, rng: OneDRange) -> TabGridFormatting:
+    def delete_rows(self, rng: HalfRange) -> TabGridFormatting:
         """
         Queues a request to delete rows in the selected row range.
 
         Args:
-          rng (OneDRange): The range of rows to delete.
+          rng (HalfRange): The range of rows to delete.
 
         Returns:
           TabGridFormatting: This formatting object, so further requests can be
             queued if desired.
 
         """
+        rng.validate(self._parent.tab_id)
         self.add_request(grid.delete_rows(rng))
         return self
 
@@ -112,14 +115,14 @@ class TabTextFormatting(TextFormatting):
     """
 
     def apply_format(
-        self, format: Format, rng: TwoDRange | None = None
+        self, format: Format, rng: FullRange | None = None
     ) -> TabTextFormatting:
         """
         Queues a request to set the text/number format of the Range's cells.
 
         Args:
           format (Format): A format instance, such as TextFormat or NumberFormat.
-          rng (TwoDRange, optional): Optional rnage within the Tab to apply the
+          rng (FullRange, optional): Optional rnage within the Tab to apply the
             format to, defaults to None, for all cells in the Tab.
 
         Returns:
@@ -127,6 +130,7 @@ class TabTextFormatting(TextFormatting):
             queued if desired.
 
         """
-        rng = self.ensure_2d_range(rng)
+        rng = self.ensure_full_range(rng)
+        rng.validate(self._parent.tab_id)
         self.add_request(text.apply_format(rng, format))
         return self

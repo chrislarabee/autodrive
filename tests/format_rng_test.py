@@ -2,7 +2,7 @@ import pytest
 
 from autodrive.range import Range
 from autodrive.tab import Tab
-from autodrive.interfaces import Color, TextFormat, TwoDRange
+from autodrive.interfaces import Color, TextFormat, FullRange
 from autodrive.gsheet import GSheet
 from autodrive.connection import SheetsConnection
 
@@ -27,9 +27,10 @@ class TestRangeFormatting:
         self, test_tab: Tab, sheets_conn: SheetsConnection
     ):
         rng = Range(
-            TwoDRange(test_tab.tab_id, range_str="C3"),
+            FullRange("C3"),
             test_tab.gsheet_id,
             tab_title="rng_format",
+            tab_id=test_tab.tab_id,
             sheets_conn=sheets_conn,
         )
         rng.format_cell.add_alternating_row_background(Color(1.0, 0.5))

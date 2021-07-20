@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ..interfaces import TwoDRange, Color
+from ..interfaces import FullRange, Color
 from ..dtypes import UserEnteredVal
 
 
-def add_alternating_row_background(rng: TwoDRange, colors: Color) -> Dict[str, Any]:
+def add_alternating_row_background(rng: FullRange, colors: Color) -> Dict[str, Any]:
     return {
         "addConditionalFormatRule": {
             "rule": {

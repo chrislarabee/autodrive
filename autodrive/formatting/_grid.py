@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import Any, Dict, overload
 
 from .. import _google_terms as terms
-from ..interfaces import OneDRange
+from ..interfaces import HalfRange
 
 
-def auto_column_width(rng: OneDRange) -> Dict[str, Any]:
+def auto_column_width(rng: HalfRange) -> Dict[str, Any]:
     return {
         "autoResizeDimensions": {
             terms.DIMS: {
@@ -31,7 +31,9 @@ def insert_rows(tab_id: int, num_rows: int, at_row: int) -> Dict[str, Any]:
     return {
         "insertDimension": {
             terms.RNG: {
-                **dict(OneDRange(tab_id, at_row, at_row + num_rows, base0_idxs=True)),
+                **dict(
+                    HalfRange(at_row, at_row + num_rows, base0_idxs=True, tab_id=tab_id)
+                ),
                 terms.DIM: terms.ROWDIM,
             },
             "inheritFromBefore": False,
@@ -39,7 +41,7 @@ def insert_rows(tab_id: int, num_rows: int, at_row: int) -> Dict[str, Any]:
     }
 
 
-def delete_rows(rng: OneDRange) -> Dict[str, Any]:
+def delete_rows(rng: HalfRange) -> Dict[str, Any]:
     return {
         "deleteDimension": {
             terms.RNG: {

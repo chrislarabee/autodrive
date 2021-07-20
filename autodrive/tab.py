@@ -10,7 +10,7 @@ from .formatting.format_tab import (
     TabGridFormatting,
     TabTextFormatting,
 )
-from .interfaces import AuthConfig, OneDRange, TwoDRange
+from .interfaces import AuthConfig, HalfRange, FullRange
 from .range import Range
 
 
@@ -62,15 +62,16 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
         self._row_count = row_count
         super().__init__(
             gsheet_id=gsheet_id,
-            gsheet_range=TwoDRange(
-                self._tab_id,
+            gsheet_range=FullRange(
                 start_row=0,
                 end_row=row_count,
                 start_col=0,
                 end_col=column_count,
                 tab_title=tab_title,
                 base0_idxs=True,
+                tab_id=self._tab_id,
             ),
+            tab_id=self._tab_id,
             grid_formatting=TabGridFormatting,
             text_formatting=TabTextFormatting,
             cell_formatting=TabCellFormatting,
@@ -204,19 +205,24 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
             autoconnect=autoconnect,
         )
 
-    def two_d_range(self) -> TwoDRange:
+    def full_range(self) -> FullRange:
         """
-        Generates a TwoDRange object corresponding to the full range of the Tab.
+        Generates a FullRange object corresponding to the full range of the Tab.
 
         Returns:
-            TwoDRange: A TwoDRange from A1:the end of the Tab.
+            FullRange: A FullRange from A1:the end of the Tab.
 
         """
-        return TwoDRange(
-            self._tab_id, 0, self._row_count, 0, self._column_count, base0_idxs=True
+        return FullRange(
+            start_row=0,
+            end_row=self._row_count,
+            start_col=0,
+            end_col=self._column_count,
+            base0_idxs=True,
+            tab_id=self._tab_id,
         )
 
-    def get_data(self, rng: TwoDRange | OneDRange | None = None) -> Tab:
+    def get_data(self, rng: FullRange | HalfRange | None = None) -> Tab:
         """
         Gets the data from the cells of this Tab.
 
@@ -226,7 +232,7 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
             API immediately.
 
         Args:
-            rng (TwoDRange | OneDRange, optional): An optional range value, to
+            rng (FullRange | HalfRange, optional): An optional range value, to
                 specify a subset of the Tab's values to get, defaults to None,
                 which fetches all values in the Tab.
 
@@ -234,14 +240,14 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
             Tab: This Tab.
 
         """
-        rng = self.two_d_range() if not rng else rng
+        rng = self.full_range() if not rng else rng
         self._values, self._formats = self._get_data(
             self._gsheet_id, f"{self._title}!{rng}"
         )
         return self
 
     def write_values(
-        self, data: List[List[Any]], rng: TwoDRange | OneDRange | None = None
+        self, data: List[List[Any]], rng: FullRange | HalfRange | None = None
     ) -> Tab:
         """
         Adds a request to write data. Tab.commit () to commit the requests.
@@ -249,7 +255,7 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
         Args:
             data (List[List[Any]]): The data to write. Each list in the passed data
                 list is a row, with each value in that sublist being a column.
-            rng (TwoDRange | OneDRange, optional): A specific range to write to,
+            rng (FullRange | HalfRange, optional): A specific range to write to,
                 starting with the top-left-most cell in the range, defaults to None,
                 which will write to the top-left-most cell of the Tab.
 
@@ -257,7 +263,7 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
             Tab: This Tab.
 
         """
-        rng = self.two_d_range() if not rng else rng
+        rng = self.full_range() if not rng else rng
         self._write_values(data, rng.to_dict())
         return self
 
@@ -338,14 +344,17 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
         self.commit()
         return self
 
-    def gen_range(self, rng: TwoDRange) -> Range:
+    def gen_range(self, rng: FullRange) -> Range:
         """
         Convenience method for generating a new Range object in this Tab.
 
         Args:
-            rng (TwoDRange): The desired TwoDRange of the new Range object.
+            rng (FullRange): The desired FullRange of the new Range object.
 
         Returns:
             Range: The newly generated Range.
         """
-        return Range(rng, self._gsheet_id, self._title, sheets_conn=self._conn)
+        rng.validate(self._tab_id)
+        return Range(
+            rng, self._gsheet_id, self._title, self._tab_id, sheets_conn=self._conn
+        )

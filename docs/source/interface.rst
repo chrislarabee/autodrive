@@ -13,27 +13,27 @@ Range Interfaces
 Range interfaces serve as guides to constructing valid start and end ranges for
 a Google Sheet. They essentially correspond to a Google Sheets range like 
 ``A1:D50``. There are two types of range interfaces in Autodrive, 
-:class:`TwoDRanges <autodrive.interfaces.TwoDRange>` and the less common
-:class:`OneDRanges <autodrive.interfaces.OneDRange>`.
+:class:`FullRanges <autodrive.interfaces.FullRange>` and the less common
+:class:`HalfRanges <autodrive.interfaces.HalfRange>`.
 
 .. code-block:: python
 
-    from autodrive.interfaces import TwoDRange, OneDRange
+    from autodrive.interfaces import FullRange, HalfRange
 
-    # TwoDRanges are much more commonly used, and correspond to a grid of cells in
-    # Google Sheets. For example, a TwoDRange covering cells from the upper-left-
+    # FullRanges are much more commonly used, and correspond to a grid of cells in
+    # Google Sheets. For example, a FullRange covering cells from the upper-left-
     # most cell in a Google Sheet to the 4th column (D) and the 50th row could be
     # instantiated like:
-    rng2d = TwoDRange(tab_id=0, range_str="A1:D50")
+    full = FullRange("A1:D50")
 
-    # OneDRanges are less common, only being used by certain formatting methods. 
+    # HalfRanges are less common, only being used by certain formatting methods. 
     # They represent a single row or column range in Google Sheets. For example,
     # you could select the entire top row of a Google Sheet with:
-    rng1d = OneDRange(tab_id=0, start_idx="A1", end_index="Z")  # A1:Z1
+    half = HalfRange(start_idx="A", end_index="Z")  # A1:Z
     # Or you could select a part of a certain column:
-    rng1d = OneDRange(tab_id=0, start_idx="A1", end_index=50)  # A1:A50
+    half = HalfRange(start_idx=1, end_index=50)  # A1:A50
     # Or the entire column:
-    rng1d = OneDRange(tab_id=0, start_idx="A1")  # A1:A
+    half = HalfRange(start_idx="A")  # A1
 
 Formatting Interfaces
 *********************

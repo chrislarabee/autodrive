@@ -1,10 +1,11 @@
 from autodrive.formatting import _text as text
-from autodrive.interfaces import TwoDRange, TextFormat, AccountingFormat
+from autodrive.interfaces import FullRange, TextFormat, AccountingFormat
 
 
 def test_apply_format_works_with_text_format():
     result = text.apply_format(
-        TwoDRange(0, 0, 4, base0_idxs=True), TextFormat(font_size=12, bold=True)
+        FullRange(start_row=0, end_row=3, base0_idxs=True, tab_id=0),
+        TextFormat(font_size=12, bold=True),
     )
     assert result == {
         "repeatCell": {
@@ -13,6 +14,7 @@ def test_apply_format_works_with_text_format():
                 "startRowIndex": 0,
                 "endRowIndex": 4,
                 "startColumnIndex": 0,
+                "endColumnIndex": 1,
             },
             "cell": {
                 "userEnteredFormat": {"textFormat": {"fontSize": 12, "bold": True}}
@@ -23,7 +25,9 @@ def test_apply_format_works_with_text_format():
 
 
 def test_apply_format_works_with_number_formats():
-    result = text.apply_format(TwoDRange(0, 0, 4, base0_idxs=True), AccountingFormat)
+    result = text.apply_format(
+        FullRange(start_row=0, end_row=3, tab_id=0, base0_idxs=True), AccountingFormat
+    )
     assert result == {
         "repeatCell": {
             "range": {
@@ -31,6 +35,7 @@ def test_apply_format_works_with_number_formats():
                 "startRowIndex": 0,
                 "endRowIndex": 4,
                 "startColumnIndex": 0,
+                "endColumnIndex": 1,
             },
             "cell": {
                 "userEnteredFormat": {

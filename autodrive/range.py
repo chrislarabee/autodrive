@@ -9,7 +9,7 @@ from .formatting.format_rng import (
     RangeGridFormatting,
     RangeTextFormatting,
 )
-from .interfaces import AuthConfig, TwoDRange
+from .interfaces import AuthConfig, FullRange
 
 
 class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatting]):
@@ -19,9 +19,10 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
 
     def __init__(
         self,
-        gsheet_range: TwoDRange,
+        gsheet_range: FullRange,
         gsheet_id: str,
         tab_title: str,
+        tab_id: int,
         *,
         auth_config: AuthConfig | None = None,
         sheets_conn: SheetsConnection | None = None,
@@ -30,7 +31,7 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
         """
 
         Args:
-            gsheet_range (TwoDRange): The range (i.e. A5:C10) to associate with
+            gsheet_range (FullRange): The range (i.e. A5:C10) to associate with
                 this Range.
             gsheet_id (str): The id string of the target Google Sheet that the
                 Range resides in; can be found in the Google Sheet url.
@@ -46,9 +47,11 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
         """
         self._tab_title = tab_title
         gsheet_range.tab_title = tab_title
+        gsheet_range.validate(tab_id)
         self._rng = gsheet_range
         super().__init__(
             gsheet_id=gsheet_id,
+            tab_id=tab_id,
             gsheet_range=gsheet_range,
             grid_formatting=RangeGridFormatting,
             text_formatting=RangeTextFormatting,
