@@ -5,10 +5,10 @@ import string
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Mapping, Optional, Tuple, TypeVar
 
-from . import _google_terms as terms
-
-_DEFAULT_TOKEN = "gdrive_token.pickle"
-_DEFAULT_CREDS = "credentials.json"
+DEFAULT_TOKEN = "gdrive_token.pickle"
+"""Filepath for the token pickle file. Default="gdrive_token.pickle". """
+DEFAULT_CREDS = "credentials.json"
+"""Filepath for the credentials json file. Default="credentials.json" """
 
 
 _T = TypeVar("_T")
@@ -30,22 +30,6 @@ class ParseRangeError(Exception):
         super().__init__(msg, *args)
 
 
-class RequestConversionError(Exception):
-    """
-    Error raised when a RangeInterface's to_dict method is called before the
-    RangeInterface's tab_id attribute has been validated.
-    """
-
-    def __init__(self, *args: object) -> None:
-        """ """
-        msg = (
-            "This RangeInterface cannot be converted to a request-ready format "
-            "until its tab_id attribute has been set either directly or with its "
-            "validate () method."
-        )
-        super().__init__(msg, *args)
-
-
 class AuthConfig:
     """
     Optional custom configuration for Autodrive's authentication processes using
@@ -55,8 +39,8 @@ class AuthConfig:
     def __init__(
         self,
         secrets_config: Dict[str, Any] | None = None,
-        token_filepath: str | Path = _DEFAULT_TOKEN,
-        creds_filepath: str | Path = _DEFAULT_CREDS,
+        token_filepath: str | Path = DEFAULT_TOKEN,
+        creds_filepath: str | Path = DEFAULT_CREDS,
     ) -> None:
         """
         Args:
@@ -67,12 +51,12 @@ class AuthConfig:
             token_filepath (str | Path, optional): The filepath to your gdrive_token
                 pickle file. This doesn't have to exist at time of authentication,
                 and will be saved to this path when the authorization flow completes,
-                defaults to _DEFAULT_TOKEN, which is "gdrive_token.pickle" in your
+                defaults to DEFAULT_TOKEN, which is "gdrive_token.pickle" in your
                 cwd.
             creds_filepath (str | Path, optional): The filepath to your api
                 credentials json file. This file *does* need to exist at time of
                 authentication, unless you pass a secrets_config dictionary,
-                defaults to _DEFAULT_CREDS, which is "credentials.json" from your
+                defaults to DEFAULT_CREDS, which is "credentials.json" from your
                 cwd.
 
         """
@@ -122,27 +106,11 @@ class _RangeInterface(_Interface[int]):
     Underlying class for HAlf and Full Range Interfaces.
     """
 
-    def __init__(self, tab_id: int | None = None, tab_title: str | None = None) -> None:
-        self.tab_id = tab_id
+    def __init__(self, tab_title: str | None = None) -> None:
         self.tab_title = tab_title
 
     def to_dict(self) -> Dict[str, int]:
-        # A null tab_id is technically valid at runtime, until a dictionary needs to
-        # be generated from a _RangeInterface, at which point it becomes invalid.
-        if self.tab_id is None:
-            raise RequestConversionError
-        return {terms.TAB_ID: self.tab_id}
-
-    def validate(self, tab_id: int) -> None:
-        """
-
-        Args:
-            tab_id (int): Ensures the RangeInterface is valid for use in a request
-                dictionary by applying the passed tab_id to itself, if one hasn't
-                already been manually applied.
-        """
-        if self.tab_id is None:
-            self.tab_id = tab_id
+        return {}
 
     @classmethod
     def _construct_range_str(
@@ -336,7 +304,6 @@ class HalfRange(_RangeInterface):
         start_idx: str | int | None = None,
         end_idx: str | int | None = None,
         *,
-        tab_id: int | None = None,
         tab_title: str | None = None,
         base0_idxs: bool = False,
         column: bool = False,
@@ -350,9 +317,6 @@ class HalfRange(_RangeInterface):
             end_idx (str | int, optional): The last column/row in the range,
                 assumed to not be 0-based if it's an integer (row), defaults to
                 None.
-            tab_id (int, optional): The tab id this range resides in. Can be added
-                on instantiation or later, but MUST be added before attempting to
-                use this HalfRange in a request.
             tab_title (str, optional): The name of the tab this range resides in,
                 defaults to None.
             base0_idxs (bool, optional): Set to True if you'd like to pass 0-based
@@ -361,7 +325,7 @@ class HalfRange(_RangeInterface):
                 and you supplied the column indexes as integers, defaults to False.
 
         """
-        super().__init__(tab_id, tab_title)
+        super().__init__(tab_title)
         if start_idx is not None:
             self.start_idx = self._parse_idx(start_idx, base0_idxs)
         elif end_idx is not None:
@@ -385,9 +349,7 @@ class HalfRange(_RangeInterface):
             usable in generating an api request to affect the target range of cells.
 
         """
-        if self.tab_id is None:
-            raise RequestConversionError
-        result = {terms.TAB_ID: self.tab_id}
+        result: Dict[str, int] = {}
         # All of these must be is not None because any of them can be 0:
         if self.start_idx is not None:
             result["startIndex"] = self.start_idx
@@ -467,7 +429,6 @@ class FullRange(_RangeInterface):
         end_row: int | None = None,
         start_col: int | str | None = None,
         end_col: int | str | None = None,
-        tab_id: int | None = None,
         base0_idxs: bool = False,
         tab_title: str | None = None,
     ) -> None:
@@ -483,16 +444,13 @@ class FullRange(_RangeInterface):
                 to not be 0-based if it's an integer, defaults to None.
             end_col (int | str, optional): The last column in the range, assumed to
                 not be 0-based if it's an integer, defaults to None.
-            tab_id (int, optional): The tab id this range resides in. Can be added
-                on instantiation or later, but MUST be added before attempting to
-                use this HalfRange in a request.
             base0_idxs (bool, optional): Set to True if you'd like to pass 0-based
                 indices to start/end_row and start/end_col, defaults to False.
             tab_title (str, optional): The name of the tab this range resides in,
                 defaults to None.
 
         """
-        super().__init__(tab_id, tab_title)
+        super().__init__(tab_title)
         self._single_cell = False
         if range_str:
             title, start, end = self._parse_range_str(range_str)
@@ -536,7 +494,6 @@ class FullRange(_RangeInterface):
             self.start_row,
             self.end_row,
             tab_title=self.tab_title,
-            tab_id=self.tab_id,
             base0_idxs=True,
         )
 
@@ -551,7 +508,6 @@ class FullRange(_RangeInterface):
             self.start_col,
             self.end_col,
             tab_title=self.tab_title,
-            tab_id=self.tab_id,
             base0_idxs=True,
             column=True,
         )
@@ -576,9 +532,7 @@ class FullRange(_RangeInterface):
             usable in generating an api request to affect the target range of cells.
 
         """
-        if self.tab_id is None:
-            raise RequestConversionError
-        result = {terms.TAB_ID: self.tab_id}
+        result: Dict[str, int] = {}
         # All of these must be is not None because any of them can be 0:
         if self.start_row is not None:
             result["startRowIndex"] = self.start_row

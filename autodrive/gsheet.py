@@ -9,6 +9,7 @@ from ._view import GSheetView
 from .interfaces import AuthConfig, FullRange
 from .tab import Tab
 from .range import Range
+from .dtypes import EffectiveVal, GoogleValueType
 
 
 class GSheet(GSheetView):
@@ -214,11 +215,14 @@ class GSheet(GSheetView):
             raise KeyError(f"{to_tab} not found in {self._title} tabs.")
         if not rng:
             rng = tab.full_range()
-        self._write_values(data, rng.to_dict())
+        self._write_values(data, tab._tab_id, rng.to_dict())
         return self
 
     def get_data(
-        self, tab: str | int | None = None, rng: FullRange | None = None
+        self,
+        tab: str | int | None = None,
+        rng: FullRange | None = None,
+        value_type: GoogleValueType = EffectiveVal,
     ) -> GSheet:
         """
         Gets the data from the cells of the GSheet.
@@ -234,6 +238,10 @@ class GSheet(GSheetView):
                 the first tab in the Sheet.
             rng (FullRange, optional): The specific range to fetch data
                 from, defaults to None, for all data in the target tab.
+            value_type (GoogleValueType, optional): Allows you to toggle the
+                type of the values returned by the Google Sheets API. See the
+                :mod:`dtypes <autodrive.dtypes>` documentation for more info on
+                the different GoogleValueTypes.
 
         Returns:
             GSheet: This GSheet.
@@ -256,7 +264,9 @@ class GSheet(GSheetView):
             )
         if not rng:
             rng = tab_.full_range()
-        values, formats = self._get_data(self._gsheet_id, str(rng))
+        if not rng.tab_title:
+            rng.tab_title = tab_.title
+        values, formats = self._get_data(self._gsheet_id, str(rng), value_type)
         tab_.values = values
         tab_.formats = formats
         return self

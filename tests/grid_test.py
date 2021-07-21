@@ -5,7 +5,7 @@ from autodrive.interfaces import HalfRange
 
 
 def test_auto_column_width():
-    result = grid.auto_column_width(HalfRange(0, 4, base0_idxs=True, tab_id=0))
+    result = grid.auto_column_width(0, HalfRange(0, 4, base0_idxs=True))
     assert result == {
         "autoResizeDimensions": {
             "dimensions": {
@@ -41,7 +41,7 @@ def test_insert_rows():
 
 
 def test_delete_rows():
-    result = grid.delete_rows(HalfRange(5, 9, base0_idxs=True, tab_id=0))
+    result = grid.delete_rows(0, HalfRange(5, 9, base0_idxs=True))
     assert result == {
         "deleteDimension": {
             "range": {

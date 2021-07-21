@@ -10,8 +10,9 @@ from .formatting.format_tab import (
     TabGridFormatting,
     TabTextFormatting,
 )
-from .interfaces import AuthConfig, HalfRange, FullRange
+from .interfaces import AuthConfig, FullRange
 from .range import Range
+from .dtypes import EffectiveVal, GoogleValueType
 
 
 class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
@@ -69,7 +70,6 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
                 end_col=column_count,
                 tab_title=tab_title,
                 base0_idxs=True,
-                tab_id=self._tab_id,
             ),
             tab_id=self._tab_id,
             grid_formatting=TabGridFormatting,
@@ -219,10 +219,11 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
             start_col=0,
             end_col=self._column_count,
             base0_idxs=True,
-            tab_id=self._tab_id,
         )
 
-    def get_data(self, rng: FullRange | HalfRange | None = None) -> Tab:
+    def get_data(
+        self, rng: FullRange | None = None, value_type: GoogleValueType = EffectiveVal
+    ) -> Tab:
         """
         Gets the data from the cells of this Tab.
 
@@ -235,27 +236,31 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
             rng (FullRange | HalfRange, optional): An optional range value, to
                 specify a subset of the Tab's values to get, defaults to None,
                 which fetches all values in the Tab.
+            value_type (GoogleValueType, optional): Allows you to toggle the
+                type of the values returned by the Google Sheets API. See the
+                :mod:`dtypes <autodrive.dtypes>` documentation for more info on
+                the different GoogleValueTypes.
 
         Returns:
             Tab: This Tab.
 
         """
         rng = self.full_range() if not rng else rng
+        if not rng.tab_title:
+            rng.tab_title = self._title
         self._values, self._formats = self._get_data(
-            self._gsheet_id, f"{self._title}!{rng}"
+            self._gsheet_id, str(rng), value_type
         )
         return self
 
-    def write_values(
-        self, data: List[List[Any]], rng: FullRange | HalfRange | None = None
-    ) -> Tab:
+    def write_values(self, data: List[List[Any]], rng: FullRange | None = None) -> Tab:
         """
         Adds a request to write data. Tab.commit () to commit the requests.
 
         Args:
             data (List[List[Any]]): The data to write. Each list in the passed data
                 list is a row, with each value in that sublist being a column.
-            rng (FullRange | HalfRange, optional): A specific range to write to,
+            rng (FullRange, optional): A specific range to write to,
                 starting with the top-left-most cell in the range, defaults to None,
                 which will write to the top-left-most cell of the Tab.
 
@@ -264,7 +269,7 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
 
         """
         rng = self.full_range() if not rng else rng
-        self._write_values(data, rng.to_dict())
+        self._write_values(data, self._tab_id, rng.to_dict())
         return self
 
     @classmethod
@@ -354,7 +359,6 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
         Returns:
             Range: The newly generated Range.
         """
-        rng.validate(self._tab_id)
         return Range(
             rng, self._gsheet_id, self._title, self._tab_id, sheets_conn=self._conn
         )

@@ -8,6 +8,7 @@ from autodrive.interfaces import (
     _RangeInterface,
 )
 from autodrive import interfaces as intf
+from autodrive.dtypes import FormattedVal
 
 
 class TestRangeInterface:
@@ -105,10 +106,10 @@ class TestHalfRange:
         assert result.end_idx == 19
 
     def test_that_it_can_handle_one_based_idxs(self):
-        result = HalfRange(1, 4, tab_id=0)
+        result = HalfRange(1, 4)
         assert result.start_idx == 0
         assert result.end_idx == 3
-        assert dict(result) == {"sheetId": 0, "startIndex": 0, "endIndex": 4}
+        assert dict(result) == {"startIndex": 0, "endIndex": 4}
         result = HalfRange(end_idx=10)
         assert result.start_idx == 0
         assert result.end_idx == 9
@@ -259,7 +260,6 @@ class TestColor:
         pass
 
 
-@pytest.mark.skip
 @pytest.mark.connection
 def test_that_all_numeric_formats_work_as_expected(test_gsheet: GSheet):
     # This is partially to act as a safeguard against google changing the
@@ -269,15 +269,26 @@ def test_that_all_numeric_formats_work_as_expected(test_gsheet: GSheet):
     tab.write_values([[1234.56 for _ in range(12)]], rng)
     formats = [
         (intf.AutomaticFormat, "1234.56"),
-        (intf.NumberFormat, "1,245.56"),
-        (intf.AccountingFormat, "$ 1,234.56"),
+        (intf.NumberFormat, "1,234.56"),
+        (intf.AccountingFormat, " $ 1,234.56 "),
         (intf.PercentFormat, "123456.00%"),
         (intf.ScientificFormat, "1.23E+03"),
+        (intf.FinancialFormat, "1,234.56"),
+        (intf.CurrencyFormat, "$1,234.56"),
+        (intf.CurRoundFormat, "$1,235"),
+        (intf.DateFormat, "5/18/1903"),
+        (intf.TimeFormat, "1:26:24 PM"),
+        (intf.DatetimeFormat, "5/18/1903 13:26:24"),
+        (intf.DurationFormat, "29629:26:24"),
     ]
     for i, fmt in enumerate(formats, 1):
         tab.format_text.apply_format(
             fmt[0], FullRange(start_row=10, start_col=i, end_col=i)
         )
     tab.commit()
-    tab.get_data(rng)
-    breakpoint()
+    tab.get_data(rng, FormattedVal)
+    for i, fmt in enumerate(formats):
+        pattern = tab.formats[0][i]["numberFormat"].get("pattern", "")
+        value = tab.values[0][i]
+        assert pattern == fmt[0].pattern
+        assert value == fmt[1]

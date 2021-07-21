@@ -4,9 +4,8 @@ from autodrive.interfaces import FullRange, Color
 
 def test_add_alternating_row_background():
     result = cell.add_alternating_row_background(
-        FullRange(
-            start_row=1, end_row=4, start_col=0, end_col=9, base0_idxs=True, tab_id=0
-        ),
+        0,
+        FullRange(start_row=1, end_row=4, start_col=0, end_col=9, base0_idxs=True),
         Color(0.2, 0.3),
     )
     assert result == {

@@ -6,10 +6,11 @@ from .. import _google_terms as terms
 from ..interfaces import HalfRange
 
 
-def auto_column_width(rng: HalfRange) -> Dict[str, Any]:
+def auto_column_width(tab_id: int, rng: HalfRange) -> Dict[str, Any]:
     return {
         "autoResizeDimensions": {
             terms.DIMS: {
+                terms.TAB_ID: tab_id,
                 **dict(rng),
                 terms.DIM: terms.COLDIM,
             }
@@ -31,9 +32,8 @@ def insert_rows(tab_id: int, num_rows: int, at_row: int) -> Dict[str, Any]:
     return {
         "insertDimension": {
             terms.RNG: {
-                **dict(
-                    HalfRange(at_row, at_row + num_rows, base0_idxs=True, tab_id=tab_id)
-                ),
+                terms.TAB_ID: tab_id,
+                **dict(HalfRange(at_row, at_row + num_rows, base0_idxs=True)),
                 terms.DIM: terms.ROWDIM,
             },
             "inheritFromBefore": False,
@@ -41,10 +41,11 @@ def insert_rows(tab_id: int, num_rows: int, at_row: int) -> Dict[str, Any]:
     }
 
 
-def delete_rows(rng: HalfRange) -> Dict[str, Any]:
+def delete_rows(tab_id: int, rng: HalfRange) -> Dict[str, Any]:
     return {
         "deleteDimension": {
             terms.RNG: {
+                terms.TAB_ID: tab_id,
                 **dict(rng),
                 terms.DIM: terms.ROWDIM,
             }

@@ -13,10 +13,11 @@ from .dtypes import (
     EffectiveVal,
     Formula,
     String,
+    GoogleValueType,
     UserEnteredVal,
 )
 from .interfaces import AuthConfig, FullRange
-from ._core import GoogleDtype, GoogleValueType
+from ._core import GoogleDtype
 
 T = TypeVar("T", bound="GSheetView")
 FC = TypeVar("FC", bound="CellFormatting")
@@ -269,7 +270,9 @@ class GSheetView(ABC):
         row_data = raw[terms.TABS_PROP][0][terms.DATA][0][terms.ROWDATA]
         return self._parse_row_data(row_data, value_type=value_type)
 
-    def _write_values(self: T, data: List[List[Any]], rng_dict: Dict[str, int]) -> T:
+    def _write_values(
+        self: T, data: List[List[Any]], tab_id: int, rng_dict: Dict[str, int]
+    ) -> T:
         """
         Generates an update cells request for writing values to the target range.
 
@@ -288,7 +291,7 @@ class GSheetView(ABC):
             "updateCells": {
                 terms.FIELDS: "*",
                 terms.ROWS: [{terms.VALUES: values} for values in write_values],
-                terms.RNG: rng_dict,
+                terms.RNG: {terms.TAB_ID: tab_id, **rng_dict},
             }
         }
         self._requests.append(request)

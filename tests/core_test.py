@@ -77,7 +77,7 @@ class TestGSheetView:
             autoconnect=False,
         )
         data: List[List[Any]] = [["a", "b", "c"], [1, 2, 3], [4, 5, 6]]
-        comp._write_values(data, rng.range.to_dict())
+        comp._write_values(data, 0, rng.range.to_dict())
         str_w_vals = [{"userEnteredValue": {"stringValue": v}} for v in data[0]]
         int_w_vals = [
             [{"userEnteredValue": {"numberValue": v}} for v in row] for row in data[1:]

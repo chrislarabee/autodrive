@@ -14,18 +14,6 @@ class GoogleDtype(type):
         return cls.python_type(value)
 
 
-class GoogleValueType(type):
-    """
-    Metaclass for the three different ways values are stored in Google Sheets.
-    """
-
-    value_key: str
-    has_dtype: bool = True
-
-    def __str__(cls) -> str:
-        return cls.value_key
-
-
 class GoogleFormatType(type):
     """
     Metaclass for the three different ways format information is stored in

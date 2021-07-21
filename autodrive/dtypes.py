@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ._core import GoogleDtype, GoogleValueType, GoogleFormatType
+from ._core import GoogleDtype, GoogleFormatType
 
 
 class String(metaclass=GoogleDtype):
@@ -101,6 +101,20 @@ class Boolean(metaclass=GoogleDtype):
             return False
         else:
             return True
+
+
+class GoogleValueType(type):
+    """
+    Metaclass for the three different ways values are stored in Google Sheets.
+    """
+
+    value_key: str
+    """The API key for the GoogleValueType."""
+    has_dtype: bool = True
+    """Whether dtype information can be extracted from the GoogleValueType."""
+
+    def __str__(cls) -> str:
+        return cls.value_key
 
 
 class UserEnteredVal(metaclass=GoogleValueType):

@@ -29,8 +29,9 @@ class TabCellFormatting(CellFormatting):
 
         """
         rng = rng if rng else self._parent.range
-        rng.validate(self._parent.tab_id)
-        self.add_request(cell.add_alternating_row_background(rng, colors))
+        self.add_request(
+            cell.add_alternating_row_background(self._parent.tab_id, rng, colors)
+        )
         return self
 
 
@@ -55,8 +56,7 @@ class TabGridFormatting(GridFormatting):
 
         """
         rng = rng if rng else self._parent.range.col_range
-        rng.validate(self._parent.tab_id)
-        self.add_request(grid.auto_column_width(rng))
+        self.add_request(grid.auto_column_width(self._parent.tab_id, rng))
         return self
 
     def append_rows(self, num_rows: int) -> TabGridFormatting:
@@ -102,8 +102,7 @@ class TabGridFormatting(GridFormatting):
             queued if desired.
 
         """
-        rng.validate(self._parent.tab_id)
-        self.add_request(grid.delete_rows(rng))
+        self.add_request(grid.delete_rows(self._parent.tab_id, rng))
         return self
 
 
@@ -131,6 +130,5 @@ class TabTextFormatting(TextFormatting):
 
         """
         rng = self.ensure_full_range(rng)
-        rng.validate(self._parent.tab_id)
-        self.add_request(text.apply_format(rng, format))
+        self.add_request(text.apply_format(self._parent.tab_id, rng, format))
         return self

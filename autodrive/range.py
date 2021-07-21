@@ -10,6 +10,7 @@ from .formatting.format_rng import (
     RangeTextFormatting,
 )
 from .interfaces import AuthConfig, FullRange
+from .dtypes import EffectiveVal, GoogleValueType
 
 
 class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatting]):
@@ -47,8 +48,9 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
         """
         self._tab_title = tab_title
         gsheet_range.tab_title = tab_title
-        gsheet_range.validate(tab_id)
         self._rng = gsheet_range
+        if not self._rng.tab_title:
+            self._rng.tab_title = self._tab_title
         super().__init__(
             gsheet_id=gsheet_id,
             tab_id=tab_id,
@@ -88,7 +90,7 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
         """
         return self._format_cell
 
-    def get_data(self) -> Range:
+    def get_data(self, value_type: GoogleValueType = EffectiveVal) -> Range:
         """
         Gets the data from the cells of this Range.
 
@@ -97,11 +99,19 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
             This method will cause a request to be posted to the relevant Google
             API immediately.
 
+        Args:
+            value_type (GoogleValueType, optional): Allows you to toggle the
+                type of the values returned by the Google Sheets API. See the
+                :mod:`dtypes <autodrive.dtypes>` documentation for more info on
+                the different GoogleValueTypes.
+
         Returns:
           Range: This Range.
 
         """
-        self._values, self._formats = self._get_data(self._gsheet_id, str(self._rng))
+        self._values, self._formats = self._get_data(
+            self._gsheet_id, str(self._rng), value_type
+        )
         return self
 
     def write_values(self, data: List[List[Any]]) -> Range:
@@ -116,5 +126,5 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
           Range: This Tab.
 
         """
-        self._write_values(data, self._rng.to_dict())
+        self._write_values(data, self._tab_id, self._rng.to_dict())
         return self

@@ -4,7 +4,8 @@ from autodrive.interfaces import FullRange, TextFormat, AccountingFormat
 
 def test_apply_format_works_with_text_format():
     result = text.apply_format(
-        FullRange(start_row=0, end_row=3, base0_idxs=True, tab_id=0),
+        0,
+        FullRange(start_row=0, end_row=3, base0_idxs=True),
         TextFormat(font_size=12, bold=True),
     )
     assert result == {
@@ -26,7 +27,7 @@ def test_apply_format_works_with_text_format():
 
 def test_apply_format_works_with_number_formats():
     result = text.apply_format(
-        FullRange(start_row=0, end_row=3, tab_id=0, base0_idxs=True), AccountingFormat
+        0, FullRange(start_row=0, end_row=3, base0_idxs=True), AccountingFormat
     )
     assert result == {
         "repeatCell": {

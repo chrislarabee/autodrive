@@ -25,7 +25,9 @@ class RangeCellFormatting(CellFormatting):
 
         """
         self.add_request(
-            cell.add_alternating_row_background(self._parent.range, colors)
+            cell.add_alternating_row_background(
+                self._parent.tab_id, self._parent.range, colors
+            )
         )
         return self
 
@@ -46,7 +48,9 @@ class RangeGridFormatting(GridFormatting):
             queued if desired.
 
         """
-        self.add_request(grid.auto_column_width(self._parent.range.col_range))
+        self.add_request(
+            grid.auto_column_width(self._parent.tab_id, self._parent.range.col_range)
+        )
         return self
 
 
@@ -69,5 +73,7 @@ class RangeTextFormatting(TextFormatting):
             queued if desired.
 
         """
-        self.add_request(text.apply_format(self._parent.range, format))
+        self.add_request(
+            text.apply_format(self._parent.tab_id, self._parent.range, format)
+        )
         return self
