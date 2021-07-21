@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "autodrive"
-version = "0.1.0"
+version = "0.2.0"
 description = "Simple but robust tool for interacting with the Google Drive and Sheets apis via python."
 authors = ["Chris Larabee"]
 license = "GNU"
