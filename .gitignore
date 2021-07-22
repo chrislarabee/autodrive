@@ -5,6 +5,7 @@ venv/
 *.pickle
 *.text
 *.txt
+!requirements.rtd.txt
 __pycache__
 dist
 docs/build
