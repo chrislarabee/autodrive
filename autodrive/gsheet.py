@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from functools import singledispatchmethod
-from typing import Any, Dict, KeysView, List, Optional, Tuple, ValuesView
+from typing import Any, Dict, KeysView, List, Optional, Tuple, ValuesView, Sequence
+from pathlib import Path
 
 from . import _google_terms as terms
 from .connection import SheetsConnection
@@ -309,3 +310,89 @@ class GSheet(GSheetView):
                 return t.index
         else:
             return None
+
+    def to_csv(
+        self,
+        root_path: str | Path,
+        filename_overrides: Dict[str, str] | None = None,
+        **tabs_and_headers: Sequence[Any] | None,
+    ) -> None:
+        """
+        Convenience method for calling :meth:`.to_csv() <autodrive.tab.Tab.to_csv>` 
+        on some or all of the GSheet's tabs.
+
+        Args:
+            root_path (str): The root directory path to save tab files to.
+            filename_overrides (Dict[str, str], optional): By default, this method
+                will name each file after the corresponding tab's title. To 
+                override some or all of the resulting filenames, pass a dictionary
+                with keys equal to the names of the tab you want to override and 
+                the values equal to the name of the filename you want. Defaults to 
+                None, for all tabs being treated with default behavior.
+            tabs_and_headers: (Sequence[Any], optional): If you want to only 
+                output the data for some of the tabs, you can pass the names of
+                the desired tabs as kwargs. If you wish, you can also pass a 
+                header row for those tabs, which will be inserted as the first
+                row of the file. If you don't want to pass a header row, simply
+                pass ``tabname=None`` for that tab.
+
+        Raises:
+            ValueError: If root_path does not lead to a directory.
+        """
+        root_path = Path(root_path)
+        if not root_path.is_dir():
+            raise ValueError(f"{root_path} is not a directory.")
+        overrides = filename_overrides or {}
+        tab_info = (
+            tabs_and_headers
+            if len(tabs_and_headers) > 0
+            else {t.title: None for t in self._tabs}
+        )
+        for tab_name, header in tab_info.items():
+            tab = self.tabs[tab_name]
+            filename = overrides.get(tab_name, tab.title)
+            p = root_path.joinpath(filename).with_suffix(".csv")
+            tab.to_csv(p, header)
+
+    def to_json(
+        self,
+        root_path: str | Path,
+        filename_overrides: Dict[str, str] | None = None,
+        **tabs_and_headers: Sequence[str] | int,
+    ) -> None:
+        """
+        Convenience method for calling :meth:`.to_json() <autodrive.tab.Tab.to_json>` 
+        on some or all of the GSheet's tabs.
+
+        Args:
+            root_path (str): The root directory path to save tab files to.
+            filename_overrides (Dict[str, str], optional): By default, this method
+                will name each file after the corresponding tab's title. To 
+                override some or all of the resulting filenames, pass a dictionary
+                with keys equal to the names of the tab you want to override and 
+                the values equal to the name of the filename you want. Defaults to 
+                None, for all tabs being treated with default behavior.
+            tabs_and_headers: (Sequence[str] | int, optional): If you want to only 
+                output the data for some of the tabs, you can pass the names of
+                the desired tabs as kwargs. You must also indicate what keys 
+                should be used when creating the jsons for those tabs. For each 
+                header value, you may either pass a row index to pull for the keys,
+                or a list of keys.
+
+        Raises:
+            ValueError: If root_path does not lead to a directory.
+        """
+        root_path = Path(root_path)
+        if not root_path.is_dir():
+            raise ValueError(f"{root_path} is not a directory.")
+        overrides = filename_overrides or {}
+        tab_info = (
+            tabs_and_headers
+            if len(tabs_and_headers) > 0
+            else {t.title: 0 for t in self._tabs}
+        )
+        for tab_name, header in tab_info.items():
+            tab = self.tabs[tab_name]
+            filename = overrides.get(tab_name, tab.title)
+            p = root_path.joinpath(filename).with_suffix(".jsonl")
+            tab.to_json(p, header)

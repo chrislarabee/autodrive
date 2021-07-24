@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import string
 from abc import ABC
-from typing import Any, Dict, Generic, List, Tuple, Type, TypeVar
+from typing import Any, Dict, Generic, List, Tuple, Type, TypeVar, Sequence
+from pathlib import Path
+import csv
+import jsonlines  # type: ignore
 
 from . import _google_terms as terms
 from .connection import SheetsConnection
@@ -34,6 +37,13 @@ class NoConnectionError(Exception):
     def __init__(self, vtype: Type[GSheetView], *args: object) -> None:
         msg = f"No SheetsConnection has been established for this {vtype}."
         super().__init__(msg, *args)
+
+
+class OutputError(Exception):
+    """
+    Error thrown when something goes wrong when attempting to write values to a
+    file.
+    """
 
 
 class Formatting:
@@ -486,3 +496,64 @@ class Component(GSheetView, Generic[FC, FG, FT]):
         """
         width = len(self._values[0]) if self._values else 0
         return len(self._values), width
+
+    def to_csv(self, p: str | Path, header: Sequence[Any] | None = None) -> None:
+        """
+        Saves values to a csv file.
+
+        Args:
+            p (str | Path): The path-like for the file to save the data to.
+            header (Sequence[Any], optional): A header row. If supplied, must be
+                the same number of columns as the data values. Defaults to None.
+        """
+        if header:
+            self._verify_header_len(header)
+            values = [list(header), *self._values]
+        else:
+            values = self._values
+        with open(p, "w") as file:
+            writer = csv.writer(file)
+            writer.writerows(values)
+
+    def to_json(self, p: str | Path, header: Sequence[str] | int) -> None:
+        """
+        Saves values to a json file, with one json per line.
+
+        Args:
+            p (str | Path): The path-like for the file to save the data to.
+            header (Sequence[Any] | int): A header row or the index of a row in
+                the values data to use as the header row. The header will be used
+                as the keys for the json-formatted dictionaries.
+        """
+        if isinstance(header, Sequence):
+            self._verify_header_len(header)
+            values = self._values
+        else:
+            values = self.values
+            header = values.pop(header)
+        values_dicts = [dict(zip(header, row)) for row in values]
+        with jsonlines.open(p, "w") as writer:  # type: ignore
+            writer.write_all(values_dicts)  # type: ignore
+
+    def _verify_header_len(self, header: Sequence[Any]) -> bool:
+        """
+        Ensures the passed header is the appropriate length given the Component's
+        data_shape.
+
+        Args:
+            header (Sequence[Any]): A sequence of values to check.
+
+        Raises:
+            OutputError: If the length of header is less than the width of the
+                Component's data.
+
+        Returns:
+            bool: True if the header passed verification.
+        """
+        if len(header) < self.data_shape[1]:
+            raise OutputError(
+                f"Supplied header length {len(header)} is insufficient for data "
+                f"width {self.data_shape[1]}."
+            )
+        else:
+            return True

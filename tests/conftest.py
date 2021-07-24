@@ -5,8 +5,9 @@ from datetime import datetime as dt
 import pytest
 
 from autodrive.connection import DriveConnection, SheetsConnection
-from autodrive.gsheet import GSheet, GSheetView
+from autodrive.gsheet import GSheet
 from autodrive.interfaces import DEFAULT_CREDS, DEFAULT_TOKEN
+from autodrive._view import GSheetView
 
 from .testing_tools import CREATED_IDS
 

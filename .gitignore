@@ -2,6 +2,8 @@ venv/
 .idea/
 .vscode/
 *.json
+*.csv
+*.jsonl
 *.pickle
 *.text
 *.txt

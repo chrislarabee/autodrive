@@ -170,4 +170,9 @@ texinfo_documents = [
 autoapi_dirs = ["../../autodrive"]
 autodoc_typehints = "description"
 autoapi_python_class_content = "both"
-autoapi_options = ["members", "undoc-members", "show-module-summary"]
+autoapi_options = [
+    "members",
+    "undoc-members",
+    "show-module-summary",
+    "inherited-members",
+]
