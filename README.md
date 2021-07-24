@@ -39,7 +39,7 @@ If your credentials file was saved as `credentials.json`, your browser should
 automatically open and prompt you to authorize the GCP project you created to
 access your Google Drive. Click the various Allow prompts it will show you to
 complete your first connection. After you see the browser switch to a page
-indicating you can close the process, you should see a `gdrive_token.pickle` file
+indicating you can close the process, you should see a `gdrive_token.json` file
 added to the working directory you saved your `credentials.json` file in. Next time
 you use an Autodrive element that needs to connect to your Drive, this token will
 be used and you will not be prompted to authorize access again until it expires.

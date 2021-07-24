@@ -4,7 +4,6 @@ venv/
 *.json
 *.csv
 *.jsonl
-*.pickle
 *.text
 *.txt
 !requirements.rtd.txt

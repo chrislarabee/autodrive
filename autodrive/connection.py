@@ -36,10 +36,9 @@ class DriveConnection(Connection):
         super().__init__(
             api_name="drive",
             api_version=api_version,
-            api_scopes=["https://www.googleapis.com/auth/drive"],
             auth_config=auth_config,
         )
-        self._files = self._view.files()  # type: ignore
+        self._files = self._core.files()  # type: ignore
 
     def find_object(
         self,
@@ -181,10 +180,9 @@ class SheetsConnection(Connection):
         super().__init__(
             api_name="sheets",
             api_version=api_version,
-            api_scopes=["https://www.googleapis.com/auth/spreadsheets"],
             auth_config=auth_config,
         )
-        self._sheets = self._view.spreadsheets()  # type: ignore
+        self._sheets = self._core.spreadsheets()  # type: ignore
 
     def execute_requests(
         self, spreadsheet_id: str, requests: List[Dict[str, Any]]

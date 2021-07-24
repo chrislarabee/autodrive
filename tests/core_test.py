@@ -82,7 +82,7 @@ class TestGSheetView:
         int_w_vals = [
             [{"userEnteredValue": {"numberValue": v}} for v in row] for row in data[1:]
         ]
-        assert comp.requests == [
+        expected = [
             {
                 "updateCells": {
                     "fields": "*",
@@ -100,6 +100,11 @@ class TestGSheetView:
                 }
             }
         ]
+        assert comp.requests == expected
+        # comp._requests = []
+        # dataframe = pd.DataFrame([{"a": 1, "b": 2, "c": 3}, {"a": 4, "b": 5, "c": 6}])
+        # comp._write_values(dataframe, 0, rng.range.to_dict())
+        # assert comp.requests == expected
 
     def test_that_it_can_gen_alpha_keys(self):
         assert GSheetView.gen_alpha_keys(5) == [*string.ascii_uppercase[:5]]

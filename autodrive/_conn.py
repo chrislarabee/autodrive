@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import pickle
 from abc import ABC
 from typing import List, Literal
 
@@ -12,6 +11,11 @@ from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore
 from googleapiclient.discovery import Resource, build
 
 from .interfaces import AuthConfig
+
+SCOPES = [
+    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/spreadsheets",
+]
 
 
 class Connection(ABC):
@@ -29,7 +33,6 @@ class Connection(ABC):
         *,
         api_name: Literal["sheets", "drive"],
         api_version: str,
-        api_scopes: List[str],
         auth_config: AuthConfig | None = None,
     ) -> None:
         """
@@ -44,7 +47,7 @@ class Connection(ABC):
 
         """
         self._auth_config = auth_config or AuthConfig()
-        self._view = self._connect(api_scopes, api_name, api_version)
+        self._core = self._connect(SCOPES, api_name, api_version)
 
     @property
     def auth(self) -> AuthConfig:
@@ -94,8 +97,9 @@ class Connection(ABC):
         # is created automatically when the authorization flow completes for the
         # first time.
         if not creds and auth_config.token_filepath.exists():
-            with open(auth_config.token_filepath, "rb") as token:
-                creds = pickle.load(token)
+            creds = Credentials.from_authorized_user_file(  # type: ignore
+                auth_config.token_filepath, scopes
+            )
         if creds and creds.expired and creds.refresh_token:  # type: ignore
             try:
                 creds.refresh(Request())  # type: ignore
@@ -118,8 +122,8 @@ class Connection(ABC):
                 )
             creds = flow.run_local_server(port=0)  # type: ignore
             # Save the credentials for the next run
-            with open(auth_config.token_filepath, "wb") as token:
-                pickle.dump(creds, token)
+            with open(auth_config.token_filepath, "w") as token:
+                token.write(creds.to_json())  # type: ignore
         return creds
 
     def _connect(

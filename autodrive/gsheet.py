@@ -318,20 +318,20 @@ class GSheet(GSheetView):
         **tabs_and_headers: Sequence[Any] | None,
     ) -> None:
         """
-        Convenience method for calling :meth:`.to_csv() <autodrive.tab.Tab.to_csv>` 
+        Convenience method for calling :meth:`.to_csv() <autodrive.tab.Tab.to_csv>`
         on some or all of the GSheet's tabs.
 
         Args:
             root_path (str): The root directory path to save tab files to.
             filename_overrides (Dict[str, str], optional): By default, this method
-                will name each file after the corresponding tab's title. To 
+                will name each file after the corresponding tab's title. To
                 override some or all of the resulting filenames, pass a dictionary
-                with keys equal to the names of the tab you want to override and 
-                the values equal to the name of the filename you want. Defaults to 
+                with keys equal to the names of the tab you want to override and
+                the values equal to the name of the filename you want. Defaults to
                 None, for all tabs being treated with default behavior.
-            tabs_and_headers: (Sequence[Any], optional): If you want to only 
+            tabs_and_headers: (Sequence[Any], optional): If you want to only
                 output the data for some of the tabs, you can pass the names of
-                the desired tabs as kwargs. If you wish, you can also pass a 
+                the desired tabs as kwargs. If you wish, you can also pass a
                 header row for those tabs, which will be inserted as the first
                 row of the file. If you don't want to pass a header row, simply
                 pass ``tabname=None`` for that tab.
@@ -361,21 +361,21 @@ class GSheet(GSheetView):
         **tabs_and_headers: Sequence[str] | int,
     ) -> None:
         """
-        Convenience method for calling :meth:`.to_json() <autodrive.tab.Tab.to_json>` 
+        Convenience method for calling :meth:`.to_json() <autodrive.tab.Tab.to_json>`
         on some or all of the GSheet's tabs.
 
         Args:
             root_path (str): The root directory path to save tab files to.
             filename_overrides (Dict[str, str], optional): By default, this method
-                will name each file after the corresponding tab's title. To 
+                will name each file after the corresponding tab's title. To
                 override some or all of the resulting filenames, pass a dictionary
-                with keys equal to the names of the tab you want to override and 
-                the values equal to the name of the filename you want. Defaults to 
+                with keys equal to the names of the tab you want to override and
+                the values equal to the name of the filename you want. Defaults to
                 None, for all tabs being treated with default behavior.
-            tabs_and_headers: (Sequence[str] | int, optional): If you want to only 
+            tabs_and_headers: (Sequence[str] | int, optional): If you want to only
                 output the data for some of the tabs, you can pass the names of
-                the desired tabs as kwargs. You must also indicate what keys 
-                should be used when creating the jsons for those tabs. For each 
+                the desired tabs as kwargs. You must also indicate what keys
+                should be used when creating the jsons for those tabs. For each
                 header value, you may either pass a row index to pull for the keys,
                 or a list of keys.
 

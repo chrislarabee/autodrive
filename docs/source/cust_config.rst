@@ -20,7 +20,7 @@ resulting token will get saved:
 .. code-block:: python
 
     config = AuthConfig(
-        token_filepath="custom_token.pickle",
+        token_filepath="custom_token.json",
         creds_filepath="/path/to/somewhere/else/creds.json"
     )
 
@@ -33,7 +33,7 @@ information with environment variables:
 
 .. code-block:: python
 
-    # You can get these from your .pickle token after connecting for the first time:
+    # You can get these from your .json token after connecting for the first time:
     AUTODRIVE_TOKEN="your_token_here"
     AUTODRIVE_REFR_TOKEN="your_refresh_token_here"
     # You can find these in GCP or in your credentials.json file:

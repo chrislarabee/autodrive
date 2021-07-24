@@ -5,8 +5,8 @@ import string
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Mapping, Optional, Tuple, TypeVar
 
-DEFAULT_TOKEN = "gdrive_token.pickle"
-"""Filepath for the token pickle file. Default="gdrive_token.pickle". """
+DEFAULT_TOKEN = "gdrive_token.json"
+"""Filepath for the token json file. Default="gdrive_token.json". """
 DEFAULT_CREDS = "credentials.json"
 """Filepath for the credentials json file. Default="credentials.json" """
 
@@ -49,9 +49,9 @@ class AuthConfig:
                 object. Generally only useful if for some reason you are reading
                 in your own token file, defaults to None.
             token_filepath (str | Path, optional): The filepath to your gdrive_token
-                pickle file. This doesn't have to exist at time of authentication,
+                json file. This doesn't have to exist at time of authentication,
                 and will be saved to this path when the authorization flow completes,
-                defaults to DEFAULT_TOKEN, which is "gdrive_token.pickle" in your
+                defaults to DEFAULT_TOKEN, which is "gdrive_token.json" in your
                 cwd.
             creds_filepath (str | Path, optional): The filepath to your api
                 credentials json file. This file *does* need to exist at time of
@@ -68,7 +68,7 @@ class AuthConfig:
     def token_filepath(self) -> Path:
         """
         Returns:
-            Path: The Path to your token pickle file.
+            Path: The Path to your token json file.
 
         """
         return self._token_filepath
