@@ -4,6 +4,7 @@ venv/
 *.json
 *.csv
 *.jsonl
+*.hjson
 *.text
 *.txt
 !requirements.rtd.txt

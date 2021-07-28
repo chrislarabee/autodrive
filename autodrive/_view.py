@@ -515,7 +515,7 @@ class Component(GSheetView, Generic[FC, FG, FT]):
             writer = csv.writer(file)
             writer.writerows(values)
 
-    def to_json(self, p: str | Path, header: Sequence[str] | int) -> None:
+    def to_json(self, p: str | Path, header: Sequence[str] | int = 0) -> None:
         """
         Saves values to a json file, with one json per line.
 
@@ -523,7 +523,8 @@ class Component(GSheetView, Generic[FC, FG, FT]):
             p (str | Path): The path-like for the file to save the data to.
             header (Sequence[Any] | int): A header row or the index of a row in
                 the values data to use as the header row. The header will be used
-                as the keys for the json-formatted dictionaries.
+                as the keys for the json-formatted dictionaries. Defaults to 0,
+                using the first row as the header.
         """
         if isinstance(header, Sequence):
             self._verify_header_len(header)

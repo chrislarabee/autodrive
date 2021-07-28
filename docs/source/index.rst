@@ -10,6 +10,7 @@ Welcome to Autodrive's documentation!
    batching
    cust_config
    format
+   output
 
    autoapi/index
 
