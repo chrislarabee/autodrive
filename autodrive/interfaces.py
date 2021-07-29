@@ -545,9 +545,6 @@ class FullRange(_RangeInterface):
         return result
 
 
-_NT = TypeVar("_NT", int, float)
-
-
 class Color(_Interface[float]):
     """
     An RGBA color value.
@@ -577,13 +574,36 @@ class Color(_Interface[float]):
                 same. defaults to 100.
 
         """
-        self.red = red if isinstance(red, float) else red / 255
-        self.green = green if isinstance(green, float) else green / 255
-        self.blue = blue if isinstance(blue, float) else blue / 255
-        self.alpha = alpha if isinstance(alpha, float) else alpha / 100
+        self.red = self._ensure_valid_input(red, 255)
+        self.green = self._ensure_valid_input(green, 255)
+        self.blue = self._ensure_valid_input(blue, 255)
+        self.alpha = self._ensure_valid_input(alpha, 100)
 
     @staticmethod
-    def _ensure_valid_input(input: _NT) -> _NT:
+    def _ensure_valid_input(input: int | float, intmax: int = 100) -> float:
+        """
+        Ensures the passed input is between 0 and 1, or the passed maximum int 
+        value if input is an integer. Any value below 0 will be set to 0, and
+        any value above 1 or the intmax will be set to 1 or the intmax.
+
+        Args:
+            input (int | float): Any integer or float.
+            intmax (int, optional): Maximum allowed value of integers. Defaults 
+                to 100.
+
+        Returns:
+            float: A float representation of the input. Integers will be divided
+                by the intmax to calculate the return value.
+        """
+        if input < 0:
+            input = 0
+        elif isinstance(input, float):
+            if input > 1:
+                input = 1.0
+        else:
+            if input > intmax:
+                input = intmax
+            input = input / intmax
         return input
 
     def to_dict(self) -> Dict[str, float]:
@@ -600,6 +620,23 @@ class Color(_Interface[float]):
             "blue": self.blue,
             "alpha": self.alpha,
         }
+
+    @classmethod
+    def from_hex(cls, hex_code: str, alpha: int | float = 100) -> Color:
+        """
+        Instantiates a Color object from the supplied hex code.
+
+        Args:
+            hex_code (str): A hexadecimal color code.
+            alpha (int | float, optional): Optional alpha parameter (not included in hex 
+                codes). Defaults to 100.
+
+        Returns:
+            Color: The new Color object.
+        """
+        hex_code = hex_code.replace("#", "")
+        r, g, b = tuple(int(hex_code[i : i + 2], 16) for i in (0, 2, 4))
+        return Color(r, g, b, alpha)
 
 
 class Format(_Interface[Any]):

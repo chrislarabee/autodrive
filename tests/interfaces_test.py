@@ -6,6 +6,7 @@ from autodrive.interfaces import (
     ParseRangeError,
     FullRange,
     _RangeInterface,
+    Color,
 )
 from autodrive import interfaces as intf
 from autodrive.dtypes import FormattedVal
@@ -256,8 +257,37 @@ class TestFullRange:
 
 
 class TestColor:
-    def test_that_it_can_handle_odd_inputs(self):
-        pass
+    def test_that_it_can_be_instantiated_from_hex_code(self):
+        color = Color.from_hex("ff5733")
+        assert color.red == 255 / 255
+        assert color.green == 87 / 255
+        assert color.blue == 51 / 255
+        color = Color.from_hex("#ff5733")
+        assert color.red == 255 / 255
+        assert color.green == 87 / 255
+        assert color.blue == 51 / 255
+        color = Color.from_hex("#385566")
+        assert color.red == 56 / 255
+        assert color.green == 85 / 255
+        assert color.blue == 102 / 255
+
+    def test_that_it_can_handle_all_inputs(self):
+        color = Color(255, 87, 51)
+        assert color.red == 255 / 255
+        assert color.green == 87 / 255
+        assert color.blue == 51 / 255
+        color = Color(256, 87, 51)
+        assert color.red == 255 / 255
+        assert color.green == 87 / 255
+        assert color.blue == 51 / 255
+        color = Color(256, 87, -45)
+        assert color.red == 1.0
+        assert color.green == 87 / 255
+        assert color.blue == 0
+        color = Color(1.5, 87 / 255, -4.5)
+        assert color.red == 255 / 255
+        assert color.green == 87 / 255
+        assert color.blue == 0
 
 
 @pytest.mark.connection
