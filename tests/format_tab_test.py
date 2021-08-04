@@ -2,7 +2,7 @@ import pytest
 
 from autodrive.connection import SheetsConnection
 from autodrive.gsheet import GSheet
-from autodrive.interfaces import Color, TextFormat
+from autodrive.interfaces import HalfRange
 from autodrive.tab import Tab
 
 
@@ -21,12 +21,7 @@ class TestTabFormatting:
             sheets_conn=sheets_conn,
         )
         tab.create()
-        tab.format_cell.add_alternating_row_background(Color(1.0, 0.5))
-        tab.format_text.apply_format(TextFormat(font_size=14, bold=True))
+        tab.format_grid.append_rows(5).delete_rows(HalfRange(5, 7)).insert_rows(1, 1)
         tab.commit()
-        tab.get_data()
-        cell1 = tab.formats[0][0]
-        assert cell1["backgroundColor"]["red"] == 1
-        assert cell1["backgroundColor"]["green"] == 0.49803922
-        assert cell1["textFormat"]["bold"]
-        assert cell1["textFormat"]["fontSize"] == 14
+        tab.fetch()
+        assert tab.row_count == 504

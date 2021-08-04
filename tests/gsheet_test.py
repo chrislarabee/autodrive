@@ -17,23 +17,6 @@ class TestGSheet:
         assert gsheet["Sheet1"]
         assert gsheet[0]
 
-    def test_that_it_can_parse_properties(self):
-        expected = (
-            "scratch",
-            [
-                {"sheetId": 0, "title": "Sheet1", "index": 0},
-                {"sheetId": 1, "title": "Sheet2", "index": 1},
-            ],
-        )
-        raw = {
-            "properties": {"title": "scratch"},
-            "sheets": [
-                {"properties": {"sheetId": 0, "title": "Sheet1", "index": 0}},
-                {"properties": {"sheetId": 1, "title": "Sheet2", "index": 1}},
-            ],
-        }
-        assert GSheet._parse_properties(raw) == expected
-
     @pytest.mark.skip
     def test_that_it_can_add_tabs_requests(self, sheets_conn: SheetsConnection):
         expected = [

@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from functools import singledispatchmethod
-from typing import Any, Dict, KeysView, List, Optional, Tuple, ValuesView, Sequence
+from typing import Any, Dict, KeysView, List, Optional, ValuesView, Sequence
 from pathlib import Path
 
-from . import _google_terms as terms
 from .connection import SheetsConnection
 from ._view import GSheetView
 from .interfaces import AuthConfig, FullRange
@@ -115,14 +114,6 @@ class GSheet(GSheetView):
         ]
         self._tabs = tabs
         return self
-
-    @staticmethod
-    def _parse_properties(
-        properties: Dict[str, Any]
-    ) -> Tuple[str, List[Dict[str, Any]]]:
-        sheet_title = properties[terms.FILE_PROPS][terms.FILE_NAME]
-        sheet_props = [sheet[terms.TAB_PROPS] for sheet in properties[terms.TABS_PROP]]
-        return sheet_title, sheet_props
 
     @singledispatchmethod
     def add_tab(self, tab: Tab) -> GSheet:

@@ -1,5 +1,6 @@
+from autodrive.dtypes import BorderDashed, BorderLeft, BorderRight
 from autodrive.formatting import _cell as cell
-from autodrive.interfaces import FullRange, Color
+from autodrive.interfaces import FullRange, Color, BorderFormat
 
 
 def test_add_alternating_row_background():
@@ -36,5 +37,76 @@ def test_add_alternating_row_background():
                 },
             },
             "index": 1,
+        }
+    }
+
+
+def test_set_background_color():
+    result = cell.set_background_color(0, FullRange("B5:D10"), Color(0.4, 0.7, 0.3))
+    assert result == {
+        "repeatCell": {
+            "range": {
+                "sheetId": 0,
+                "startRowIndex": 4,
+                "endRowIndex": 10,
+                "startColumnIndex": 1,
+                "endColumnIndex": 4,
+            },
+            "cell": {
+                "userEnteredFormat": {
+                    "backgroundColor": {
+                        "red": 0.4,
+                        "blue": 0.3,
+                        "green": 0.7,
+                        "alpha": 1.0,
+                    }
+                }
+            },
+            "fields": "userEnteredFormat",
+        }
+    }
+
+
+def test_set_border_format():
+    result = cell.set_border_format(
+        0,
+        FullRange("B5:D10"),
+        BorderFormat(BorderLeft, Color(0, 1.0, 0)),
+        BorderFormat(BorderRight, style=BorderDashed),
+    )
+    assert result == {
+        "repeatCell": {
+            "range": {
+                "sheetId": 0,
+                "startRowIndex": 4,
+                "endRowIndex": 10,
+                "startColumnIndex": 1,
+                "endColumnIndex": 4,
+            },
+            "cell": {
+                "userEnteredFormat": {
+                    "borders": {
+                        "left": {
+                            "color": {
+                                "red": 0.0,
+                                "green": 1.0,
+                                "blue": 0.0,
+                                "alpha": 1.0,
+                            },
+                            "style": "SOLID",
+                        },
+                        "right": {
+                            "color": {
+                                "red": 0.0,
+                                "green": 0.0,
+                                "blue": 0.0,
+                                "alpha": 1.0,
+                            },
+                            "style": "DASHED",
+                        },
+                    }
+                }
+            },
+            "fields": "userEnteredFormat",
         }
     }

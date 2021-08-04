@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from . import _google_terms as terms
 from .connection import SheetsConnection
@@ -153,6 +153,42 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
         """
         return self._row_count
 
+    def fetch(self) -> Tab:
+        """
+        Gets the latest metadata from the API for this Tab. Re-populates tab
+        properties like row and column count.
+
+        .. note::
+
+            This method will cause a request to be posted to the relevant Google
+            API immediately.
+
+        Returns:
+            Tab: This GSheet
+        """
+        properties = self.conn.get_properties(self._gsheet_id)
+        _, sheets = self._parse_properties(properties)
+        title, index, tab_id, column_count, row_count = self._unpack_tab_properties(
+            sheets[self._index]
+        )
+        self._title = title
+        self._index = index
+        self._tab_id = tab_id
+        self._column_count = column_count
+        self._row_count = row_count
+        return self
+
+    @staticmethod
+    def _unpack_tab_properties(
+        properties: Dict[str, Any]
+    ) -> Tuple[str, int, int, int, int]:
+        title = str(properties[terms.TAB_NAME])
+        index = int(properties[terms.TAB_IDX])
+        tab_id = int(properties[terms.TAB_ID])
+        column_count = int(properties[terms.GRID_PROPS][terms.COL_CT])
+        row_count = int(properties[terms.GRID_PROPS][terms.ROW_CT])
+        return title, index, tab_id, column_count, row_count
+
     @classmethod
     def from_properties(
         cls,
@@ -188,11 +224,9 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
             Tab: A Tab with the values from the passed properties dictionary.
 
         """
-        title = str(properties[terms.TAB_NAME])
-        index = int(properties[terms.TAB_IDX])
-        tab_id = int(properties[terms.TAB_ID])
-        column_count = int(properties[terms.GRID_PROPS][terms.COL_CT])
-        row_count = int(properties[terms.GRID_PROPS][terms.ROW_CT])
+        title, index, tab_id, column_count, row_count = cls._unpack_tab_properties(
+            properties
+        )
         return Tab(
             gsheet_id,
             tab_title=title,

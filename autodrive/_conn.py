@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from abc import ABC
-from typing import List, Literal
+from typing import List, Literal, Dict, Any, cast, Tuple
 
 from google.auth.transport.requests import Request  # type: ignore
 from google.auth.exceptions import RefreshError  # type: ignore
@@ -11,6 +11,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow  # type: ignore
 from googleapiclient.discovery import Resource, build
 
 from .interfaces import AuthConfig
+from . import _google_terms as terms
 
 SCOPES = [
     "https://www.googleapis.com/auth/drive",
@@ -178,3 +179,70 @@ class Connection(ABC):
             )
         else:
             return None
+
+    @classmethod
+    def _merge_dicts(
+        cls, dict1: Dict[str, Any], dict2: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        result: Dict[str, Any] = {}
+        keys = {*dict1.keys(), *dict2.keys()}
+        for k in keys:
+            val1 = dict1.get(k)
+            val2 = dict2.get(k)
+            final_val: Any = val1
+            if isinstance(val1, dict) and isinstance(val2, dict):
+                final_val = cls._merge_dicts(
+                    cast(Dict[str, Any], val1), cast(Dict[str, Any], val2)
+                )
+            elif val2 is not None:
+                final_val = val2
+            result[k] = final_val
+        return result
+
+    @staticmethod
+    def _create_range_tuple_key(input: Dict[str, Any]) -> Tuple[Tuple[str, Any], ...]:
+        key_order = (
+            terms.TAB_ID,
+            terms.STARTROW,
+            terms.ENDROW,
+            terms.STARTCOL,
+            terms.ENDCOL,
+            terms.STARTIDX,
+            terms.ENDIDX,
+        )
+        result: List[Tuple[str, Any]] = []
+        for key in key_order:
+            if key in input.keys():
+                result.append((key, input[key]))
+        return tuple(result)
+
+    @classmethod
+    def _preprocess_requests(
+        cls, requests: List[Dict[str, Any]]
+    ) -> Dict[str, List[Dict[str, Any]]]:
+        ranged_requests: Dict[
+            str, Dict[Tuple[Tuple[str, Any], ...], Dict[str, Any]]
+        ] = {}
+        result: List[Dict[str, Any]] = []
+        for request in requests:
+            range_key = None
+            for request_type in request.keys():
+                if terms.RNG in request[request_type].keys():
+                    range_key = cls._create_range_tuple_key(
+                        request[request_type][terms.RNG]
+                    )
+                if range_key:
+                    if request_type not in ranged_requests.keys():
+                        ranged_requests[request_type] = {}
+                    if range_key in ranged_requests[request_type].keys():
+                        existing_dict = ranged_requests[request_type][range_key]
+                    else:
+                        existing_dict = {}
+                    ranged_requests[request_type][range_key] = cls._merge_dicts(
+                        existing_dict, request
+                    )
+                else:
+                    result.append(request)
+        for range_dict in ranged_requests.values():
+            result += list(range_dict.values())
+        return {"requests": result}

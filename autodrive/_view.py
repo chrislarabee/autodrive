@@ -211,6 +211,14 @@ class GSheetView(ABC):
         self._requests = []
         return results
 
+    @staticmethod
+    def _parse_properties(
+        properties: Dict[str, Any]
+    ) -> Tuple[str, List[Dict[str, Any]]]:
+        sheet_title = properties[terms.FILE_PROPS][terms.FILE_NAME]
+        sheet_props = [sheet[terms.TAB_PROPS] for sheet in properties[terms.TABS_PROP]]
+        return sheet_title, sheet_props
+
     @classmethod
     def _parse_row_data(
         cls,
@@ -277,7 +285,7 @@ class GSheetView(ABC):
 
         """
         raw = self.conn.get_data(gsheet_id, [rng_str])
-        row_data = raw[terms.TABS_PROP][0][terms.DATA][0][terms.ROWDATA]
+        row_data = raw[terms.TABS_PROP][0][terms.DATA][0].get(terms.ROWDATA, [])
         return self._parse_row_data(row_data, value_type=value_type)
 
     def _write_values(

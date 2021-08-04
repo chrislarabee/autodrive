@@ -194,3 +194,75 @@ class DefaultFmt(metaclass=GoogleFormatType):
     """
 
     format_key = "defaultFormat"
+
+
+class _BorderProperty:
+    """
+    Abstract base class for the various border properties.
+    """
+    def __init__(self, format_str: str) -> None:
+        self.format_str = format_str
+
+    def __str__(self) -> str:
+        return self.format_str
+
+
+class BorderStyle(_BorderProperty):
+    """
+    An object describing the style of border to apply to part of a cell.
+    """
+
+    def __init__(self, style: str) -> None:
+        """
+        Args:
+            style (str): The name of the style.
+        """
+        super().__init__(style)
+
+
+BorderSolid = BorderStyle("SOLID")
+"""The default border style, a thin, solid line."""
+
+BorderSolidMedium = BorderStyle("SOLID_MEDIUM")
+"""Same as BorderSolid, but slightly thicker."""
+
+BorderSolidThick = BorderStyle("SOLID_THICK")
+"""Same as BorderSolid, but much thicker."""
+
+BorderDashed = BorderStyle("DASHED")
+"""A thin line comprised of dashes."""
+
+BorderDotted = BorderStyle("DOTTED")
+"""A thin line comprised of dots."""
+
+BorderDoubleLine = BorderStyle("DOUBLE")
+"""A set of two parallel lines."""
+
+
+class BorderSide(_BorderProperty):
+    """
+    An object describing which side of a cell to apply border properties to.
+    """
+
+    def __init__(self, side: str) -> None:
+        """
+        Args:
+            side (str): The name of the side.
+        """
+        super().__init__(side)
+
+
+BorderLeft = BorderSide("left")
+"""The border for the left side of a cell."""
+
+BorderRight = BorderSide("right")
+"""The border for the right side of a cell."""
+
+BorderTop = BorderSide("top")
+"""The border for the top side of a cell."""
+
+BorderBottom = BorderSide("bottom")
+"""The border for the bottom side of a cell."""
+
+BorderSides = (BorderLeft, BorderRight, BorderTop, BorderBottom)
+"""Convenience reference for all BorderSide objects."""

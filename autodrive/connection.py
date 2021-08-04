@@ -202,7 +202,7 @@ class SheetsConnection(Connection):
 
         """
         result: Dict[str, Any] = self._sheets.batchUpdate(  # type: ignore
-            spreadsheetId=spreadsheet_id, body={"requests": requests}
+            spreadsheetId=spreadsheet_id, body=self._preprocess_requests(requests)
         ).execute()
         return result
 

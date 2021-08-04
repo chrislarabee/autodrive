@@ -7,6 +7,12 @@ through thorough type checking and hinting. These features are currently optimiz
 for VSCode, which you can download <a href="https://code.visualstudio.com/">here</a>
 if you wish. They should also work in other Python IDEs.
 
+---
+
+**Documentation:** https://autodrive-py.readthedocs.io/en/latest/
+
+---
+
 ## Requirements
 
 ---
@@ -65,7 +71,7 @@ object's url.
 For example, if your Sheet's url looks like this:
 
 <p>
-docs.google.com/spreadsheets/d/<span style="color:green">19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8</span>/edit#gid=0
+docs.google.com/spreadsheets/d/19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8/edit#gid=0
 </p>
 
 Simply copy/paste the id (in green, above) between `/d/` and `/edit#` as the
@@ -84,7 +90,7 @@ gsheet = GSheet(gsheet_id="19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8")
 For a tab, you can get the `tab_id` from:
 
 <p>
-docs.google.com/spreadsheets/d/19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8/edit#gid=<span style="color:green">234276686</span>
+docs.google.com/spreadsheets/d/19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8/edit#gid=234276686
 </p>
 
 ```
@@ -101,7 +107,7 @@ tab = Tab(
 For a folder:
 
 <p>
-drive.google.com/drive/u/1/folders/<span style="color:green">1wLx-KMG2jO498xa5ZumB-SEpL-TwczZI</span>
+drive.google.com/drive/u/1/folders/1wLx-KMG2jO498xa5ZumB-SEpL-TwczZI
 </p>
 
 ```
@@ -129,5 +135,6 @@ tab.write_values(
 ```
 
 `GSheet` and `Range` have very similar methods, and all of them allow you to read
-and write data to only a specific range in the Google Sheet. See the Documentation
+and write data to only a specific range in the Google Sheet. See the
+<a href="https://autodrive-py.readthedocs.io/en/latest/">Documentation</a>
 for more.

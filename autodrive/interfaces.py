@@ -5,6 +5,9 @@ import string
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Mapping, Optional, Tuple, TypeVar
 
+from .dtypes import UserEnteredFmt, BorderStyle, BorderSide, BorderSolid
+from . import _google_terms as terms
+
 DEFAULT_TOKEN = "gdrive_token.json"
 """Filepath for the token json file. Default="gdrive_token.json". """
 DEFAULT_CREDS = "credentials.json"
@@ -352,9 +355,9 @@ class HalfRange(_RangeInterface):
         result: Dict[str, int] = {}
         # All of these must be is not None because any of them can be 0:
         if self.start_idx is not None:
-            result["startIndex"] = self.start_idx
+            result[terms.STARTIDX] = self.start_idx
         if self.end_idx is not None:
-            result["endIndex"] = self.end_idx + 1
+            result[terms.ENDIDX] = self.end_idx + 1
         return result
 
     def __str__(self) -> str:
@@ -535,14 +538,53 @@ class FullRange(_RangeInterface):
         result: Dict[str, int] = {}
         # All of these must be is not None because any of them can be 0:
         if self.start_row is not None:
-            result["startRowIndex"] = self.start_row
+            result[terms.STARTROW] = self.start_row
         if self.end_row is not None:
-            result["endRowIndex"] = self.end_row + 1
+            result[terms.ENDROW] = self.end_row + 1
         if self.start_col is not None:
-            result["startColumnIndex"] = self.start_col
+            result[terms.STARTCOL] = self.start_col
         if self.end_col is not None:
-            result["endColumnIndex"] = self.end_col + 1
+            result[terms.ENDCOL] = self.end_col + 1
         return result
+
+
+class BorderFormat(_Interface[Any]):
+    """
+    The settings for the border of a single side of a cell.
+    """
+
+    def __init__(
+        self,
+        side: BorderSide,
+        color: Color | None = None,
+        style: BorderStyle | None = None,
+    ) -> None:
+        """
+
+        Args:
+            side (BorderSide): The BorderSide to apply settings to.
+            color (Color, optional): The color of the side of the border.
+                Defaults to None, for a black border.
+            style (BorderStyle, optional): The BorderStyle of the side of the
+                border. Defaults to None, for the default border style.
+        """
+        self.side = side
+        self.color = color if color else Color(0, 0, 0)
+        self.style = style if style else BorderSolid
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Returns:
+            Dict[str, Any]: Outputs the BorderFormat as a dictionary of properties
+            usable in generating an api request to affect cell border properties.
+
+        """
+        return {
+            str(self.side): {
+                "color": dict(self.color),
+                "style": str(self.style),
+            }
+        }
 
 
 class Color(_Interface[float]):
@@ -582,13 +624,13 @@ class Color(_Interface[float]):
     @staticmethod
     def _ensure_valid_input(input: int | float, intmax: int = 100) -> float:
         """
-        Ensures the passed input is between 0 and 1, or the passed maximum int 
+        Ensures the passed input is between 0 and 1, or the passed maximum int
         value if input is an integer. Any value below 0 will be set to 0, and
         any value above 1 or the intmax will be set to 1 or the intmax.
 
         Args:
             input (int | float): Any integer or float.
-            intmax (int, optional): Maximum allowed value of integers. Defaults 
+            intmax (int, optional): Maximum allowed value of integers. Defaults
                 to 100.
 
         Returns:
@@ -628,7 +670,7 @@ class Color(_Interface[float]):
 
         Args:
             hex_code (str): A hexadecimal color code.
-            alpha (int | float, optional): Optional alpha parameter (not included in hex 
+            alpha (int | float, optional): Optional alpha parameter (not included in hex
                 codes). Defaults to 100.
 
         Returns:
@@ -663,7 +705,7 @@ class Format(_Interface[Any]):
         return self._format_key
 
     def __str__(self) -> str:
-        return f"userEnteredFormat({self._format_key})"
+        return f"{UserEnteredFmt}({self._format_key})"
 
     def _fmt_contents(self) -> Dict[str, Any]:
         return {}
@@ -677,7 +719,7 @@ class Format(_Interface[Any]):
 
         """
         result = self._fmt_contents()
-        return {"userEnteredFormat": {self._format_key: result}}
+        return {str(UserEnteredFmt): {self._format_key: result}}
 
 
 class TextFormat(Format):
@@ -747,7 +789,6 @@ class TextFormat(Format):
         return result
 
 
-# TODO: Add BorderFormat
 # TODO: Add AlignmentFormat?
 
 

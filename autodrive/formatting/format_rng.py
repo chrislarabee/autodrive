@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from typing import List
+
 from .._view import CellFormatting, GridFormatting, TextFormatting
-from ..interfaces import Color, Format
+from ..interfaces import Color, Format, BorderFormat
 from . import _cell as cell, _grid as grid, _text as text
+from ..dtypes import BorderSide, BorderStyle, BorderSides
 
 
 class RangeCellFormatting(CellFormatting):
@@ -17,17 +20,67 @@ class RangeCellFormatting(CellFormatting):
         color to a Range's cells.
 
         Args:
-          colors (Color): The desired Color to apply to every other row.
+            colors (Color): The desired Color to apply to every other row.
 
         Returns:
-          RangeCellFormatting: This formatting object, so further requests can be
-            queued if desired.
+            RangeCellFormatting: This formatting object, so further requests can
+            be queued if desired.
 
         """
         self.add_request(
             cell.add_alternating_row_background(
                 self._parent.tab_id, self._parent.range, colors
             )
+        )
+        return self
+
+    def set_background_color(self, color: Color) -> RangeCellFormatting:
+        """
+        Queues a request to set the background of the Range's cells to the
+        indicated color.
+
+        Args:
+            color (Color): The desired Color to set the background to.
+
+        Returns:
+            RangeCellFormatting: This formatting object, so further requests can
+            be queued if desired.
+        """
+        self.add_request(
+            cell.set_background_color(self._parent.tab_id, self._parent.range, color)
+        )
+        return self
+
+    def set_border_format(
+        self,
+        *sides: BorderSide,
+        style: BorderStyle | None = None,
+        color: Color | None = None
+    ) -> RangeCellFormatting:
+        """
+        Queues a request to set the border properties of the Range's cells.
+
+        Args:
+            *sides: (BorderSide): One or more BorderSide objects, indicating
+                which side(s) of the cells you want to apply the border
+                properties to. If no sides are provided, set_border_format will
+                apply border properties to all sides.
+            style (BorderStyle, optional): The style to apply to all the
+                indicated sides. Defaults to None, for the default border style.
+            color (Color, optional): The color to set the border(s) to. Defaults
+                to None, for black.
+
+        Returns:
+            RangeCellFormatting: This formatting object, so further requests can
+            be queued if desired.
+        """
+        fmts: List[BorderFormat] = []
+        if len(sides) == 0:
+            sides = BorderSides
+        for side in sides:
+            fmts.append(BorderFormat(side, color, style))
+        self.add_request(
+            cell.set_border_format(self._parent.tab_id, self._parent.range, *fmts)
         )
         return self
 
@@ -40,12 +93,12 @@ class RangeGridFormatting(GridFormatting):
 
     def auto_column_width(self) -> RangeGridFormatting:
         """
-        Queues a request to set the column width of the Range's columns equal to the
-        width of the values in the cells.
+        Queues a request to set the column width of the Range's columns equal to
+        the width of the values in the cells.
 
         Returns:
-          RangeGridFormatting: This formatting object, so further requests can be
-            queued if desired.
+            RangeGridFormatting: This formatting object, so further requests can
+            be queued if desired.
 
         """
         self.add_request(
@@ -69,8 +122,8 @@ class RangeTextFormatting(TextFormatting):
           format (Format): A format instance, such as TextFormat or NumberFormat.
 
         Returns:
-          RangeTextFormatting: This formatting object, so further requests can be
-            queued if desired.
+            RangeTextFormatting: This formatting object, so further requests can
+            be queued if desired.
 
         """
         self.add_request(
