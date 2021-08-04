@@ -74,6 +74,16 @@ together:
         .append_rows(num_rows=20)
     )
 
+.. warning::
+
+    When queueing multiple formatting requests at once, be aware that the Google
+    API treats batched formatting updates on the same cells in a particular way.
+    If the different requests have partially overlapping ranges, then the later 
+    request will *remove* the formatting of any previous requests made to update 
+    the overlapping cells' format. Essentially, this means that you should only 
+    batch formatting requests together if they all affect the exact same range of 
+    cells, or if they all affect completely different rnages of cells.
+
 More Info
 *********
 

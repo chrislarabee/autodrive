@@ -12,8 +12,6 @@ Basic Usage
 Autodrive is designed to be as easy to navigate right in your IDE as possible, with
 broad type annotation to facilitate code completion. 
 
-# TODO: more here?
-
 Interacting With Google Drive
 *****************************
 
