@@ -92,6 +92,27 @@ to the same cells of the Google Sheet:
         ]
     )
 
+.. note:: 
+
+    **Integrating with Pandas**
+
+    While Autodrive views cannot directly accept pandas DataFrames, DataFrames 
+    provide methods to make it easy to convert them into a format accepted by
+    Autodrive views:
+
+    .. code-block:: python
+
+        import pandas as pd
+
+        df = pd.DataFrame([dict(a=1, b=2, c=3), dict(a=4, b=5, c=6)])
+
+        # You can either pass the DataFrame as a list of lists:
+        tab.write_values(df.values.tolist())
+
+        # Or, if you want to automatically include the header, you can pass it 
+        # as a list of dictionaries:
+        tab.write_values(df.to_dict("records"))
+
 As you can see, these views are nested within one each other as well, so if you 
 have a :class:`~autodrive.tab.Tab` but want to create a :class:`~autodrive.range.Range`
 off it for greater convenience, you can easily do so:

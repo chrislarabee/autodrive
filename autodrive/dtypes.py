@@ -200,6 +200,7 @@ class _BorderProperty:
     """
     Abstract base class for the various border properties.
     """
+
     def __init__(self, format_str: str) -> None:
         self.format_str = format_str
 

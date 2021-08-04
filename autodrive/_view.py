@@ -289,22 +289,33 @@ class GSheetView(ABC):
         return self._parse_row_data(row_data, value_type=value_type)
 
     def _write_values(
-        self: T, data: List[List[Any]], tab_id: int, rng_dict: Dict[str, int]
+        self: T,
+        data: Sequence[Sequence[Any] | Dict[str, Any]],
+        tab_id: int,
+        rng_dict: Dict[str, int],
     ) -> T:
         """
         Generates an update cells request for writing values to the target range.
 
         Args:
-          data (List[List[Any]]): The data to write.
-          rng_dict (Dict[str, int]): The range properties to write to.
+            data (Sequence[Sequence[Any] | Dict[str, Any]]): The data to write.
+            rng_dict (Dict[str, int]): The range properties to write to.
 
         Returns:
-          T: This Formatting object.
+            T: This Formatting object.
 
         """
-        write_values = [
-            [self._gen_cell_write_value(val) for val in row] for row in data
-        ]
+        write_values: List[List[Dict[str, Any]]] = []
+        for row in data:
+            if isinstance(row, dict):
+                if len(write_values) == 0:
+                    write_values.append(
+                        [self._gen_cell_write_value(k) for k in row.keys()]
+                    )
+                std_row = [val for val in row.values()]
+            else:
+                std_row = [val for val in row]
+            write_values.append([self._gen_cell_write_value(val) for val in std_row])
         request = {
             "updateCells": {
                 terms.FIELDS: "*",

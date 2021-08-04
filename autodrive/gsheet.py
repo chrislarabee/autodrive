@@ -177,7 +177,7 @@ class GSheet(GSheetView):
 
     def write_values(
         self,
-        data: List[List[Any]],
+        data: Sequence[Sequence[Any] | Dict[str, Any]],
         to_tab: str | None = None,
         rng: FullRange | None = None,
     ) -> GSheet:
@@ -185,8 +185,10 @@ class GSheet(GSheetView):
         Adds a request to write data. GSheet.commit () to commit the requests.
 
         Args:
-            data (List[List[Any]]): The data to write. Each list in the passed
-                data list is a row, with each value in that sublist being a column.
+            data (Sequence[Sequence[Any] | Dict[str, Any]]): The data to write.
+                Each sequence or dictionary in the passed data is a row, with 
+                each value in that sub-iterable being a column. Dictionary keys
+                will be used as a header row in the written data.
             to_tab (str, optional): The name of the tab to write to, defaults to
                 None, which will write to whatever tab is first in the Sheet.
             rng (FullRange, optional): The range to which the data will be written,

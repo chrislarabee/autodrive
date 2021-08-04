@@ -93,11 +93,11 @@ class TestGSheetView:
             gsheet_id="test",
             autoconnect=False,
         )
-        data: List[List[Any]] = [["a", "b", "c"], [1, 2, 3], [4, 5, 6]]
-        comp._write_values(data, 0, rng.range.to_dict())
-        str_w_vals = [{"userEnteredValue": {"stringValue": v}} for v in data[0]]
+        data1: List[List[Any]] = [["a", "b", "c"], [1, 2, 3], [4, 5, 6]]
+        comp._write_values(data1, 0, rng.range.to_dict())
+        str_w_vals = [{"userEnteredValue": {"stringValue": v}} for v in data1[0]]
         int_w_vals = [
-            [{"userEnteredValue": {"numberValue": v}} for v in row] for row in data[1:]
+            [{"userEnteredValue": {"numberValue": v}} for v in row] for row in data1[1:]
         ]
         expected = [
             {
@@ -118,10 +118,10 @@ class TestGSheetView:
             }
         ]
         assert comp.requests == expected
-        # comp._requests = []
-        # dataframe = pd.DataFrame([{"a": 1, "b": 2, "c": 3}, {"a": 4, "b": 5, "c": 6}])
-        # comp._write_values(dataframe, 0, rng.range.to_dict())
-        # assert comp.requests == expected
+        comp._requests = []
+        data2 = [dict(a=1, b=2, c=3), dict(a=4, b=5, c=6)]
+        comp._write_values(data2, 0, rng.range.to_dict())
+        assert comp.requests == expected
 
     def test_that_it_can_gen_alpha_keys(self):
         assert GSheetView.gen_alpha_keys(5) == [*string.ascii_uppercase[:5]]

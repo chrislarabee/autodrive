@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any, Sequence, Dict
 
 from .connection import SheetsConnection
 from ._view import Component
@@ -114,13 +114,15 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
         )
         return self
 
-    def write_values(self, data: List[List[Any]]) -> Range:
+    def write_values(self, data: Sequence[Sequence[Any] | Dict[str, Any]]) -> Range:
         """
         Adds a request to write data. Range.commit () to commit the requests.
 
         Args:
-          data (List[List[Any]]): The data to write. Each list in the passed data
-            list is a row, with each value in that sublist being a column.
+            data (Sequence[Sequence[Any] | Dict[str, Any]]): The data to write.
+                Each sequence or dictionary in the passed data is a row, with 
+                each value in that sub-iterable being a column. Dictionary keys
+                will be used as a header row in the written data.
 
         Returns:
           Range: This Tab.

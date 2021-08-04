@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Tuple, Sequence
 
 from . import _google_terms as terms
 from .connection import SheetsConnection
@@ -287,13 +287,19 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
         )
         return self
 
-    def write_values(self, data: List[List[Any]], rng: FullRange | None = None) -> Tab:
+    def write_values(
+        self,
+        data: Sequence[Sequence[Any] | Dict[str, Any]],
+        rng: FullRange | None = None,
+    ) -> Tab:
         """
         Adds a request to write data. Tab.commit () to commit the requests.
 
         Args:
-            data (List[List[Any]]): The data to write. Each list in the passed data
-                list is a row, with each value in that sublist being a column.
+            data (Sequence[Sequence[Any] | Dict[str, Any]]): The data to write.
+                Each sequence or dictionary in the passed data is a row, with 
+                each value in that sub-iterable being a column. Dictionary keys
+                will be used as a header row in the written data.
             rng (FullRange, optional): A specific range to write to,
                 starting with the top-left-most cell in the range, defaults to None,
                 which will write to the top-left-most cell of the Tab.
