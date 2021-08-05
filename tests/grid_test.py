@@ -80,3 +80,39 @@ def test_freeze():
     ):
         # Set to ignore because this is properly flagged as an error.
         result = grid.freeze(0)  # type: ignore
+
+
+def test_append_columns():
+    result = grid.append_columns(0, 5)
+    assert result == {
+        "appendDimension": {"sheetId": 0, "dimension": "COLUMNS", "length": 5}
+    }
+
+
+def test_insert_columns():
+    result = grid.insert_columns(0, 3, 2)
+    assert result == {
+        "insertDimension": {
+            "range": {
+                "sheetId": 0,
+                "dimension": "COLUMNS",
+                "startIndex": 2,
+                "endIndex": 6,
+            },
+            "inheritFromBefore": False,
+        }
+    }
+
+
+def test_delete_columns():
+    result = grid.delete_columns(0, HalfRange(5, 9, base0_idxs=True))
+    assert result == {
+        "deleteDimension": {
+            "range": {
+                "sheetId": 0,
+                "dimension": "COLUMNS",
+                "startIndex": 5,
+                "endIndex": 10,
+            }
+        }
+    }

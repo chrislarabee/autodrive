@@ -21,7 +21,15 @@ class TestTabFormatting:
             sheets_conn=sheets_conn,
         )
         tab.create()
-        tab.format_grid.append_rows(5).delete_rows(HalfRange(5, 7)).insert_rows(1, 1)
+        (
+            tab.format_grid.append_rows(5)
+            .delete_rows(HalfRange(5, 7))
+            .insert_rows(1, 1)
+            .append_columns(10)
+            .delete_columns(HalfRange(10, 14))
+            .insert_columns(2, 7)
+        )
         tab.commit()
         tab.fetch()
         assert tab.row_count == 504
+        assert tab.column_count == 18

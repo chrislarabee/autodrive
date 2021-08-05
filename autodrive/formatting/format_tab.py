@@ -164,6 +164,53 @@ class TabGridFormatting(GridFormatting):
         self.add_request(grid.delete_rows(self._parent.tab_id, rng))
         return self
 
+    def append_columns(self, num_cols: int) -> TabGridFormatting:
+        """
+        Queues a request to add new empty columns at the right of the Tab.
+
+        Args:
+            num_cols (int): The number of columns to add to the right of the Tab.
+
+        Returns:
+            TabGridFormatting: This formatting object, so further requests can be
+            queued if desired.
+
+        """
+        self.add_request(grid.append_columns(self._parent.tab_id, num_cols))
+        return self
+
+    def insert_columns(self, num_cols: int, at_col: int) -> TabGridFormatting:
+        """
+        Queues a request to insert new empty columns at the specified column 
+        number.
+
+        Args:
+          num_cols (int): The number of columns to insert.
+          at_col (int): The column number to insert after.
+
+        Returns:
+            TabGridFormatting: This formatting object, so further requests can be
+            queued if desired.
+
+        """
+        self.add_request(grid.insert_columns(self._parent.tab_id, num_cols, at_col))
+        return self
+
+    def delete_columns(self, rng: HalfRange) -> TabGridFormatting:
+        """
+        Queues a request to delete columns in the selected column range.
+
+        Args:
+          rng (HalfRange): The range of columns to delete.
+
+        Returns:
+            TabGridFormatting: This formatting object, so further requests can be
+            queued if desired.
+
+        """
+        self.add_request(grid.delete_columns(self._parent.tab_id, rng))
+        return self
+
 
 class TabTextFormatting(TextFormatting):
     """

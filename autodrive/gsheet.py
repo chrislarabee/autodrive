@@ -186,7 +186,7 @@ class GSheet(GSheetView):
 
         Args:
             data (Sequence[Sequence[Any] | Dict[str, Any]]): The data to write.
-                Each sequence or dictionary in the passed data is a row, with 
+                Each sequence or dictionary in the passed data is a row, with
                 each value in that sub-iterable being a column. Dictionary keys
                 will be used as a header row in the written data.
             to_tab (str, optional): The name of the tab to write to, defaults to

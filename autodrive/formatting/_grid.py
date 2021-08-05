@@ -79,3 +79,38 @@ def freeze(
             terms.FIELDS: f"{terms.GRID_PROPS}(frozenRowCount, frozenColumnCount)",
         }
     }
+
+
+def append_columns(tab_id: int, num_cols: int) -> Dict[str, Any]:
+    return {
+        "appendDimension": {
+            terms.TAB_ID: tab_id,
+            terms.DIM: terms.COLDIM,
+            "length": num_cols,
+        }
+    }
+
+
+def insert_columns(tab_id: int, num_cols: int, at_col: int) -> Dict[str, Any]:
+    return {
+        "insertDimension": {
+            terms.RNG: {
+                terms.TAB_ID: tab_id,
+                **dict(HalfRange(at_col, at_col + num_cols, base0_idxs=True)),
+                terms.DIM: terms.COLDIM,
+            },
+            "inheritFromBefore": False,
+        }
+    }
+
+
+def delete_columns(tab_id: int, rng: HalfRange) -> Dict[str, Any]:
+    return {
+        "deleteDimension": {
+            terms.RNG: {
+                terms.TAB_ID: tab_id,
+                **dict(rng),
+                terms.DIM: terms.COLDIM,
+            }
+        }
+    }

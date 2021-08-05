@@ -120,7 +120,7 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
 
         Args:
             data (Sequence[Sequence[Any] | Dict[str, Any]]): The data to write.
-                Each sequence or dictionary in the passed data is a row, with 
+                Each sequence or dictionary in the passed data is a row, with
                 each value in that sub-iterable being a column. Dictionary keys
                 will be used as a header row in the written data.
 
