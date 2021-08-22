@@ -2,8 +2,8 @@
 
 Autodrive is designed to make it as easy as possible to interact with the Google
 Drive and Sheets APIs via Python. It is especially designed to provide as much
-assisstance as possible through intellisense hints and autocompletion, as well as
-through thorough type checking and hinting. These features are currently optimized
+assistance as possible when writing code through hints and autocompletion, as well
+as via thorough type checking and hinting. These features are currently optimized
 for VSCode, which you can download <a href="https://code.visualstudio.com/">here</a>
 if you wish. They should also work in other Python IDEs.
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ._core import GoogleDtype, GoogleFormatType
+from ._core import GoogleDtype
 
 
 class String(metaclass=GoogleDtype):
@@ -170,47 +170,35 @@ REV_TYPE_MAP = {
 """Dictionary mapping google data types to corresponding python types."""
 
 
-class UserEnteredFmt(metaclass=GoogleFormatType):
+class _Property:
     """
-    The formatting properties the user as applied to the cell.
-    """
-
-    format_key = "userEnteredFormat"
-
-
-class EffectiveFmt(metaclass=GoogleFormatType):
-    """
-    The final dictionary of formatting information about a cell and its values,
-    includes the effects of conditional formatting and the like.
+    Abstract base class for various properties that will be instantiated as
+    attributes on this module.
     """
 
-    format_key = "effectiveFormat"
-
-
-class DefaultFmt(metaclass=GoogleFormatType):
-    """
-    The default formatting properties of a cell, dictated by the settings of the
-    tab.
-    """
-
-    format_key = "defaultFormat"
-
-
-class _BorderProperty:
-    """
-    Abstract base class for the various border properties.
-    """
-
-    def __init__(self, format_str: str) -> None:
-        self.format_str = format_str
+    def __init__(self, property: str) -> None:
+        self.prop = property
 
     def __str__(self) -> str:
-        return self.format_str
+        return self.prop
 
 
-class BorderStyle(_BorderProperty):
+UserEnteredFmt = _Property("userEnteredFormat")
+"""The formatting properties the user as applied to the cell. """
+
+EffectiveFmt = _Property("effectiveFormat")
+"""
+The final formatting information about a cell and its values, includes the 
+effects of conditional formatting and the like.
+"""
+
+DefaultFmt = _Property("defaultFormat")
+"""The default formatting properties of a cell, dictated by the settings of the tab."""
+
+
+class BorderStyle(_Property):
     """
-    An object describing the style of border to apply to part of a cell.
+    A property describing the style of border to apply to part of a cell.
     """
 
     def __init__(self, style: str) -> None:
@@ -240,9 +228,9 @@ BorderDoubleLine = BorderStyle("DOUBLE")
 """A set of two parallel lines."""
 
 
-class BorderSide(_BorderProperty):
+class BorderSide(_Property):
     """
-    An object describing which side of a cell to apply border properties to.
+    A property describing which side of a cell to apply border properties to.
     """
 
     def __init__(self, side: str) -> None:
@@ -267,3 +255,40 @@ BorderBottom = BorderSide("bottom")
 
 BorderSides = (BorderLeft, BorderRight, BorderTop, BorderBottom)
 """Convenience reference for all BorderSide objects."""
+
+
+class VerticalAlign(_Property):
+    """
+    A property describing vertical text alignment.
+    """
+
+    def __init__(self, align_str: str) -> None:
+        super().__init__(align_str)
+
+
+class HorizontalAlign(_Property):
+    """
+    A property describing horizontal text alignment.
+    """
+
+    def __init__(self, align_str: str) -> None:
+        super().__init__(align_str)
+
+
+AlignTop = VerticalAlign("TOP")
+"""Align text to the top of the cell(s)."""
+
+AlignMiddle = VerticalAlign("MIDDLE")
+"""Align text to the middle of the cell(s)."""
+
+AlignBottom = VerticalAlign("BOTTOM")
+"""Align text to the middle of the cell(s)."""
+
+AlignLeft = HorizontalAlign("LEFT")
+"""Align text to the left of the cell(s)."""
+
+AlignCenter = HorizontalAlign("CENTER")
+"""Align text to the center of the cell(s)."""
+
+AlignRight = HorizontalAlign("RIGHT")
+"""Align text to the right of the cell(s)."""

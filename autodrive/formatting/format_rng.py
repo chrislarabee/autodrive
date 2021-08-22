@@ -5,7 +5,13 @@ from typing import List
 from .._view import CellFormatting, GridFormatting, TextFormatting
 from ..interfaces import Color, Format, BorderFormat
 from . import _cell as cell, _grid as grid, _text as text
-from ..dtypes import BorderSide, BorderStyle, BorderSides
+from ..dtypes import (
+    BorderSide,
+    BorderStyle,
+    BorderSides,
+    HorizontalAlign,
+    VerticalAlign,
+)
 
 
 class RangeCellFormatting(CellFormatting):
@@ -128,5 +134,36 @@ class RangeTextFormatting(TextFormatting):
         """
         self.add_request(
             text.apply_format(self._parent.tab_id, self._parent.range, format)
+        )
+        return self
+
+    def set_alignment(
+        self, *aligns: HorizontalAlign | VerticalAlign
+    ) -> RangeTextFormatting:
+        """
+        Queues a request to set the horizontal and/or vertical text alignment of
+        the Range's cells.
+
+        Args:
+            aligns (HorizontalAlign | VerticalAlign): The desired horizontal
+                and/or vertical alignment properties. Note that if you specify
+                a HorizontalAlign more than once, or a VerticalAlign more than
+                once, only the last of each will be used.
+
+        Returns:
+            RangeTextFormatting: This formatting object, so further requests can
+            be queued if desired.
+        """
+        halign = None
+        valign = None
+        for align in aligns:
+            if isinstance(align, HorizontalAlign):
+                halign = align
+            else:
+                valign = align
+        self.add_request(
+            text.set_text_alignment(
+                self._parent.tab_id, self._parent.range, halign, valign
+            )
         )
         return self

@@ -179,7 +179,7 @@ class GSheet(GSheetView):
         self,
         data: Sequence[Sequence[Any] | Dict[str, Any]],
         to_tab: str | None = None,
-        rng: FullRange | None = None,
+        rng: FullRange | str | None = None,
     ) -> GSheet:
         """
         Adds a request to write data. GSheet.commit () to commit the requests.
@@ -191,10 +191,10 @@ class GSheet(GSheetView):
                 will be used as a header row in the written data.
             to_tab (str, optional): The name of the tab to write to, defaults to
                 None, which will write to whatever tab is first in the Sheet.
-            rng (FullRange, optional): The range to which the data will be written,
-                starting with the top-left-most cell in the range, defaults to None,
-                which will write to the top-left-most cell in the passed tab, or
-                the first tab.
+            rng (FullRange | str, optional): The range to which the data will be
+                written, starting with the top-left-most cell in the range,
+                defaults to None, which will write to the top-left-most cell in
+                the passed tab, or the first tab.
 
         Returns:
             GSheet: This GSheet.
@@ -207,15 +207,14 @@ class GSheet(GSheetView):
         tab = self.tabs.get(to_tab) if to_tab else self._tabs[0]
         if not tab:
             raise KeyError(f"{to_tab} not found in {self._title} tabs.")
-        if not rng:
-            rng = tab.full_range()
+        rng = self.ensure_full_range(tab.full_range(), rng)
         self._write_values(data, tab._tab_id, rng.to_dict())
         return self
 
     def get_data(
         self,
         tab: str | int | None = None,
-        rng: FullRange | None = None,
+        rng: FullRange | str | None = None,
         value_type: GoogleValueType = EffectiveVal,
     ) -> GSheet:
         """
@@ -230,7 +229,7 @@ class GSheet(GSheetView):
             tab (str | int, optional): The name of the tab, or its (0-based) index
                 (from left to right), defaults to None, which will collect data from
                 the first tab in the Sheet.
-            rng (FullRange, optional): The specific range to fetch data
+            rng (FullRange | str, optional): The specific range to fetch data
                 from, defaults to None, for all data in the target tab.
             value_type (GoogleValueType, optional): Allows you to toggle the
                 type of the values returned by the Google Sheets API. See the
@@ -256,8 +255,7 @@ class GSheet(GSheetView):
             raise TypeError(
                 f"tab must be a string, integer, or None. type = {type(tab)}"
             )
-        if not rng:
-            rng = tab_.full_range()
+        rng = self.ensure_full_range(tab_.full_range(), rng)
         if not rng.tab_title:
             rng.tab_title = tab_.title
         values, formats = self._get_data(self._gsheet_id, str(rng), value_type)

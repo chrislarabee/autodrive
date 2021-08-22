@@ -5,7 +5,13 @@ from typing import List
 from .._view import CellFormatting, GridFormatting, TextFormatting
 from ..interfaces import BorderFormat, Color, Format, HalfRange, FullRange
 from . import _cell as cell, _grid as grid, _text as text
-from ..dtypes import BorderSide, BorderStyle, BorderSides
+from ..dtypes import (
+    BorderSide,
+    BorderStyle,
+    BorderSides,
+    HorizontalAlign,
+    VerticalAlign,
+)
 
 
 class TabCellFormatting(CellFormatting):
@@ -15,7 +21,7 @@ class TabCellFormatting(CellFormatting):
     """
 
     def add_alternating_row_background(
-        self, colors: Color, rng: FullRange | None = None
+        self, colors: Color, rng: FullRange | str | None = None
     ) -> TabCellFormatting:
         """
         Queues a request to add an alternating row background of the indicated
@@ -23,22 +29,22 @@ class TabCellFormatting(CellFormatting):
 
         Args:
             colors (Color): The desired Color to apply to every other row.
-            rng (FullRange, optional): A FullRange within the tab to apply the
-                alternating row colors to.
+            rng (FullRange | str, optional): Optional range within the Tab to
+                apply the format to, defaults to None, for all cells in the Tab.
 
         Returns:
             TabCellFormatting: This formatting object, so further requests can be
             queued if desired.
 
         """
-        rng = rng if rng else self._parent.range
+        rng = self.ensure_full_range(rng)
         self.add_request(
             cell.add_alternating_row_background(self._parent.tab_id, rng, colors)
         )
         return self
 
     def set_background_color(
-        self, color: Color, rng: FullRange | None = None
+        self, color: Color, rng: FullRange | str | None = None
     ) -> TabCellFormatting:
         """
         Queues a request to set the background of the Tab's cells (or the
@@ -46,14 +52,14 @@ class TabCellFormatting(CellFormatting):
 
         Args:
             color (Color): The desired Color to set the background to.
-            rng (FullRange, optional): A FullRange within the tab to apply the
-                background color to.
+            rng (FullRange | str, optional): Optional range within the Tab to
+                apply the format to, defaults to None, for all cells in the Tab.
 
         Returns:
             TabCellFormatting: This formatting object, so further requests can be
             queued if desired.
         """
-        rng = rng if rng else self._parent.range
+        rng = self.ensure_full_range(rng)
         self.add_request(cell.set_background_color(self._parent.tab_id, rng, color))
         return self
 
@@ -62,7 +68,7 @@ class TabCellFormatting(CellFormatting):
         *sides: BorderSide,
         style: BorderStyle | None = None,
         color: Color | None = None,
-        rng: FullRange | None = None
+        rng: FullRange | str | None = None
     ) -> TabCellFormatting:
         """
         Queues a request to set the border properties of the Tab's cells (or the
@@ -77,14 +83,14 @@ class TabCellFormatting(CellFormatting):
                 indicated sides. Defaults to None, for the default border style.
             color (Color, optional): The color to set the border(s) to. Defaults
                 to None, for black.
-            rng (FullRange, optional): A FullRange within the tab to apply the
-                border properties to.
+            rng (FullRange | str, optional): Optional range within the Tab to
+                apply the format to, defaults to None, for all cells in the Tab.
 
         Returns:
             TabCellFormatting: This formatting object, so further requests can be
             queued if desired.
         """
-        rng = rng if rng else self._parent.range
+        rng = self.ensure_full_range(rng)
         fmts: List[BorderFormat] = []
         if len(sides) == 0:
             sides = BorderSides
@@ -181,7 +187,7 @@ class TabGridFormatting(GridFormatting):
 
     def insert_columns(self, num_cols: int, at_col: int) -> TabGridFormatting:
         """
-        Queues a request to insert new empty columns at the specified column 
+        Queues a request to insert new empty columns at the specified column
         number.
 
         Args:
@@ -220,15 +226,16 @@ class TabTextFormatting(TextFormatting):
     """
 
     def apply_format(
-        self, format: Format, rng: FullRange | None = None
+        self, format: Format, rng: FullRange | str | None = None
     ) -> TabTextFormatting:
         """
-        Queues a request to set the text/number format of the Range's cells.
+        Queues a request to set the text/number format of the Tab's cells (or the
+        specified cells within the Tab).
 
         Args:
             format (Format): A format instance, such as TextFormat or NumberFormat.
-            rng (FullRange, optional): Optional rnage within the Tab to apply the
-                format to, defaults to None, for all cells in the Tab.
+            rng (FullRange | str, optional): Optional range within the Tab to
+                apply the format to, defaults to None, for all cells in the Tab.
 
         Returns:
             TabTextFormatting: This formatting object, so further requests can be
@@ -237,4 +244,38 @@ class TabTextFormatting(TextFormatting):
         """
         rng = self.ensure_full_range(rng)
         self.add_request(text.apply_format(self._parent.tab_id, rng, format))
+        return self
+
+    def set_alignment(
+        self,
+        *aligns: HorizontalAlign | VerticalAlign,
+        rng: FullRange | str | None = None
+    ) -> TabTextFormatting:
+        """
+        Queues a request to set the horizontal and/or vertical text alignment of
+        the Tab's cells (or the specified cells within the Tab).
+
+        Args:
+            aligns (HorizontalAlign | VerticalAlign): The desired horizontal
+                and/or vertical alignment properties. Note that if you specify
+                a HorizontalAlign more than once, or a VerticalAlign more than
+                once, only the last of each will be used.
+            rng (FullRange | str, optional): Optional range within the Tab to
+                apply the format to, defaults to None, for all cells in the Tab.
+
+        Returns:
+            TabTextFormatting: This formatting object, so further requests can be
+            queued if desired.
+        """
+        rng = self.ensure_full_range(rng)
+        halign = None
+        valign = None
+        for align in aligns:
+            if isinstance(align, HorizontalAlign):
+                halign = align
+            else:
+                valign = align
+        self.add_request(
+            text.set_text_alignment(self._parent.tab_id, rng, halign, valign)
+        )
         return self

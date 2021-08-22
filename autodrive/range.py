@@ -20,7 +20,7 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
 
     def __init__(
         self,
-        gsheet_range: FullRange,
+        gsheet_range: FullRange | str,
         gsheet_id: str,
         tab_title: str,
         tab_id: int,
@@ -32,8 +32,8 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
         """
 
         Args:
-            gsheet_range (FullRange): The range (i.e. A5:C10) to associate with
-                this Range.
+            gsheet_range (FullRange | str): The range (i.e. A5:C10) to associate
+                with this Range.
             gsheet_id (str): The id string of the target Google Sheet that the
                 Range resides in; can be found in the Google Sheet url.
             tab_title (str): The name of the Tab this Range is within.
@@ -47,14 +47,15 @@ class Range(Component[RangeCellFormatting, RangeGridFormatting, RangeTextFormatt
                 to True.
         """
         self._tab_title = tab_title
-        gsheet_range.tab_title = tab_title
-        self._rng = gsheet_range
+        rng = FullRange(gsheet_range) if isinstance(gsheet_range, str) else gsheet_range
+        rng.tab_title = tab_title
+        self._rng = rng
         if not self._rng.tab_title:
             self._rng.tab_title = self._tab_title
         super().__init__(
             gsheet_id=gsheet_id,
             tab_id=tab_id,
-            gsheet_range=gsheet_range,
+            gsheet_range=rng,
             grid_formatting=RangeGridFormatting,
             text_formatting=RangeTextFormatting,
             cell_formatting=RangeCellFormatting,

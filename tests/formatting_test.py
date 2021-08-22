@@ -1,4 +1,4 @@
-from autodrive.dtypes import BorderSolidThick
+from autodrive.dtypes import AlignMiddle, AlignRight, BorderSolidThick
 import pytest
 
 from autodrive.tab import Tab
@@ -26,7 +26,9 @@ class TestFormatting:
     def test_formatting_applications(self, test_tab: Tab):
         rng = FullRange("A1:C3")
         test_tab.format_cell.add_alternating_row_background(Color(1.0, 0.5), rng)
-        test_tab.format_text.apply_format(TextFormat(font_size=14, bold=True), rng)
+        test_tab.format_text.apply_format(
+            TextFormat(font_size=14, bold=True), rng
+        ).set_alignment(AlignRight, AlignMiddle, rng=rng)
         test_tab.commit()
         test_tab.get_data()
         a1 = test_tab.formats[0][0]
@@ -34,11 +36,15 @@ class TestFormatting:
         assert a1["backgroundColor"]["green"] == 0.49803922
         assert a1["textFormat"]["bold"]
         assert a1["textFormat"]["fontSize"] == 14
+        assert a1["verticalAlignment"] == "MIDDLE"
+        assert a1["horizontalAlignment"] == "RIGHT"
         c2 = test_tab.formats[1][2]
         assert c2["backgroundColor"]["red"] == 1
         assert c2["backgroundColor"]["green"] == 1
         assert c2["textFormat"]["bold"]
         assert c2["textFormat"]["fontSize"] == 14
+        assert c2["verticalAlignment"] == "MIDDLE"
+        assert c2["horizontalAlignment"] == "RIGHT"
         # Test set_background_color:
         rng = FullRange("A5:C7")
         test_tab.format_cell.set_background_color(

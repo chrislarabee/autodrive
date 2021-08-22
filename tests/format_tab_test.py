@@ -8,7 +8,7 @@ from autodrive.tab import Tab
 
 class TestTabFormatting:
     @pytest.mark.connection
-    def test_formatting_applications(
+    def test_grid_formatting_applications(
         self, test_gsheet: GSheet, sheets_conn: SheetsConnection
     ):
         tab = Tab(

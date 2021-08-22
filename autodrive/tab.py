@@ -256,7 +256,9 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
         )
 
     def get_data(
-        self, rng: FullRange | None = None, value_type: GoogleValueType = EffectiveVal
+        self,
+        rng: FullRange | str | None = None,
+        value_type: GoogleValueType = EffectiveVal,
     ) -> Tab:
         """
         Gets the data from the cells of this Tab.
@@ -279,7 +281,7 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
             Tab: This Tab.
 
         """
-        rng = self.full_range() if not rng else rng
+        rng = self.ensure_full_range(self.full_range(), rng)
         if not rng.tab_title:
             rng.tab_title = self._title
         self._values, self._formats = self._get_data(
@@ -290,7 +292,7 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
     def write_values(
         self,
         data: Sequence[Sequence[Any] | Dict[str, Any]],
-        rng: FullRange | None = None,
+        rng: FullRange | str | None = None,
     ) -> Tab:
         """
         Adds a request to write data. Tab.commit () to commit the requests.
@@ -308,7 +310,7 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
             Tab: This Tab.
 
         """
-        rng = self.full_range() if not rng else rng
+        rng = self.ensure_full_range(self.full_range(), rng)
         self._write_values(data, self._tab_id, rng.to_dict())
         return self
 
