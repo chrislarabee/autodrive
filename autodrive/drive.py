@@ -15,6 +15,7 @@ class Folder:
         parents: List[str] | None = None,
         auth_config: AuthConfig | None = None,
         drive_conn: DriveConnection | None = None,
+        sheets_conn: SheetsConnection | None = None,
     ) -> None:
         """
         Stores all the necessary properties of a Google Drive Folder and provides
@@ -31,12 +32,15 @@ class Folder:
                 defaults to None.
             drive_conn (DriveConnection, optional): Optional manually created
                 DriveConnection, defaults to None
+            sheets_conn (SheetsConnection, optional): Optional manually created
+                SheetsConnection, defaults to None.
 
         """
         self._id = folder_id
         self._name = name
         self._parents = parents or []
         self._conn = drive_conn or DriveConnection(auth_config=auth_config)
+        self._sheets_conn = sheets_conn or SheetsConnection(auth_config=self._conn.auth)
 
     @property
     def id(self) -> str:
@@ -89,6 +93,25 @@ class Folder:
             parents=[self._id],
             drive_conn=self._conn,
         )
+
+    def create_gsheet(self, gsheet_name: str) -> GSheet:
+        """
+        Creates a new Google Sheet with this Folder as its parent.
+
+        .. note::
+
+            This method will cause a request to be posted to the relevant Google
+            API immediately.
+
+        Args:
+            gsheet_name (str): The desired name of the new Google Sheet.
+
+        Returns:
+            GSheet: The newly created GSheet.
+
+        """
+        new_id = self._conn.create_object(gsheet_name, "sheet", self._id)
+        return GSheet(new_id, gsheet_name, sheets_conn=self._sheets_conn)
 
 
 class Drive:
