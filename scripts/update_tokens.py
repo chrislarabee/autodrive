@@ -78,6 +78,10 @@ def send_updated_tokens(
         result: Dict[str, Any] = {}
         # Put response has no text, only status_code.
         result["status_code"] = response.status_code
+        if response.status_code == 204:
+            result["response"] = "Successful upload."
+        else:
+            result["response"] = "Unknown response."
         print(f"  > Result = {result}")
         results[secret] = result
     return results
