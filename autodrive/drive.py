@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import List, Optional, Dict, Tuple
+from typing import List, Optional, Dict
 from pathlib import Path
 
-from .connection import AuthConfig, DriveConnection, SheetsConnection
+from .connection import AuthConfig, DriveConnection, SheetsConnection, FileUpload
 from .gsheet import GSheet
 
 
@@ -114,19 +114,27 @@ class Folder:
         new_id = self._conn.create_object(gsheet_name, "sheet", self._id)
         return GSheet(new_id, gsheet_name, sheets_conn=self._sheets_conn)
 
-    def upload_files(self, *filepaths: Path | str) -> Dict[str, str]:
+    def upload_files(self, *filepaths: Path | str | FileUpload) -> Dict[str, str]:
         """
         Uploads files to the folder.
 
         Args:
-            *filespaths (Path | str): An arbitrary number of Path objects or path
-                strings for the files you wish to upload to the folder.
+            *filepaths (Path | str | FileUpload): An arbitrary number of Path
+                objects, path strings, or FileUpload objects (if you want to
+                convert the file to a Google Drive format (e.g. Docs, Sheets,
+                etc).
 
         Returns:
             Dict[str, str]: The names of the uploaded files and their new ids in
                 Google Drive.
         """
-        return self._conn.upload_files(*[(fp, self.id) for fp in filepaths])
+        fps: List[FileUpload] = []
+        for fp in filepaths:
+            if isinstance(fp, FileUpload):
+                fp.folder = self.id
+            else:
+                fp = FileUpload(fp, self.id)
+        return self._conn.upload_files(*fps)
 
 
 class Drive:
@@ -247,28 +255,25 @@ class Drive:
             for r in result
         ]
 
-    def upload_files(
-        self, *filepaths: Path | str | Tuple[Path | str, Folder]
-    ) -> Dict[str, str]:
+    def upload_files(self, *filepaths: Path | str | FileUpload) -> Dict[str, str]:
         """
         Uploads files to the root drive or to a folder.
 
+        .. note::
+
+            This method will cause a request to be posted to the relevant Google
+            API immediately.
+
         Args:
-            *filepaths (Path | str | Tuple[Path | str, Folder]): An arbitrary
-                number of Path objects or path strings, or tuples of path-likes
-                and Folders for any files you wish to upload to specific folders.
+            *filepaths (Path | str | FileUpload): An arbitrary number of Path
+                objects, path strings, or FileUpload objects (for more complex
+                cases).
 
         Returns:
             Dict[str, str]: The names of the uploaded files and their new ids in
                 Google Drive.
         """
-        paths: List[Path | str | Tuple[Path | str, str]] = []
-        for fp in filepaths:
-            if isinstance(fp, tuple):
-                paths.append((fp[0], fp[1].id))
-            else:
-                paths.append(fp)
-        return self._conn.upload_files(*paths)
+        return self._conn.upload_files(*filepaths)
 
     @staticmethod
     def _ensure_parent_id(parent: str | Folder | None = None) -> Optional[str]:

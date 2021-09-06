@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from autodrive.connection import DriveConnection
+from autodrive.connection import DriveConnection, FileUpload
 from . import testing_tools
 
 
@@ -40,7 +40,9 @@ class TestDriveConnection:
             testing_tools.CREATED_IDS.insert(0, f_id1)
             testing_tools.CREATED_IDS.insert(0, f_id2)
             result = drive_conn.upload_files(
-                str(fileA), (fileB, f_id1), (str(fileC), f_id2)
+                str(fileA),
+                FileUpload(fileB, f_id1),
+                FileUpload(str(fileC), f_id2, convert=True),
             )
             testing_tools.CREATED_IDS.insert(0, result[fileA.name])
             testing_tools.CREATED_IDS.insert(0, result[fileB.name])
@@ -52,7 +54,7 @@ class TestDriveConnection:
             assert len(f) > 0
             assert f[0].get("name") == fileB.name
             assert f[0].get("parents") == [f_id1]
-            f = drive_conn.find_object(fileC.name, "file")
+            f = drive_conn.find_object(fileC.stem, "file")
             assert len(f) > 0
-            assert f[0].get("name") == fileC.name
+            assert f[0].get("name") == fileC.stem
             assert f[0].get("parents") == [f_id2]

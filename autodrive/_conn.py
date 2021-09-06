@@ -27,6 +27,8 @@ class Connection(ABC):
     google_obj_types = {
         "folder": "application/vnd.google-apps.folder",
         "sheet": "application/vnd.google-apps.spreadsheet",
+        # "doc": "application/vnd.google-apps.document",
+        # "slide": "application/vnd.google-apps.presentation",
     }
 
     def __init__(

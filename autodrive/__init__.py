@@ -22,6 +22,7 @@ from .interfaces import (
 )
 from .range import Range
 from .tab import Tab
+from .connection import FileUpload
 
 __all__ = [
     "connection",
@@ -48,4 +49,5 @@ __all__ = [
     "AccountingFormat",
     "Range",
     "Tab",
+    "FileUpload",
 ]

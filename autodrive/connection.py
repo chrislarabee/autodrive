@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Tuple
+from typing import Any, Dict, List, Literal
 from pathlib import Path
 import mimetypes
+from warnings import warn
 
 from googleapiclient.http import MediaFileUpload
 
@@ -10,6 +11,37 @@ from . import _google_terms as terms
 from ._conn import Connection
 from .dtypes import EffectiveFmt, EffectiveVal, FormattedVal, UserEnteredVal
 from .interfaces import AuthConfig
+
+
+class FileUpload:
+    """
+    Use FileUploads when you need more complicated file upload instructions.
+    """
+
+    def __init__(
+        self,
+        path: Path | str,
+        to_folder_id: str | None = None,
+        convert: bool | None = False,
+    ) -> None:
+        """
+
+        Args:
+            path (Path, str): The pathlike to the file.
+            to_folder_id (str, optional): A folder id, if you want to upload this
+                file to a specific folder in Google Drive. Defaults to None.
+            convert (bool, optional): Set to True if you want to convert the 
+                file to a Google Drive format. The format will be automatically
+                determined based on Google Drive's rules for conversion. Defaults 
+                to False.
+        """
+        self.path = Path(path)
+        self.folder = to_folder_id
+        self._do_conv = True if convert == True else False
+
+    @property
+    def do_conv(self) -> bool:
+        return self._do_conv
 
 
 class DriveConnection(Connection):
@@ -43,6 +75,28 @@ class DriveConnection(Connection):
             auth_config=auth_config,
         )
         self._files = self._core.files()  # type: ignore
+        self._fmt_map = self.get_import_formats()
+
+    def get_import_formats(self) -> Dict[str, str]:
+        """
+        Returns:
+            Dict[str, str]: The mapping between standard MIMEtypes and the
+                MIMEtypes for Google Drive's types (Docs, Sheets, etc) as
+                provided by the Google Drive API.
+        """
+        resp: Dict[str, Dict[str, List[str]]] = (
+            self._core.about().get(fields="importFormats").execute()  # type: ignore
+        )
+        result: Dict[str, str] = {}
+        for mtype, google_mtypes in resp["importFormats"].items():
+            if len(google_mtypes) > 1:
+                warn(
+                    f"Google MIMEtype mapping for {mtype} has "
+                    f"{len(google_mtypes)} possible types. Please submit an bug "
+                    "report at https://github.com/chrislarabee/autodrive."
+                )
+            result[mtype] = google_mtypes[0]
+        return result
 
     def find_object(
         self,
@@ -136,16 +190,19 @@ class DriveConnection(Connection):
             fileId=object_id, supportsAllDrives=True
         ).execute()
 
-    def upload_files(
-        self, *filepaths: Path | str | Tuple[Path | str, str]
-    ) -> Dict[str, str]:
+    def upload_files(self, *filepaths: Path | str | FileUpload) -> Dict[str, str]:
         """
         Uploads files to the root drive or to a folder.
 
+        .. note::
+
+            This method will cause a request to be posted to the relevant Google
+            API immediately.
+
         Args:
-            *filepaths (Path | str | Tuple[Path | str, str]): An arbitrary number
-                of Path objects or path strings, or tuples of path-likes and
-                folder ids for any files you wish to upload to specific folders.
+            *filepaths (Path | str | FileUpload): An arbitrary number of Path
+                objects, path strings, or FileUpload objects (for more complex
+                cases).
 
         Returns:
             Dict[str, str]: The names of the uploaded files and their new ids in
@@ -154,9 +211,12 @@ class DriveConnection(Connection):
         result: Dict[str, str] = {}
         kwargs: Dict[str, Any] = {}
         for fp in filepaths:
-            if isinstance(fp, tuple):
-                path = Path(fp[0])
-                kwargs["parents"] = [fp[1]]
+            if isinstance(fp, FileUpload):
+                path = fp.path
+                if fp.folder:
+                    kwargs["parents"] = [fp.folder]
+                if fp.do_conv:
+                    kwargs["mimeType"] = self.detect_conv_format(fp.path)
             else:
                 path = Path(fp)
             file_metadata: Dict[str, str] = dict(name=path.name, **kwargs)
@@ -170,6 +230,37 @@ class DriveConnection(Connection):
             id: str = resp.get(terms.ID)  # type: ignore
             result[path.name] = id
         return result
+
+    def detect_conv_format(self, p: Path) -> str:
+        """
+        Detects the MIMEtype for the passed filepath and determines its 
+        corresponding Google Drive format.
+
+        Args:
+            p (Path): Any filepath.
+
+        Raises:
+            ValueError: If the MIMEtype cannot be determined from the path at 
+                all.
+            ValueError: If the MIMEtype cannot be converted to a Google Drive
+                format MIMEtype.
+
+        Returns:
+            str: The Google Drive format MIMEtype for the file.
+        """
+        mtype, _ = mimetypes.guess_type(p)
+        if mtype is None:
+            raise ValueError(
+                f"Could not determine MIMEtype for {p}. Unable to convert to "
+                "Google Drive format."
+            )
+        elif mtype in self._fmt_map.keys():
+            return self._fmt_map[mtype]
+        else:
+            raise ValueError(
+                f"File {p} has MIMEtype {mtype} which is not valid for "
+                "conversion to Google Drive format."
+            )
 
     @staticmethod
     def _setup_drive_id_kwargs(drive_id: str | None = None) -> Dict[str, str | bool]:

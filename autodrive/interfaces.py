@@ -372,46 +372,6 @@ class HalfRange(_RangeInterface):
             )
         return f"{self.tab_title or ''}{'!' if self.tab_title else ''}{rng}"
 
-    # @property
-    # def start_row(self) -> int:
-    #     """
-    #     Returns:
-    #         int: The start_idx. Used to make HalfRanges and FullRanges
-    #         interchangeable.
-
-    #     """
-    #     return self.start_idx or 0
-
-    # @property
-    # def end_row(self) -> int:
-    #     """
-    #     Returns:
-    #         int: The end_idx. Used to make HalfRanges and FullRanges
-    #         interchangeable.
-
-    #     """
-    #     return self.end_idx + 1 if self.end_idx else 0
-
-    # @property
-    # def start_col(self) -> int:
-    #     """
-    #     Returns:
-    #         int: The start_idx. Used to make HalfRanges and FullRanges
-    #         interchangeable.
-
-    #     """
-    #     return self.start_idx or 0
-
-    # @property
-    # def end_col(self) -> int:
-    #     """
-    #     Returns:
-    #         int: The end_idx. Used to make HalfRanges and FullRanges
-    #         interchangeable.
-
-    #     """
-    #     return self.end_idx + 1 if self.end_idx else 0
-
 
 class FullRange(_RangeInterface):
     """
@@ -787,9 +747,6 @@ class TextFormat(Format):
         if self.font_size is not None:
             result["fontSize"] = self.font_size
         return result
-
-
-# TODO: Add AlignmentFormat?
 
 
 class NumericFormat(Format):
