@@ -74,8 +74,7 @@ For example, if your Sheet's url looks like this:
 docs.google.com/spreadsheets/d/19k5cT9Klw1CA8Sum-olP7C0JUo6_kMiOAKDEeHPiSr8/edit#gid=0
 </p>
 
-Simply copy/paste the id (in green, above) between `/d/` and `/edit#` as the
-`gsheet_id`:
+Simply copy/paste the id between `/d/` and `/edit#` as the `gsheet_id`:
 
 ```
 from autodrive import GSheet

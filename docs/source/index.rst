@@ -11,6 +11,7 @@ Welcome to Autodrive's documentation!
    cust_config
    format
    output
+   upload
 
    autoapi/index
 

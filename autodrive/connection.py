@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List, Literal, Tuple
+from pathlib import Path
+import mimetypes
+
+from googleapiclient.http import MediaFileUpload
 
 from . import _google_terms as terms
 from ._conn import Connection
@@ -43,7 +47,7 @@ class DriveConnection(Connection):
     def find_object(
         self,
         obj_name: str,
-        obj_type: Literal["sheet", "folder"],
+        obj_type: Literal["sheet", "folder", "file"] | None = None,
         shared_drive_id: str | None = None,
     ) -> List[Dict[str, Any]]:
         """
@@ -51,8 +55,8 @@ class DriveConnection(Connection):
 
         Args:
             obj_name (str): The name of the object, or part of its name.
-            obj_type (Literal["sheet", "folder"]): The type of object to restrict
-                the search to.
+            obj_type (Literal["sheet", "folder", "file"], optional): The type of
+                object to restrict the search to.
             shared_drive_id (str, optional): The id of a Shared Drive to search
                 within, if desired, defaults to None.
 
@@ -62,7 +66,9 @@ class DriveConnection(Connection):
 
         """
         query = f"name = '{obj_name}'"
-        if obj_type:
+        if obj_type == "file":
+            query += f" and mimeType != '{self.google_obj_types['folder']}'"
+        elif obj_type:
             query += f" and mimeType='{self.google_obj_types[obj_type]}'"
         kwargs = self._setup_drive_id_kwargs(shared_drive_id)
         page_token = None
@@ -129,6 +135,41 @@ class DriveConnection(Connection):
         self._files.delete(  # type: ignore
             fileId=object_id, supportsAllDrives=True
         ).execute()
+
+    def upload_files(
+        self, *filepaths: Path | str | Tuple[Path | str, str]
+    ) -> Dict[str, str]:
+        """
+        Uploads files to the root drive or to a folder.
+
+        Args:
+            *filepaths (Path | str | Tuple[Path | str, str]): An arbitrary number
+                of Path objects or path strings, or tuples of path-likes and
+                folder ids for any files you wish to upload to specific folders.
+
+        Returns:
+            Dict[str, str]: The names of the uploaded files and their new ids in
+                Google Drive.
+        """
+        result: Dict[str, str] = {}
+        kwargs: Dict[str, Any] = {}
+        for fp in filepaths:
+            if isinstance(fp, tuple):
+                path = Path(fp[0])
+                kwargs["parents"] = [fp[1]]
+            else:
+                path = Path(fp)
+            file_metadata: Dict[str, str] = dict(name=path.name, **kwargs)
+            mtype, _ = mimetypes.guess_type(path)
+            media = MediaFileUpload(path, mimetype=mtype)
+            resp = self._files.create(  # type: ignore
+                body=file_metadata,
+                media_body=media,
+                fields=terms.ID,
+            ).execute()
+            id: str = resp.get(terms.ID)  # type: ignore
+            result[path.name] = id
+        return result
 
     @staticmethod
     def _setup_drive_id_kwargs(drive_id: str | None = None) -> Dict[str, str | bool]:

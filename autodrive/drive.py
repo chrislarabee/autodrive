@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Dict, Tuple
+from pathlib import Path
 
 from .connection import AuthConfig, DriveConnection, SheetsConnection
 from .gsheet import GSheet
@@ -112,6 +113,20 @@ class Folder:
         """
         new_id = self._conn.create_object(gsheet_name, "sheet", self._id)
         return GSheet(new_id, gsheet_name, sheets_conn=self._sheets_conn)
+
+    def upload_files(self, *filepaths: Path | str) -> Dict[str, str]:
+        """
+        Uploads files to the folder.
+
+        Args:
+            *filespaths (Path | str): An arbitrary number of Path objects or path
+                strings for the files you wish to upload to the folder.
+
+        Returns:
+            Dict[str, str]: The names of the uploaded files and their new ids in
+                Google Drive.
+        """
+        return self._conn.upload_files(*[(fp, self.id) for fp in filepaths])
 
 
 class Drive:
@@ -231,6 +246,29 @@ class Drive:
             Folder(r["id"], r["name"], parents=r["parents"], drive_conn=self._conn)
             for r in result
         ]
+
+    def upload_files(
+        self, *filepaths: Path | str | Tuple[Path | str, Folder]
+    ) -> Dict[str, str]:
+        """
+        Uploads files to the root drive or to a folder.
+
+        Args:
+            *filepaths (Path | str | Tuple[Path | str, Folder]): An arbitrary
+                number of Path objects or path strings, or tuples of path-likes
+                and Folders for any files you wish to upload to specific folders.
+
+        Returns:
+            Dict[str, str]: The names of the uploaded files and their new ids in
+                Google Drive.
+        """
+        paths: List[Path | str | Tuple[Path | str, str]] = []
+        for fp in filepaths:
+            if isinstance(fp, tuple):
+                paths.append((fp[0], fp[1].id))
+            else:
+                paths.append(fp)
+        return self._conn.upload_files(*paths)
 
     @staticmethod
     def _ensure_parent_id(parent: str | Folder | None = None) -> Optional[str]:

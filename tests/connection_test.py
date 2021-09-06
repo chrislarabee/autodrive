@@ -1,4 +1,5 @@
 from datetime import datetime as dt
+from pathlib import Path
 
 import pytest
 
@@ -24,3 +25,34 @@ class TestDriveConnection:
             assert len(f) > 0
             assert f[0].get("name") == sheet
             assert f[0]["parents"][0] == f_id
+
+        def test_upload_files(self, drive_conn: DriveConnection):
+            samples = Path("tests/sample_files")
+            fileA = samples.joinpath("textfileA.txt")
+            fileB = samples.joinpath("textfileB.txt")
+            fileC = samples.joinpath("textfileC.txt")
+            f_id1 = drive_conn.create_object(
+                f"autodrive_test_folder {dt.now()}", "folder"
+            )
+            f_id2 = drive_conn.create_object(
+                f"autodrive_test_folder {dt.now()}", "folder"
+            )
+            testing_tools.CREATED_IDS.insert(0, f_id1)
+            testing_tools.CREATED_IDS.insert(0, f_id2)
+            result = drive_conn.upload_files(
+                str(fileA), (fileB, f_id1), (str(fileC), f_id2)
+            )
+            testing_tools.CREATED_IDS.insert(0, result[fileA.name])
+            testing_tools.CREATED_IDS.insert(0, result[fileB.name])
+            testing_tools.CREATED_IDS.insert(0, result[fileC.name])
+            f = drive_conn.find_object(fileA.name, "file")
+            assert len(f) > 0
+            assert f[0].get("name") == fileA.name
+            f = drive_conn.find_object(fileB.name, "file")
+            assert len(f) > 0
+            assert f[0].get("name") == fileB.name
+            assert f[0].get("parents") == [f_id1]
+            f = drive_conn.find_object(fileC.name, "file")
+            assert len(f) > 0
+            assert f[0].get("name") == fileC.name
+            assert f[0].get("parents") == [f_id2]
