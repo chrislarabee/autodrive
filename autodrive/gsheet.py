@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import singledispatchmethod
-from typing import Any, Dict, KeysView, List, Optional, ValuesView, Sequence
+from typing import Any, Dict, KeysView, List, Optional, ValuesView, Sequence, Literal
 from pathlib import Path
 
 from .connection import SheetsConnection
@@ -180,6 +180,7 @@ class GSheet(GSheetView):
         data: Sequence[Sequence[Any] | Dict[str, Any]],
         to_tab: str | None = None,
         rng: FullRange | str | None = None,
+        mode: Literal["write", "w", "append", "a"] = "write",
     ) -> GSheet:
         """
         Adds a request to write data. GSheet.commit () to commit the requests.
@@ -195,6 +196,9 @@ class GSheet(GSheetView):
                 written, starting with the top-left-most cell in the range,
                 defaults to None, which will write to the top-left-most cell in
                 the passed tab, or the first tab.
+            mode (Literal, optional): Whether to append the data after any
+                populated rows already present in the tab or to write to the
+                passed rng. Overrides rng if specified. Defaults to "write".
 
         Returns:
             GSheet: This GSheet.
@@ -207,8 +211,11 @@ class GSheet(GSheetView):
         tab = self.tabs.get(to_tab) if to_tab else self._tabs[0]
         if not tab:
             raise KeyError(f"{to_tab} not found in {self._title} tabs.")
+        # TODO: Could remove all this if GSheet can commit requests on its child
+        #       Tabs...
         rng = self.ensure_full_range(tab.full_range(), rng)
-        self._write_values(data, tab._tab_id, rng.to_dict())
+        rng_dict = rng.to_dict() if mode in ["write", "w"] else None
+        self._write_values(data, tab._tab_id, rng_dict)
         return self
 
     def get_data(

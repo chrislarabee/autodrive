@@ -90,6 +90,16 @@ to the same cells of the Google Sheet:
         ]
     )
 
+As you can see, these views are nested within one each other as well, so if you 
+have a :class:`~autodrive.tab.Tab` but want to create a :class:`~autodrive.range.Range`
+off it for greater convenience, you can easily do so:
+
+.. code-block:: python
+
+    tab = gsheet.tabs["Sheet1"]
+
+    rng = tab.gen_range(FullRange("G1:G"))
+
 .. note:: 
 
     **Integrating with Pandas**
@@ -111,12 +121,35 @@ to the same cells of the Google Sheet:
         # as a list of dictionaries:
         tab.write_values(df.to_dict("records"))
 
-As you can see, these views are nested within one each other as well, so if you 
-have a :class:`~autodrive.tab.Tab` but want to create a :class:`~autodrive.range.Range`
-off it for greater convenience, you can easily do so:
+Appending Data
+**************
+
+:class:`GSheets <autodrive.gsheet.GSheet>` and :class:`Tabs <autodrive.tab.Tab>`
+can also be used to append values to the end of a tab instead of to a range. 
+Simply switch the available ``mode`` argument on the ``write_values`` method to 
+``"a"`` or ``"append"``. For example, to write more data to the tab from the 
+earlier example:
 
 .. code-block:: python
 
-    tab = gsheet.tabs["Sheet1"]
+    tab.write_values(
+        [
+            [9, 10, 11, 12],
+            [13, 14, 15, 16],
+        ],
+        mode="a"
+    )
+    tab.commit()
+    tab.get_data()
+    print(tab.values)
+    # [
+    #   [1, 2, 3, 4],
+    #   [5, 6, 7, 8],
+    #   [9, 10, 11, 12],
+    #   [13, 14, 15, 16],
+    # ]
 
-    rng = tab.gen_range(FullRange("G1:G"))
+This makes it easy to keep updating a tab's data without having to check what row
+you should start your ranges at all the time. This will also add new rows to the
+tab if necessary, so you don't have to check if the tab has enough rows before
+appending.

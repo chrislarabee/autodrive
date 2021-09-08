@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Tuple, Sequence
+from typing import Any, Dict, Tuple, Sequence, Literal
 
 from . import _google_terms as terms
 from .connection import SheetsConnection
@@ -293,6 +293,7 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
         self,
         data: Sequence[Sequence[Any] | Dict[str, Any]],
         rng: FullRange | str | None = None,
+        mode: Literal["write", "w", "append", "a"] = "write",
     ) -> Tab:
         """
         Adds a request to write data. Tab.commit () to commit the requests.
@@ -305,13 +306,17 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
             rng (FullRange, optional): A specific range to write to,
                 starting with the top-left-most cell in the range, defaults to None,
                 which will write to the top-left-most cell of the Tab.
+            mode (Literal, optional): Whether to append the data after any
+                populated rows already present in the Tab or to write to the
+                passed rng. Overrides rng if specified. Defaults to "write".
 
         Returns:
             Tab: This Tab.
 
         """
         rng = self.ensure_full_range(self.full_range(), rng)
-        self._write_values(data, self._tab_id, rng.to_dict())
+        rng_dict = rng.to_dict() if mode in ["write", "w"] else None
+        self._write_values(data, self._tab_id, rng_dict)
         return self
 
     @classmethod

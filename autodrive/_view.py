@@ -312,17 +312,20 @@ class GSheetView(ABC):
         self: T,
         data: Sequence[Sequence[Any] | Dict[str, Any]],
         tab_id: int,
-        rng_dict: Dict[str, int],
+        rng_dict: Dict[str, int] | None = None,
     ) -> T:
         """
-        Generates an update cells request for writing values to the target range.
+        Generates an update or append cells request for writing values to the
+        target sheet.
 
         Args:
             data (Sequence[Sequence[Any] | Dict[str, Any]]): The data to write.
-            rng_dict (Dict[str, int]): The range properties to write to.
+            rng_dict (Dict[str, int]): The range properties to write to. Defaults
+                to None, in which case the values will be appended after the last
+                populated row of the sheet.
 
         Returns:
-            T: This Formatting object.
+            T: This View object.
 
         """
         write_values: List[List[Dict[str, Any]]] = []
@@ -336,11 +339,17 @@ class GSheetView(ABC):
             else:
                 std_row = [val for val in row]
             write_values.append([self._gen_cell_write_value(val) for val in std_row])
+        if rng_dict is not None:
+            target = {terms.RNG: {terms.TAB_ID: tab_id, **rng_dict}}
+            req_type = "updateCells"
+        else:
+            target = {terms.TAB_ID: tab_id}
+            req_type = "appendCells"
         request = {
-            "updateCells": {
+            req_type: {
                 terms.FIELDS: "*",
                 terms.ROWS: [{terms.VALUES: values} for values in write_values],
-                terms.RNG: {terms.TAB_ID: tab_id, **rng_dict},
+                **target,
             }
         }
         self._requests.append(request)

@@ -30,9 +30,9 @@ class FileUpload:
             path (Path, str): The pathlike to the file.
             to_folder_id (str, optional): A folder id, if you want to upload this
                 file to a specific folder in Google Drive. Defaults to None.
-            convert (bool, optional): Set to True if you want to convert the 
+            convert (bool, optional): Set to True if you want to convert the
                 file to a Google Drive format. The format will be automatically
-                determined based on Google Drive's rules for conversion. Defaults 
+                determined based on Google Drive's rules for conversion. Defaults
                 to False.
         """
         self.path = Path(path)
@@ -233,14 +233,14 @@ class DriveConnection(Connection):
 
     def detect_conv_format(self, p: Path) -> str:
         """
-        Detects the MIMEtype for the passed filepath and determines its 
+        Detects the MIMEtype for the passed filepath and determines its
         corresponding Google Drive format.
 
         Args:
             p (Path): Any filepath.
 
         Raises:
-            ValueError: If the MIMEtype cannot be determined from the path at 
+            ValueError: If the MIMEtype cannot be determined from the path at
                 all.
             ValueError: If the MIMEtype cannot be converted to a Google Drive
                 format MIMEtype.

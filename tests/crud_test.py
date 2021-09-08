@@ -5,7 +5,7 @@ import pytest
 from autodrive.gsheet import GSheet
 from autodrive.range import Range
 from autodrive.tab import Tab
-from autodrive.interfaces import TextFormat, FullRange
+from autodrive.interfaces import FullRange
 from autodrive.connection import SheetsConnection
 
 
@@ -38,14 +38,11 @@ class TestCRUD:
             sheets_conn=sheets_conn,
         )
         rng.write_values(input_data)
-        rng.format_text.apply_format(TextFormat(font_size=14, bold=True))
         rng.commit()
         rng.get_data()
-        assert rng.formats[0][0]["textFormat"]["fontSize"] == 14
-        assert rng.formats[0][0]["textFormat"]["bold"]
         assert rng.values == input_data
 
-    def test_that_tab_can_write_and_read_values(
+    def test_that_tab_can_write_and_append_and_read_values(
         self,
         test_gsheet: GSheet,
         sheets_conn: SheetsConnection,
@@ -63,3 +60,8 @@ class TestCRUD:
         tab.commit()
         tab.get_data()
         assert tab.values == input_data
+        tab.write_values(input_data, mode="a")
+        tab.commit()
+        tab.get_data()
+        assert len(tab.values) == 4
+        assert tab.values == [*input_data, *input_data]
