@@ -47,14 +47,14 @@ class TestDriveConnection:
             testing_tools.CREATED_IDS.insert(0, result[fileA.name])
             testing_tools.CREATED_IDS.insert(0, result[fileB.name])
             testing_tools.CREATED_IDS.insert(0, result[fileC.name])
-            f = drive_conn.find_object(fileA.name, "file")
-            assert len(f) > 0
-            assert f[0].get("name") == fileA.name
-            f = drive_conn.find_object(fileB.name, "file")
-            assert len(f) > 0
-            assert f[0].get("name") == fileB.name
-            assert f[0].get("parents") == [f_id1]
-            f = drive_conn.find_object(fileC.stem, "file")
-            assert len(f) > 0
-            assert f[0].get("name") == fileC.stem
-            assert f[0].get("parents") == [f_id2]
+            fA = drive_conn.find_object(fileA.name, "file")
+            assert len(fA) > 0
+            assert fA[0].get("name") == fileA.name
+            fB = drive_conn.find_object(fileB.name, "file")
+            assert len(fB) > 0
+            assert fB[0].get("name") == fileB.name
+            assert fB[0].get("parents") == [f_id1]
+            fC = drive_conn.find_object(fileC.stem, "file")
+            assert len(fC) > 0
+            assert fC[0].get("name") == fileC.stem
+            assert fC[0].get("parents") == [f_id2]
