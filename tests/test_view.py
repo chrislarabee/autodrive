@@ -1,11 +1,11 @@
-from typing import Type, List, Dict, Any
+from typing import List, Dict, Any
 import string
 
 from autodrive.dtypes import FormattedVal, UserEnteredVal, EffectiveVal
 from autodrive._view import GSheetView
 from autodrive.interfaces import FullRange
 from autodrive.range import Range
-from .conftest import ExampleView
+from .samples.data import ExampleView
 
 
 class TestGSheetView:
@@ -82,10 +82,8 @@ class TestGSheetView:
             "userEnteredValue": {"formulaValue": "=A1+B2"}
         }
 
-    def test_that_it_can_create_write_values_requests(
-        self, gsheet_view: Type[ExampleView]
-    ):
-        comp = gsheet_view(gsheet_id="test")
+    def test_that_it_can_create_write_values_requests( self):
+        comp = ExampleView(gsheet_id="test")
         rng = Range(
             FullRange("Sheet1!A1:C3"),
             tab_title="",
@@ -119,7 +117,7 @@ class TestGSheetView:
         ]
         assert comp.requests == expected
         comp._requests = []
-        data2 = [dict(a=1, b=2, c=3), dict(a=4, b=5, c=6)]
+        data2: List[Dict[str, int]] = [dict(a=1, b=2, c=3), dict(a=4, b=5, c=6)]
         comp._write_values(data2, 0, rng.range.to_dict())
         assert comp.requests == expected
 

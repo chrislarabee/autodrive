@@ -27,7 +27,7 @@ class TestDriveConnection:
             assert f[0]["parents"][0] == f_id
 
         def test_upload_files(self, drive_conn: DriveConnection):
-            samples = Path("tests/sample_files")
+            samples = Path("tests/samples")
             fileA = samples.joinpath("textfileA.txt")
             fileB = samples.joinpath("textfileB.txt")
             fileC = samples.joinpath("textfileC.txt")

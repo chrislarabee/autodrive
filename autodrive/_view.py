@@ -339,6 +339,7 @@ class GSheetView(ABC):
             else:
                 std_row = [val for val in row]
             write_values.append([self._gen_cell_write_value(val) for val in std_row])
+        target: Dict[str, Dict[str, int]]| Dict[str, int]
         if rng_dict is not None:
             target = {terms.RNG: {terms.TAB_ID: tab_id, **rng_dict}}
             req_type = "updateCells"

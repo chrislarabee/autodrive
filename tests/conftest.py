@@ -7,7 +7,6 @@ import pytest
 from autodrive.connection import DriveConnection, SheetsConnection
 from autodrive.gsheet import GSheet
 from autodrive.interfaces import DEFAULT_CREDS, DEFAULT_TOKEN
-from autodrive._view import GSheetView
 
 from .testing_tools import CREATED_IDS
 
@@ -48,15 +47,6 @@ def sheets_conn():
     else:
         warnings.warn(conn_warning.format(DEFAULT_CREDS, DEFAULT_TOKEN, os.getcwd()))
         yield None
-
-
-class ExampleView(GSheetView):
-    pass
-
-
-@pytest.fixture
-def gsheet_view():
-    return ExampleView
 
 
 @pytest.fixture(scope="session")

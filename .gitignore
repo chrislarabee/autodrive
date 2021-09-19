@@ -7,7 +7,7 @@ venv/
 *.hjson
 *.text
 *.txt
-!tests/sample_files/*
+!tests/samples/*
 !requirements.rtd.txt
 __pycache__
 dist
