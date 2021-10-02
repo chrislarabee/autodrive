@@ -61,8 +61,9 @@ class TestDriveConnection:
             except AssertionError:
                 gdrive_id = fA[0].get("parents")
                 raise AssertionError(
-                    f"Expected parents {[f_id1]} != {fB_parents}."
-                    f"f_id1 = {f_id1}, f_id2 = {f_id2}. Drive ID = {gdrive_id}"
+                    f"Expected parents {[f_id1]} != {fB_parents}. "
+                    f"f_id1 = {f_id1}, f_id2 = {f_id2}. Drive ID = {gdrive_id}. "
+                    f"Length of fileB find_object results = {len(fB)}."
                 )
             fC = drive_conn.find_object(fileC.stem, "file")
             assert len(fC) > 0
