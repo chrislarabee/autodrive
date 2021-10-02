@@ -54,7 +54,7 @@ class TestDriveConnection:
             assert len(fB) > 0
             assert fB[0].get("name") == fileB.name
             fB_parents = fB[0].get("parents")
-            # Wrapping this assertion in an attempt to hopefully figure out why 
+            # Wrapping this assertion in an attempt to hopefully figure out why
             # this test gives Github such trouble...
             try:
                 assert fB_parents == [f_id1]

@@ -339,7 +339,7 @@ class GSheetView(ABC):
             else:
                 std_row = [val for val in row]
             write_values.append([self._gen_cell_write_value(val) for val in std_row])
-        target: Dict[str, Dict[str, int]]| Dict[str, int]
+        target: Dict[str, Dict[str, int]] | Dict[str, int]
         if rng_dict is not None:
             target = {terms.RNG: {terms.TAB_ID: tab_id, **rng_dict}}
             req_type = "updateCells"
@@ -438,9 +438,9 @@ class Component(GSheetView, Generic[FC, FG, FT]):
         self._tab_id = tab_id
         self._values: List[List[Any]] = []
         self._formats: List[List[Dict[str, Any]]] = []
+        self._format_cell = cell_formatting(self)
         self._format_grid = grid_formatting(self)
         self._format_text = text_formatting(self)
-        self._format_cell = cell_formatting(self)
 
     @property
     def tab_id(self) -> int:

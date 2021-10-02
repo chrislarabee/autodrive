@@ -1,7 +1,8 @@
-import pytest
+# import pytest
 
 from autodrive.gsheet import GSheet, Tab
-from autodrive.connection import SheetsConnection
+
+# from autodrive.connection import SheetsConnection
 
 
 class TestGSheet:
@@ -17,12 +18,12 @@ class TestGSheet:
         assert gsheet["Sheet1"]
         assert gsheet[0]
 
-    @pytest.mark.skip
-    def test_that_it_can_add_tabs_requests(self, sheets_conn: SheetsConnection):
-        expected = [
-            {"addSheet": {"properties": {"title": "new_sheet"}}},
-            {"addSheet": {"properties": {"title": "nuevo_sheet", "index": 3}}},
-        ]
-        gsheet = GSheet("test", sheets_conn=sheets_conn, autoconnect=False)
-        gsheet.add_tab("new_sheet").add_tab("nuevo_sheet", 3)
-        assert gsheet.requests == expected
+    # @pytest.mark.skip
+    # def test_that_it_can_add_tabs_requests(self, sheets_conn: SheetsConnection):
+    #     expected = [
+    #         {"addSheet": {"properties": {"title": "new_sheet"}}},
+    #         {"addSheet": {"properties": {"title": "nuevo_sheet", "index": 3}}},
+    #     ]
+    #     gsheet = GSheet("test", sheets_conn=sheets_conn, autoconnect=False)
+    #     gsheet.add_tab("new_sheet").add_tab("nuevo_sheet", 3)
+    #     assert gsheet.requests == expected
