@@ -39,9 +39,10 @@ class TestDriveConnection:
             )
             testing_tools.CREATED_IDS.insert(0, f_id1)
             testing_tools.CREATED_IDS.insert(0, f_id2)
+            file_b_name = f"{fileB.name}_{dt.now()}"
             result = drive_conn.upload_files(
                 str(fileA),
-                FileUpload(fileB, f_id1),
+                FileUpload(fileB, f_id1, name_override=file_b_name),
                 FileUpload(str(fileC), f_id2, convert=True),
             )
             testing_tools.CREATED_IDS.insert(0, result[fileA.name])
@@ -50,9 +51,9 @@ class TestDriveConnection:
             fA = drive_conn.find_object(fileA.name, "file")
             assert len(fA) > 0
             assert fA[0].get("name") == fileA.name
-            fB = drive_conn.find_object(fileB.name, "file")
+            fB = drive_conn.find_object(file_b_name, "file")
             assert len(fB) > 0
-            assert fB[0].get("name") == fileB.name
+            assert fB[0].get("name") == file_b_name
             fB_parents = fB[0].get("parents")
             # Wrapping this assertion in an attempt to hopefully figure out why
             # this test gives Github such trouble...

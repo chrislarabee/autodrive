@@ -23,6 +23,7 @@ class FileUpload:
         path: Path | str,
         to_folder_id: str | None = None,
         convert: bool | None = False,
+        name_override: str | None = None,
     ) -> None:
         """
 
@@ -37,6 +38,7 @@ class FileUpload:
         """
         self.path = Path(path)
         self.folder = to_folder_id
+        self.name_override = name_override
         self._do_conv = True if convert == True else False
 
     @property
@@ -209,17 +211,19 @@ class DriveConnection(Connection):
                 Google Drive.
         """
         result: Dict[str, str] = {}
-        kwargs: Dict[str, Any] = {}
         for fp in filepaths:
+            kwargs: Dict[str, Any] = {}
             if isinstance(fp, FileUpload):
                 path = fp.path
                 if fp.folder:
                     kwargs["parents"] = [fp.folder]
                 if fp.do_conv:
                     kwargs["mimeType"] = self.detect_conv_format(fp.path)
+                if fp.name_override:
+                    kwargs["name"] = fp.name_override
             else:
                 path = Path(fp)
-            file_metadata: Dict[str, str] = dict(name=path.name, **kwargs)
+            file_metadata: Dict[str, str] = {"name": path.name, **kwargs}
             mtype, _ = mimetypes.guess_type(path)
             media = MediaFileUpload(path, mimetype=mtype)
             resp = self._files.create(  # type: ignore
