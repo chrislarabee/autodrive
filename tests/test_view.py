@@ -82,7 +82,7 @@ class TestGSheetView:
             "userEnteredValue": {"formulaValue": "=A1+B2"}
         }
 
-    def test_that_it_can_create_write_values_requests( self):
+    def test_that_it_can_create_write_values_requests(self):
         comp = ExampleView(gsheet_id="test")
         rng = Range(
             FullRange("Sheet1!A1:C3"),
