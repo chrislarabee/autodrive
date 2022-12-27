@@ -6,6 +6,15 @@ from base64 import b64encode
 from nacl.public import SealedBox, PublicKey  # type: ignore
 from nacl.encoding import Base64Encoder  # type: ignore
 
+"""
+This is a convenience script for updating the GitHub repo with the necessary 
+secret keys to access a Google Drive for CI testing.
+
+This script requires an up-to-date GitHub Personal Access Token with the following
+permissions granted:
+Full control of private repositories.
+"""
+
 token_key = "token"
 refresh_key = "refresh_token"
 token_secret = "AUTODRIVE_TOKEN"
@@ -53,7 +62,7 @@ def get_repo_public_key(pat: str) -> Dict[str, str]:
 
 
 def encrypt_secret(secret_value: str, public_key: str) -> str:
-    pkey = PublicKey(public_key, Base64Encoder())
+    pkey = PublicKey(public_key.encode(), Base64Encoder())  # type: ignore
     sealed_box = SealedBox(pkey)
     encrypted = sealed_box.encrypt(secret_value.encode("utf-8"))  # type: ignore
     return b64encode(encrypted).decode("utf-8")  # type: ignore

@@ -225,7 +225,8 @@ class GSheet(GSheetView):
         value_type: GoogleValueType = EffectiveVal,
     ) -> GSheet:
         """
-        Gets the data from the cells of the GSheet.
+        Gets the data from the cells of the GSheet. GSheet.fetch() will be
+        called automatically if the GSheet's tabs are not populated.
 
         .. note::
 
@@ -252,6 +253,8 @@ class GSheet(GSheetView):
                 the tab parameter.
 
         """
+        if len(self._tabs) == 0:
+            self.fetch()
         if isinstance(tab, str):
             tab_ = self.tabs.get(tab)
             if not tab_:

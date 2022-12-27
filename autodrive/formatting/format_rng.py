@@ -61,7 +61,7 @@ class RangeCellFormatting(CellFormatting):
         self,
         *sides: BorderSide,
         style: BorderStyle | None = None,
-        color: Color | None = None
+        color: Color | None = None,
     ) -> RangeCellFormatting:
         """
         Queues a request to set the border properties of the Range's cells.
