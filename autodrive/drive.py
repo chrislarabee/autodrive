@@ -213,7 +213,9 @@ class Drive:
         new_id = self._conn.create_object(gsheet_name, "sheet", parent_id)
         return GSheet(new_id, gsheet_name, sheets_conn=self._sheets_conn)
 
-    def find_gsheet(self, gsheet_name: str) -> List[GSheet]:
+    def find_gsheet(
+        self, gsheet_name: str, shared_drive_id: str | None = None
+    ) -> List[GSheet]:
         """
         Search for Google Sheets that match the passed name. GSheets found in this
         way will need to have their properties gathered with a GSheet.fetch () call.
@@ -223,13 +225,15 @@ class Drive:
 
         Args:
             gsheet_name (str): The name (or part of the name) to search for.
+            shared_drive_id (str, optional): The shared drive id to search within,
+                defaults to None
 
         Returns:
             List[GSheet]: A list of GSheet objects with basic details (id, name)
             that matched the name parameter.
 
         """
-        result = self._conn.find_object(gsheet_name, "sheet")
+        result = self._conn.find_object(gsheet_name, "sheet", shared_drive_id)
         return [
             GSheet(r["id"], r["name"], sheets_conn=self._sheets_conn) for r in result
         ]

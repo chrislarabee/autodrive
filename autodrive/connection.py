@@ -39,7 +39,7 @@ class FileUpload:
         self.path = Path(path)
         self.folder = to_folder_id
         self.name_override = name_override
-        self._do_conv = True if convert == True else False
+        self._do_conv = True if convert else False
 
     @property
     def do_conv(self) -> bool:
@@ -133,7 +133,9 @@ class DriveConnection(Connection):
             response = self._files.list(  # type: ignore
                 q=query,
                 spaces="drive",
-                fields=f"nextPageToken, files ({terms.ID},{terms.NAME},{terms.PARENTS})",
+                fields=(
+                    f"nextPageToken, files ({terms.ID},{terms.NAME},{terms.PARENTS})"
+                ),
                 pageToken=page_token,
                 **kwargs,
             ).execute()

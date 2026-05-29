@@ -1,3 +1,4 @@
+import argparse
 from typing import Any, Dict
 import json
 import requests
@@ -13,11 +14,11 @@ refresh_secret = "AUTODRIVE_REFR_TOKEN"
 secrets_url = "https://api.github.com/repos/chrislarabee/autodrive/actions/secrets"
 
 
-def load_github_pat() -> str:
+def load_github_pat(filepath: str) -> str:
     pat = ""
-    with open("github_pat.txt", "r") as r:
+    with open(filepath, "r") as r:
         for line in r:
-            pat = line
+            pat = line.strip()
     return pat
 
 
@@ -88,7 +89,18 @@ def send_updated_tokens(
 
 
 if __name__ == "__main__":
-    pat = load_github_pat()
+    parser = argparse.ArgumentParser(
+        "This is a convenience script for updating the GitHub repo with the "
+        "necessary secret keys to access a Google Drive for CI testing.\n\n"
+        "This script requires an up-to-date GitHub Personal Access Token with "
+        "the following permissions granted: Full control of private repositories."
+    )
+    parser.add_argument(
+        "github_pat_path", nargs="+", help="Path to your github PAT file."
+    )
+    args = parser.parse_args()
+    pat_path: str = args.github_pat_path[0]
+    pat = load_github_pat(pat_path)
     tokens = load_tokens()
     ad_pub_key = get_repo_public_key(pat)
     results = send_updated_tokens(pat, tokens, ad_pub_key)
