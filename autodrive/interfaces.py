@@ -238,7 +238,7 @@ class _RangeInterface(_Interface[int]):
         for i, a in enumerate(alpha_col, start=1):  # type: ignore
             base_idx = string.ascii_uppercase.index(a) + 1  # type: ignore
             remainder = len(alpha_col[i:])
-            values.append(26 ** remainder * base_idx)
+            values.append(26**remainder * base_idx)
         return sum(values) - 1
 
     @staticmethod

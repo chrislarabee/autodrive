@@ -64,7 +64,7 @@ class GSheetView(ABC):
     ) -> FullRange: ...
     @staticmethod
     def _parse_properties(
-        properties: Dict[str, Any]
+        properties: Dict[str, Any],
     ) -> Tuple[str, List[Dict[str, Any]]]: ...
     @classmethod
     def _parse_row_data(

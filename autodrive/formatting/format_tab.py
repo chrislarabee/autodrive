@@ -68,7 +68,7 @@ class TabCellFormatting(CellFormatting):
         *sides: BorderSide,
         style: BorderStyle | None = None,
         color: Color | None = None,
-        rng: FullRange | str | None = None
+        rng: FullRange | str | None = None,
     ) -> TabCellFormatting:
         """
         Queues a request to set the border properties of the Tab's cells (or the
@@ -249,7 +249,7 @@ class TabTextFormatting(TextFormatting):
     def set_alignment(
         self,
         *aligns: HorizontalAlign | VerticalAlign,
-        rng: FullRange | str | None = None
+        rng: FullRange | str | None = None,
     ) -> TabTextFormatting:
         """
         Queues a request to set the horizontal and/or vertical text alignment of

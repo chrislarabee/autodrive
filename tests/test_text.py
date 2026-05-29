@@ -2,7 +2,6 @@ from autodrive.dtypes import AlignCenter, AlignTop
 from autodrive.formatting import _text as text
 from autodrive.interfaces import FullRange, TextFormat, AccountingFormat
 
-
 RNG = FullRange(start_row=0, end_row=3, base0_idxs=True)
 RNG_DICT = {
     "sheetId": 0,

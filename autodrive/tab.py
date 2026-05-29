@@ -180,7 +180,7 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
 
     @staticmethod
     def _unpack_tab_properties(
-        properties: Dict[str, Any]
+        properties: Dict[str, Any],
     ) -> Tuple[str, int, int, int, int]:
         title = str(properties[terms.TAB_NAME])
         index = int(properties[terms.TAB_IDX])
