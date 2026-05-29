@@ -1,6 +1,6 @@
 [project]
 name = "autodrive"
-version = "0.7.0"
+version = "0.7.1"
 description = "Simple but robust tool for interacting with the Google Drive and Sheets apis via python."
 authors = [{name="Chris Larabee"}]
 license = "GNU"
@@ -8,7 +8,7 @@ readme = "README.md"
 keywords = ["google-sheets", "google-drive", "google"]
 
 [tool.poetry]
-package-mode = false
+package-mode = true
 
 [tool.poetry.dependencies]
 python = "^3.10"
