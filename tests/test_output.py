@@ -21,9 +21,9 @@ def read_csv(p: Path) -> List[List[Any]]:
 
 def read_jsonl(p: Path) -> List[Dict[str, Any]]:
     result: List[Dict[str, Any]] = []
-    with jsonlines.open(p, "r") as reader:  # type: ignore
-        for row in reader:  # type: ignore
-            result.append(row)  # type: ignore
+    with jsonlines.open(p, "r") as reader:
+        for row in reader:
+            result.append(row)
     return result
 
 

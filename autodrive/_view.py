@@ -233,7 +233,7 @@ class GSheetView(ABC):
 
     @staticmethod
     def _parse_properties(
-        properties: Dict[str, Any]
+        properties: Dict[str, Any],
     ) -> Tuple[str, List[Dict[str, Any]]]:
         sheet_title = properties[terms.FILE_PROPS][terms.FILE_NAME]
         sheet_props = [sheet[terms.TAB_PROPS] for sheet in properties[terms.TABS_PROP]]
@@ -582,8 +582,8 @@ class Component(GSheetView, Generic[FC, FG, FT]):
             values = self.values
             header = values.pop(header)
         values_dicts = [dict(zip(header, row)) for row in values]
-        with jsonlines.open(p, "w") as writer:  # type: ignore
-            writer.write_all(values_dicts)  # type: ignore
+        with jsonlines.open(p, "w") as writer:
+            writer.write_all(values_dicts)
 
     def _verify_header_len(self, header: Sequence[Any]) -> bool:
         """
