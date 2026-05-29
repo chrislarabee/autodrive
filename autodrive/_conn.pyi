@@ -34,7 +34,7 @@ class Connection(ABC):
     ) -> Dict[str, Any]: ...
     @staticmethod
     def _create_range_tuple_key(
-        input: Dict[str, Any]
+        input: Dict[str, Any],
     ) -> Tuple[Tuple[str, Any], ...]: ...
     @classmethod
     def _preprocess_requests(

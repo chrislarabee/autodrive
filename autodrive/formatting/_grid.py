@@ -54,13 +54,11 @@ def delete_rows(tab_id: int, rng: HalfRange) -> Dict[str, Any]:
 
 
 @overload
-def freeze(tab_id: int, *, rows: int, columns: int | None = None) -> Dict[str, Any]:
-    ...
+def freeze(tab_id: int, *, rows: int, columns: int | None = None) -> Dict[str, Any]: ...
 
 
 @overload
-def freeze(tab_id: int, *, columns: int, rows: int | None = None) -> Dict[str, Any]:
-    ...
+def freeze(tab_id: int, *, columns: int, rows: int | None = None) -> Dict[str, Any]: ...
 
 
 def freeze(

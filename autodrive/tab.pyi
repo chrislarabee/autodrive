@@ -48,7 +48,7 @@ class Tab(Component[TabCellFormatting, TabGridFormatting, TabTextFormatting]):
     def fetch(self) -> Tab: ...
     @staticmethod
     def _unpack_tab_properties(
-        properties: Dict[str, Any]
+        properties: Dict[str, Any],
     ) -> Tuple[str, int, int, int, int]: ...
     @classmethod
     def from_properties(

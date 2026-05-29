@@ -188,7 +188,7 @@ UserEnteredFmt = _Property("userEnteredFormat")
 
 EffectiveFmt = _Property("effectiveFormat")
 """
-The final formatting information about a cell and its values, includes the 
+The final formatting information about a cell and its values, includes the
 effects of conditional formatting and the like.
 """
 
