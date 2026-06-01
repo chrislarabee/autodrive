@@ -17,7 +17,7 @@ if you wish. They should also work in other Python IDEs.
 
 ---
 
-Python 3.8+
+Python 3.10+
 
 ## Installation
 
